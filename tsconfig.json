@@ -33,7 +33,8 @@
       { "name": "ts-plus-server" },
       { "transform": "ts-plus", "transformProgram": true },
       { "transform": "./plugins/reactivity/index.ts" },
-      { "transform": "./plugins/ui/index.ts" }
+      { "transform": "./plugins/ui/index.ts" },
+      { "transform": "typescript-transform-paths" }
     ]
   },
   "include": ["src"]

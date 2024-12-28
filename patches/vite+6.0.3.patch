@@ -1,0 +1,13 @@
+diff --git a/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js b/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js
+index 57759ca..1ac369d 100644
+--- a/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js
++++ b/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js
+@@ -44,6 +44,8 @@ import require$$4$3 from 'assert';
+ import * as qs from 'node:querystring';
+ import { gzip } from 'node:zlib';
+ 
++import structuredClone from "@ungap/structured-clone";
++
+ import { createRequire as __cjs_createRequire } from 'node:module';
+ 
+ const __require = __cjs_createRequire(import.meta.url);
