@@ -1,0 +1,26 @@
+{
+  "Uix If Statement": {
+    "scope": "html",
+    "prefix": "uif",
+    "body": ["<if ${$1}>", "$2", "</if>"],
+    "description": "Uix If Statement"
+  },
+  "Uix Else If Statement": {
+    "scope": "html",
+    "prefix": "uelif",
+    "body": ["<else-if ${$1}>", "$2", "</else-if>"],
+    "description": "Uix Else If Statement"
+  },
+  "Uix Else Statement": {
+    "scope": "html",
+    "prefix": "uelse",
+    "body": ["<else>", "$1", "</else>"],
+    "description": "Uix Else Statement"
+  },
+  "Uix Each Statement": {
+    "scope": "html",
+    "prefix": "ueach",
+    "body": ["<each ${$1}>", "${$2 => $3}", "</each>"],
+    "description": "Uix Else Statement"
+  }
+}
