@@ -2,7 +2,7 @@ import { popComponentContext, pushComponentContext } from './ComponentContext';
 import { addDependency, TrackStack } from '@lib/reactivity';
 import { UINode } from '@lib/ui';
 
-interface Component<T extends (...args: any[]) => UINode> {
+interface Component<T extends (...args: any[]) => UINode = any> {
   create: T;
 }
 

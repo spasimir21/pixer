@@ -7,9 +7,11 @@ function createContextValue<T>(name: string) {
 
   return [
     (): ValueNode<T> => getCurrentComponentContext()!.contextValues.get(contextSymbol)!,
-    (initialValue: T) => {
-      const contextValue = useState(initialValue);
-      getCurrentComponentContext()!.contextValues.set(contextSymbol, contextValue);
+    (getter: (oldValue: T | null) => T) => {
+      const contextValues = getCurrentComponentContext()!.contextValues;
+
+      const contextValue = useState(getter(contextValues.get(contextSymbol)?.value));
+      contextValues.set(contextSymbol, contextValue);
       return contextValue;
     }
   ] as const;
