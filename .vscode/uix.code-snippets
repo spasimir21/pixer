@@ -22,5 +22,20 @@
     "prefix": "ueach",
     "body": ["<each ${$1}>", "${$2 => $3}", "</each>"],
     "description": "Uix Else Statement"
+  },
+  "Uix Component": {
+    "scope": "typescript",
+    "prefix": "component",
+    "body": [
+      "import { Component } from '@lib/component';",
+      "import { html, UINode } from '@lib/ui';",
+      "",
+      "const $1Component = Component((): UINode => {",
+      "  return html``;",
+      "});",
+      "",
+      "export { $1Component };"
+    ],
+    "description": "Uix Component"
   }
 }
