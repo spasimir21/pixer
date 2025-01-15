@@ -1,4 +1,4 @@
-import viteTypescript from './lib/vite-plugin-typescript';
+import viteTypescript from '../lib/vite-plugin-typescript';
 import typescript from 'ts-patch/compiler';
 import { defineConfig } from 'vite';
 import path from 'path';

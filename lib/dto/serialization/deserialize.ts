@@ -1,4 +1,4 @@
-import { createBinaryReader } from '../serialization/BinaryReader';
+import { createBinaryReader } from './BinaryReader';
 import { DTO } from '../DTO';
 
 function deserialize<T>(buffer: ArrayBuffer, dto: DTO<T>) {

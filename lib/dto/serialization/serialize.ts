@@ -1,4 +1,4 @@
-import { createBinaryWriter } from '../serialization/BinaryWriter';
+import { createBinaryWriter } from './BinaryWriter';
 import { DTO } from '../DTO';
 
 function serialize<T>(value: T, dto: DTO<T>) {
