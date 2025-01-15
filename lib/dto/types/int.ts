@@ -1,7 +1,7 @@
 import { DTO } from '../DTO';
 
 interface IntOptions {
-  max: number;
+  max?: number;
   min?: number;
 }
 
@@ -11,7 +11,7 @@ enum IntSize {
   Int32 = 4
 }
 
-function int({ max, min = 0 }: IntOptions): DTO<number> {
+function int({ max = Infinity, min = 0 }: IntOptions = {}): DTO<number> {
   const range = max - min;
 
   // prettier-ignore

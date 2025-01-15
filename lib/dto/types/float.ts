@@ -6,12 +6,12 @@ enum FloatQuality {
 }
 
 interface FloatOptions {
-  max: number;
+  max?: number;
   min?: number;
   quality?: FloatQuality;
 }
 
-const float = ({ max, min = 0, quality = FloatQuality.Normal }: FloatOptions): DTO<number> => ({
+const float = ({ max = Infinity, min = 0, quality = FloatQuality.Normal }: FloatOptions = {}): DTO<number> => ({
   validator: {
     isValid: (value): value is number => typeof value === 'number' && !isNaN(value) && value >= min && value <= max
   },

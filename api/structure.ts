@@ -1,3 +1,6 @@
-import { int } from '@lib/dto';
+import { APIKeystore } from './keystore';
+import { APIUser } from './user';
 
-export {};
+const API_STRUCTURE = [APIUser, APIKeystore] as const;
+
+export { API_STRUCTURE };
