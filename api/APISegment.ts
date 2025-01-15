@@ -1,18 +1,20 @@
 import { DTO } from '@lib/dto';
 
-type APISegment =
-  | {
-      name: string;
-      isAuthenticated?: boolean;
-      input: DTO;
-      output: DTO;
-    }
-  | {
-      name: string;
-      isAuthenticated?: boolean;
-      children: APISegment[];
-    };
+interface APIRoutes {
+  name: string;
+  routes: APISegment[];
+}
 
-const apiSegment = <T extends APISegment>(segment: T) => segment;
+interface APIEndpoint {
+  name: string;
+  isAuthenticated?: boolean;
+  input: DTO;
+  result: DTO;
+}
 
-export { APISegment, apiSegment };
+type APISegment = APIRoutes | APIEndpoint;
+
+const apiEndpoint = <T extends APIEndpoint>(endpoint: T) => endpoint;
+const apiRoutes = <T extends APIRoutes>(routes: T) => routes;
+
+export { APISegment, APIRoutes, APIEndpoint, apiRoutes, apiEndpoint };

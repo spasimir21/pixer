@@ -1,10 +1,10 @@
 import { either, nullable, object } from '@lib/dto';
 import { publicKey } from '../dto/publicKey';
 import { user, username } from './dto/user';
-import { apiSegment } from '../APISegment';
+import { apiEndpoint } from '../APISegment';
 
 // prettier-ignore
-const APIUserGet = apiSegment({
+const APIUserGet = apiEndpoint({
   name: 'get',
   input: either({
     choose: input => 'username' in input ? 0 : 1,
@@ -13,7 +13,7 @@ const APIUserGet = apiSegment({
       object({ publicKey })
     ]
   }),
-  output: nullable(user)
+  result: nullable(user)
 } as const);
 
 export { APIUserGet };

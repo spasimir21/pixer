@@ -1,12 +1,12 @@
 import { encryptedKey } from './dto/encryptedKey';
+import { apiEndpoint } from '../APISegment';
 import { boolean, object } from '@lib/dto';
-import { apiSegment } from '../APISegment';
 
-const APIKeystoreSave = apiSegment({
+const APIKeystoreSave = apiEndpoint({
   name: 'save',
   isAuthenticated: true,
   input: object({ encryptedKey }),
-  output: boolean()
+  result: boolean()
 } as const);
 
 export { APIKeystoreSave };

@@ -1,11 +1,11 @@
+import { apiEndpoint } from '../APISegment';
 import { boolean, object } from '@lib/dto';
-import { apiSegment } from '../APISegment';
 
-const APIKeystoreDelete = apiSegment({
+const APIKeystoreDelete = apiEndpoint({
   name: 'delete',
   isAuthenticated: true,
   input: object({}),
-  output: boolean()
+  result: boolean()
 } as const);
 
 export { APIKeystoreDelete };

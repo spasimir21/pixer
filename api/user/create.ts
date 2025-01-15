@@ -1,15 +1,15 @@
 import { publicKey } from '../dto/publicKey';
 import { nullable, object } from '@lib/dto';
 import { user, username } from './dto/user';
-import { apiSegment } from '../APISegment';
+import { apiEndpoint } from '../APISegment';
 
-const APIUserCreate = apiSegment({
+const APIUserCreate = apiEndpoint({
   name: 'create',
   input: object({
     username,
     publicKey
   }),
-  output: nullable(user)
+  result: nullable(user)
 } as const);
 
 export { APIUserCreate };

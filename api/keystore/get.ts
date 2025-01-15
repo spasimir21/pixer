@@ -1,12 +1,12 @@
 import { encryptedKey } from './dto/encryptedKey';
 import { nullable, object } from '@lib/dto';
-import { apiSegment } from '../APISegment';
+import { apiEndpoint } from '../APISegment';
 import { userId } from '../dto/userId';
 
-const APIKeystoreGet = apiSegment({
+const APIKeystoreGet = apiEndpoint({
   name: 'get',
   input: object({ id: userId }),
-  output: nullable(object({ encryptedKey }))
+  result: nullable(object({ encryptedKey }))
 } as const);
 
 export { APIKeystoreGet };

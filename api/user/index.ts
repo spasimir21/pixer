@@ -1,10 +1,10 @@
-import { apiSegment } from '../APISegment';
+import { apiRoutes } from '../APISegment';
 import { APIUserCreate } from './create';
 import { APIUserGet } from './get';
 
-const APIUser = apiSegment({
+const APIUser = apiRoutes({
   name: 'user',
-  children: [APIUserCreate, APIUserGet]
+  routes: [APIUserCreate, APIUserGet]
 } as const);
 
 export { APIUser };
