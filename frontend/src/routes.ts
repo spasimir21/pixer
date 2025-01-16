@@ -1,11 +1,10 @@
-import { UserPageComponent } from './pages/UserPage';
 import { RouteDefinition } from '@lib/router';
 
 const ROUTES: RouteDefinition[] = [
   {
-    name: 'user',
-    path: '/[id]',
-    component: UserPageComponent
+    name: 'home',
+    path: '/',
+    component: async () => (await import('./pages/HomePage')).default
   }
 ];
 

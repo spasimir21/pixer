@@ -1,10 +1,11 @@
 import { IServiceManager } from './IServiceManager';
 import { cleanup } from '@lib/reactivity';
+import { Service } from '../Service';
 
-const createInstanceManager = <T, TArgs extends any[]>(
+const createInstanceManager = <T extends Service, TArgs extends any[]>(
   getService: (...args: TArgs) => T
 ): IServiceManager<T, TArgs> => ({
-  get(_root, ...args) {
+  get(...args) {
     return {
       service: getService(...args),
       isReleased: false,

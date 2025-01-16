@@ -1,7 +1,8 @@
 import { IServiceManager } from './IServiceManager';
 import { cleanup } from '@lib/reactivity';
+import { Service } from '../Service';
 
-type SingletonInstances<T> = Record<
+type SingletonInstances<T extends Service> = Record<
   string,
   {
     service: T;
@@ -9,18 +10,15 @@ type SingletonInstances<T> = Record<
   }
 >;
 
-function createSingletonManager<T, TArgs extends any[]>(
+function createSingletonManagerInternal<T extends Service, TArgs extends any[]>(
   getService: (...args: TArgs) => T,
   getKey: (...args: TArgs) => string,
   shouldCleanup: boolean
 ): IServiceManager<T, TArgs> {
-  const instancesSymbol = Symbol();
+  const instances: SingletonInstances<T> = {};
 
   return {
-    get(root, ...args) {
-      if (!(instancesSymbol in root)) root[instancesSymbol] = {};
-      const instances: SingletonInstances<T> = root[instancesSymbol];
-
+    get(...args) {
       const key = getKey(...args);
 
       if (!(key in instances))
@@ -50,6 +48,23 @@ function createSingletonManager<T, TArgs extends any[]>(
       };
     }
   };
+}
+
+function createSingletonManager<T extends Service>(getService: () => T, shouldCleanup: boolean): IServiceManager<T, []>;
+function createSingletonManager<T extends Service, TArgs extends any[]>(
+  getService: (...args: TArgs) => T,
+  getKey: (...args: TArgs) => string,
+  shouldCleanup: boolean
+): IServiceManager<T, TArgs>;
+function createSingletonManager(
+  getService: (...args: any[]) => any,
+  getKeyOrShouldCleanup: ((...args: any[]) => string) | boolean,
+  shouldCleanup?: boolean
+): IServiceManager<any, any> {
+  if (typeof getKeyOrShouldCleanup === 'boolean')
+    return createSingletonManagerInternal(getService, () => '', getKeyOrShouldCleanup);
+
+  return createSingletonManagerInternal(getService, getKeyOrShouldCleanup, shouldCleanup!);
 }
 
 export { createSingletonManager };

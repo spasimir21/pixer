@@ -1,7 +1,8 @@
-import { buffer, value } from '@lib/dto';
+import { CRYPTO_CONSTANTS } from '../cryptoConstants';
+import { _const, buffer } from '@lib/dto';
 
 const publicKey = buffer({
-  length: value({ get: () => 1 })
+  length: _const(CRYPTO_CONSTANTS.identityKey.publicKeyLength)
 });
 
 export { publicKey };

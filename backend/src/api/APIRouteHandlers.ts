@@ -1,8 +1,6 @@
 import { APIEndpoint, APIRoutes, APISegment } from '@api/APISegment';
-import { API_STRUCTURE } from '@api/structure';
+import { AuthenticationInfo } from './authentication';
 import { DTOType } from '@lib/dto';
-
-interface AuthenticationInfo {}
 
 type APIEndpointHandler<T extends APIEndpoint> = (
   input: DTOType<T['input']>,
@@ -17,6 +15,4 @@ type APIRouteHandlers<T extends readonly APISegment[]> = {
     : never;
 };
 
-type APIHandlers = APIRouteHandlers<typeof API_STRUCTURE>;
-
-export { APIHandlers, AuthenticationInfo };
+export { APIRouteHandlers, APIEndpointHandler };

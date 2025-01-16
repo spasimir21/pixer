@@ -19,7 +19,7 @@ const buffer = ({ length }: BufferOptions): DTO<ArrayBuffer> => ({
       const buffer = new Uint8Array(writer.buffer);
       const valueBuffer = new Uint8Array(value);
 
-      for (let i = 0; i < value.byteLength; i++) buffer[writer.offset + i] = valueBuffer[i];
+      buffer.set(valueBuffer, writer.offset);
 
       writer.offset += value.byteLength;
     },

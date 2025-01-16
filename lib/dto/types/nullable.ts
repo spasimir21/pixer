@@ -1,11 +1,11 @@
 import { either } from './either';
-import { value } from './value';
+import { _const } from './const';
 import { DTO } from '../DTO';
 
 const nullable = <T>(dto: DTO<T>) =>
   either({
     choose: value => (value === null ? 0 : 1),
-    options: [value({ get: () => null }), dto]
+    options: [_const(null), dto]
   });
 
 export { nullable };

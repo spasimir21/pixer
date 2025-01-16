@@ -1,20 +1,22 @@
 import { IServiceHandle, IServiceManager } from './manager/IServiceManager';
-import { createContextValue, useEffect, useState } from '@lib/component';
-import { runWithoutTracking } from '@lib/reactivity';
+import { useCleanup, useEffect, useState } from '@lib/component';
+import { runWithoutTracking, StateNode } from '@lib/reactivity';
+import { Service } from './Service';
 
-const [useServicesRoot, _useProvideServicesRoot] = createContextValue<any>('servicesRoot');
-
-function useService<T, TArgs extends any[]>(manager: IServiceManager<T, TArgs>, getArgs: () => TArgs) {
-  const root = useServicesRoot();
-
-  const service = useState<T>(null as any);
+function useService$<T extends Service>(manager: IServiceManager<T, []>): StateNode<T>;
+function useService$<T extends Service, TArgs extends any[]>(
+  manager: IServiceManager<T, TArgs>,
+  getArgs: () => TArgs
+): StateNode<T>;
+function useService$(manager: IServiceManager<any, any>, getArgs?: () => any[]) {
+  const service = useState(null as any);
 
   useEffect(() => {
-    const args = getArgs();
+    const args = getArgs ? getArgs() : [];
 
-    let handle: IServiceHandle<T>;
+    let handle: IServiceHandle<any>;
     runWithoutTracking(() => {
-      handle = manager.get($root, ...args);
+      handle = manager.get(...args);
       $service = handle.service;
     });
 
@@ -24,6 +26,17 @@ function useService<T, TArgs extends any[]>(manager: IServiceManager<T, TArgs>, 
   return service;
 }
 
-const useProvideServicesRoot = () => _useProvideServicesRoot(() => ({}));
+function useService<T extends Service>(manager: IServiceManager<T, []>): T;
+function useService<T extends Service, TArgs extends any[]>(
+  manager: IServiceManager<T, TArgs>,
+  getArgs: () => TArgs
+): T;
+function useService(manager: IServiceManager<any, any>, getArgs?: () => any[]) {
+  const handle = manager.get(...(getArgs ? getArgs() : []));
 
-export { useService, useProvideServicesRoot };
+  useCleanup(() => handle.release());
+
+  return handle.service;
+}
+
+export { useService, useService$ };

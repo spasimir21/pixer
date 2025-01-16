@@ -1,4 +1,4 @@
-import { APIHandlers } from './APIHandlers';
+import { APIHandlers } from './index';
 
 const APIKeystoreHandlers: APIHandlers['keystore'] = {
   get: async input => {
