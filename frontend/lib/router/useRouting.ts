@@ -14,12 +14,12 @@ interface Route {
 
 const [useRoute, useProvideRoute] = createContextValue<Route>('route');
 
-type GotoLocation =
+type NavigateLocation =
   | string
   | (({} | { path: string } | { route: string; params?: any }) & { hash?: string; search?: any });
 
 interface Navigation {
-  goto: (location: GotoLocation) => void;
+  navigate: (location: NavigateLocation) => void;
   back: () => void;
   refresh: () => void;
 }
@@ -78,7 +78,7 @@ function useRouting(routes: RouteDefinition[]) {
   const updateRoute = () => ($route = matchRoute(flatRoutes));
 
   useProvideNavigation(() => ({
-    goto: location => {
+    navigate: location => {
       if (typeof location === 'string') {
         history.pushState(null, '', location);
         updateRoute();
@@ -91,7 +91,7 @@ function useRouting(routes: RouteDefinition[]) {
         : 'route' in location ? insertPathParams(flatRoutesByName[location.route].path, location.params ?? {})
         : window.location.pathname;
 
-      path +=
+      let search =
         location.search != null
           ? (location.search instanceof URLSearchParams
               ? location.search
@@ -99,6 +99,9 @@ function useRouting(routes: RouteDefinition[]) {
             ).toString()
           : window.location.search;
 
+      if (search.length > 0 && !search.startsWith('?')) search = '?' + search;
+
+      path += search;
       path += location.hash != null ? `#${location.hash}` : window.location.hash;
 
       history.pushState(null, '', path);
@@ -117,4 +120,4 @@ function useRouting(routes: RouteDefinition[]) {
   useCleanup(() => window.removeEventListener('popstate', updateRoute));
 }
 
-export { useRouting, Route, useRoute, Navigation, useNavigation, GotoLocation };
+export { useRouting, Route, useRoute, Navigation, useNavigation, NavigateLocation };

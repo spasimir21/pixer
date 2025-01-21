@@ -1,11 +1,10 @@
 import { AppComponent } from './App';
+import './index.css';
 
 function mount() {
   const APP = AppComponent.create();
 
-  const root = document.querySelector('#root')!;
-
-  root.appendChild(APP);
+  document.body.appendChild(APP);
 }
 
 window.addEventListener('DOMContentLoaded', mount);

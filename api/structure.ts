@@ -1,6 +1,5 @@
-import { APIKeystore } from './routes/keystore';
 import { APIUser } from './routes/user';
 
-const API_STRUCTURE = [APIUser, APIKeystore] as const;
+const API_STRUCTURE = [APIUser] as const;
 
 export { API_STRUCTURE };

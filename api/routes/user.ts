@@ -1,5 +1,5 @@
-import { user, userId, username } from '../dto/user';
-import { either, nullable, object } from '@lib/dto';
+import { user, userWithEncryptedKeys } from '../dto/user';
+import { boolean, nullable, object } from '@lib/dto';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -8,14 +8,15 @@ const APIUser = apiRoutes({
     {
       name: 'create',
       isAuthenticated: true,
-      input: object({ username }),
-      result: nullable(user)
+      input: userWithEncryptedKeys.without('id'),
+      result: nullable(userWithEncryptedKeys)
     },
     {
       name: 'get',
-      input: either({
-        choose: input => ('username' in input ? 0 : 1),
-        options: [object({ username }), object({ userId })]
+      input: object({
+        userId: nullable(user.id),
+        username: nullable(user.username),
+        includeEncryptedKeys: boolean()
       }),
       result: nullable(user)
     }

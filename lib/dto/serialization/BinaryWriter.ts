@@ -1,5 +1,5 @@
 interface BinaryWriter {
-  buffer: ArrayBuffer;
+  buffer: Uint8Array;
   view: DataView;
   encoder: TextEncoder;
   offset: number;
@@ -10,7 +10,7 @@ function createBinaryWriter(size: number): BinaryWriter {
   const buffer = new ArrayBuffer(size);
 
   return {
-    buffer,
+    buffer: new Uint8Array(buffer),
     view: new DataView(buffer),
     encoder: new TextEncoder(),
     offset: 0,

@@ -21,8 +21,8 @@ type APIResponse<TResult> =
     };
 
 async function sendRequest<TInput, TResult>(
-  input: TInput,
   request: APIRequest<TInput, TResult>,
+  input: TInput,
   origin: string,
   authKey: AuthenticationKey | null
 ): Promise<APIResponse<TResult>> {
@@ -67,7 +67,7 @@ async function sendRequest<TInput, TResult>(
 
     const response = await req.arrayBuffer();
 
-    const result = deserialize(response, request.result);
+    const result = deserialize(new Uint8Array(response), request.result);
     if (!validate(result, request.result)) throw new Error('Server responded with an invalid object!');
 
     return { status, result, error: null };

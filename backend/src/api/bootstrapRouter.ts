@@ -1,6 +1,6 @@
 import { AuthenticationInfo, parseAuthenticatedRequest } from './authentication';
 import { deserialize, serialize, validate } from '@lib/dto';
-import { toArrayBuffer } from '../utils/toArrayBuffer';
+import { toUint8Array } from '../utils/buffer';
 import { APISegment } from '@api/APISegment';
 import { Router } from 'express';
 
@@ -14,7 +14,7 @@ function bootstrapRouter(structure: readonly APISegment[], handlers: any): Route
     }
 
     router.post(`/${segment.name}`, async (req, res) => {
-      let body = toArrayBuffer(req.body);
+      let body = toUint8Array(req.body);
 
       let authenticationInfo: AuthenticationInfo | null = null;
       if (segment.isAuthenticated)
@@ -33,6 +33,7 @@ function bootstrapRouter(structure: readonly APISegment[], handlers: any): Route
         if (!validate(input, segment.input)) throw new Error();
       } catch {
         res.sendStatus(400);
+        return;
       }
 
       const result = await handlers[segment.name](input, authenticationInfo);

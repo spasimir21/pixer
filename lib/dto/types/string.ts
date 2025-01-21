@@ -20,7 +20,7 @@ function string({ length, pattern }: StringOptions): DTO<string> {
     },
     serializer: {
       write: (value, writer) => {
-        const buffer = writer.encoder.encode(value).buffer;
+        const buffer = writer.encoder.encode(value);
         bufferDTO.serializer.write(buffer, writer);
       },
       read: reader => {

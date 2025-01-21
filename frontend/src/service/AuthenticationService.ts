@@ -1,36 +1,48 @@
+import { clearSavedUserId, saveUserId } from '../logic/storage';
 import { createSingletonManager, Service } from '@lib/service';
-import { AuthenticationKey } from '../api/authentication';
-import { CRYPTO_CONSTANTS } from '@api/cryptoConstants';
+import { UserWithEncryptedKeys } from '@api/dto/user';
+import { Reactive, State } from '@lib/reactivity';
+import { UserKeys } from '../logic/crypto';
 
+@Reactive
 class AuthenticationService extends Service {
-  authKey: AuthenticationKey | null = null;
-  isAuthenticated: boolean = false;
+  @State
+  keys: UserKeys | null = null;
 
-  constructor() {
-    super();
+  @State
+  user: UserWithEncryptedKeys | null = null;
 
-    this.authenticate();
+  get isLoggedIn() {
+    return this.user != null;
   }
 
-  private async authenticate() {
-    const key = await crypto.subtle.generateKey(
-      {
-        name: CRYPTO_CONSTANTS.identityKey.algorithm,
-        modulusLength: CRYPTO_CONSTANTS.identityKey.modulusLength,
-        publicExponent: new Uint8Array(CRYPTO_CONSTANTS.identityKey.publicExponent),
-        hash: CRYPTO_CONSTANTS.identityKey.hash
-      },
-      true,
-      ['sign']
-    );
+  get isAuthenticated() {
+    return this.user != null && this.keys != null;
+  }
 
-    const publicKeyBuffer = await crypto.subtle.exportKey(CRYPTO_CONSTANTS.identityKey.publicFormat, key.publicKey);
+  logIn(user: UserWithEncryptedKeys) {
+    this.user = user;
+    this.keys = null;
 
-    this.authKey = { key, publicKeyBuffer };
-    this.isAuthenticated = true;
+    saveUserId(this.user.id);
+  }
+
+  logOut() {
+    this.user = null;
+    this.keys = null;
+
+    clearSavedUserId();
+  }
+
+  authenticate(keys: UserKeys) {
+    this.keys = keys;
+  }
+
+  deauthenticate() {
+    this.keys = null;
   }
 }
 
 const AuthenticationServiceManager = createSingletonManager(() => new AuthenticationService(), false);
 
-export { AuthenticationService, AuthenticationServiceManager };
+export { AuthenticationService, AuthenticationServiceManager, UserKeys };

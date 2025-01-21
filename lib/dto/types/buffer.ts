@@ -4,22 +4,19 @@ interface BufferOptions {
   length: DTO<number>;
 }
 
-const buffer = ({ length }: BufferOptions): DTO<ArrayBuffer> => ({
+const buffer = ({ length }: BufferOptions): DTO<Uint8Array> => ({
   validator: {
-    isValid: (value): value is ArrayBuffer =>
+    isValid: (value): value is Uint8Array =>
       typeof value === 'object' &&
       value !== null &&
-      value instanceof ArrayBuffer &&
+      value instanceof Uint8Array &&
       length.validator.isValid(value.byteLength)
   },
   serializer: {
     write: (value, writer) => {
       length.serializer.write(value.byteLength, writer);
 
-      const buffer = new Uint8Array(writer.buffer);
-      const valueBuffer = new Uint8Array(value);
-
-      buffer.set(valueBuffer, writer.offset);
+      writer.buffer.set(value, writer.offset);
 
       writer.offset += value.byteLength;
     },

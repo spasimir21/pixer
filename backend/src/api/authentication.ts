@@ -1,17 +1,20 @@
 import { CRYPTO_CONSTANTS } from '@api/cryptoConstants';
 
 interface AuthenticationInfo {
-  userId: ArrayBuffer;
+  userId: Uint8Array;
   publicKey: CryptoKey;
-  publicKeyBuffer: ArrayBuffer;
+  publicKeyBuffer: Uint8Array;
 }
 
 interface AuthenticatedRequest {
   authenticationInfo: AuthenticationInfo;
-  data: ArrayBuffer;
+  data: Uint8Array;
 }
 
-async function parseAuthenticatedRequest(body: ArrayBuffer): Promise<AuthenticatedRequest> {
+const getUserId = async (publicKeyBuffer: Uint8Array) =>
+  new Uint8Array(await crypto.subtle.digest(CRYPTO_CONSTANTS.userId.hash, publicKeyBuffer));
+
+async function parseAuthenticatedRequest(body: Uint8Array): Promise<AuthenticatedRequest> {
   const publicKeyLength = CRYPTO_CONSTANTS.identityKey.publicKeyLength;
   const signatureLength = CRYPTO_CONSTANTS.identityKey.signatureLength;
 
@@ -20,10 +23,10 @@ async function parseAuthenticatedRequest(body: ArrayBuffer): Promise<Authenticat
   const data = body.slice(publicKeyLength + signatureLength);
 
   const publicKey = await crypto.subtle.importKey(
-    CRYPTO_CONSTANTS.identityKey.publicFormat,
-    new Uint8Array(publicKeyBuffer),
+    'spki',
+    publicKeyBuffer,
     {
-      name: CRYPTO_CONSTANTS.identityKey.algorithm,
+      name: 'RSA-PSS',
       hash: CRYPTO_CONSTANTS.identityKey.hash
     },
     false,
@@ -31,7 +34,7 @@ async function parseAuthenticatedRequest(body: ArrayBuffer): Promise<Authenticat
   );
 
   const isValid = await crypto.subtle.verify(
-    { name: CRYPTO_CONSTANTS.identityKey.algorithm, saltLength: CRYPTO_CONSTANTS.identityKey.saltLength },
+    { name: 'RSA-PSS', saltLength: CRYPTO_CONSTANTS.identityKey.saltLength },
     publicKey,
     signature,
     data
@@ -39,11 +42,9 @@ async function parseAuthenticatedRequest(body: ArrayBuffer): Promise<Authenticat
 
   if (!isValid) throw new Error('Unauthorized');
 
-  const userId = await crypto.subtle.digest(CRYPTO_CONSTANTS.userId.hash, publicKeyBuffer);
-
   return {
     authenticationInfo: {
-      userId,
+      userId: await getUserId(publicKeyBuffer),
       publicKey,
       publicKeyBuffer
     },
@@ -51,4 +52,4 @@ async function parseAuthenticatedRequest(body: ArrayBuffer): Promise<Authenticat
   };
 }
 
-export { parseAuthenticatedRequest, AuthenticationInfo, AuthenticatedRequest };
+export { parseAuthenticatedRequest, getUserId, AuthenticationInfo, AuthenticatedRequest };
