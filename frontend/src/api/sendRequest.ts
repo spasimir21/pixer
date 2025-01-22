@@ -34,7 +34,7 @@ async function sendRequest<TInput, TResult>(
         return {
           status: {
             ok: false,
-            code: 403,
+            code: 401,
             message: 'Unauthorized'
           },
           result: null,

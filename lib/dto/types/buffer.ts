@@ -23,7 +23,7 @@ const buffer = ({ length }: BufferOptions): DTO<Uint8Array> => ({
     read: reader => {
       const size = length.serializer.read(reader);
 
-      const value = reader.buffer.slice(reader.offset, reader.offset + size);
+      const value = reader.buffer.subarray(reader.offset, reader.offset + size);
       reader.offset += size;
 
       return value;

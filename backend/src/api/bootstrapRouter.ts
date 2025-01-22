@@ -21,9 +21,9 @@ function bootstrapRouter(structure: readonly APISegment[], handlers: any): Route
         try {
           const authenticatedRequest = await parseAuthenticatedRequest(body);
           authenticationInfo = authenticatedRequest.authenticationInfo;
-          body = authenticatedRequest.data;
+          body = authenticatedRequest.body;
         } catch {
-          res.sendStatus(403);
+          res.sendStatus(401);
           return;
         }
 

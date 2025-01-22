@@ -9,8 +9,28 @@ async function encodeAuthenticatedRequest(
   body: Uint8Array,
   { identityKey, identityPublicKeyBuffer }: AuthenticationKey
 ) {
-  const newBody = new Uint8Array(
-    identityPublicKeyBuffer.byteLength + CRYPTO_CONSTANTS.identityKey.signatureLength + body.byteLength
+  const signatureLength = CRYPTO_CONSTANTS.identityKey.signatureLength;
+  const identityKeyLength = identityPublicKeyBuffer.byteLength;
+  const timestampLength = 8;
+
+  // prettier-ignore
+  const request = new Uint8Array(
+    signatureLength +
+    identityKeyLength +
+    timestampLength +
+    body.byteLength
+  );
+
+  const requestView = new DataView(request.buffer, request.byteOffset, request.byteLength);
+
+  request.set(identityPublicKeyBuffer, signatureLength);
+  requestView.setBigUint64(signatureLength + identityKeyLength, BigInt(Date.now()));
+  request.set(body, signatureLength + identityKeyLength + timestampLength);
+
+  const toBeSigned = new Uint8Array(
+    request.buffer,
+    request.byteOffset + signatureLength,
+    request.byteLength - signatureLength
   );
 
   const signature = await crypto.subtle.sign(
@@ -19,14 +39,12 @@ async function encodeAuthenticatedRequest(
       saltLength: CRYPTO_CONSTANTS.identityKey.saltLength
     },
     identityKey.privateKey,
-    body
+    toBeSigned
   );
 
-  newBody.set(identityPublicKeyBuffer, 0);
-  newBody.set(new Uint8Array(signature), identityPublicKeyBuffer.byteLength);
-  newBody.set(body, identityPublicKeyBuffer.byteLength + signature.byteLength);
+  request.set(new Uint8Array(signature), 0);
 
-  return newBody;
+  return request;
 }
 
 export { encodeAuthenticatedRequest, AuthenticationKey };

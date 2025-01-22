@@ -1,10 +1,10 @@
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
+import { importUserEncryptedKeys } from '../../logic/crypto';
 import { useNavigation, useRoute } from '@lib/router';
 import LoadingPageComponent from '../LoadingPage';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
-import { importUserEncryptedKeys } from '../../logic/crypto';
 
 const PasswordPageComponent = Component((): UINode => {
   const [LoadingPage] = useChildComponents(LoadingPageComponent);

@@ -1,30 +1,39 @@
 import { CRYPTO_CONSTANTS } from '@api/cryptoConstants';
 
+const MAX_TIMESTAMP_DIFFERENCE = Number(process.env.AUTH_MAX_TIMESTAMP_DIFFERENCE ?? '60000'); // 1m
+
 interface AuthenticationInfo {
   userId: Uint8Array;
-  publicKey: CryptoKey;
-  publicKeyBuffer: Uint8Array;
+  identityKey: CryptoKey;
+  identityKeyBuffer: Uint8Array;
+  timestamp: number;
 }
 
 interface AuthenticatedRequest {
   authenticationInfo: AuthenticationInfo;
-  data: Uint8Array;
+  body: Uint8Array;
 }
 
-const getUserId = async (publicKeyBuffer: Uint8Array) =>
-  new Uint8Array(await crypto.subtle.digest(CRYPTO_CONSTANTS.userId.hash, publicKeyBuffer));
+const getUserId = async (identityKeyBuffer: Uint8Array) =>
+  new Uint8Array(await crypto.subtle.digest(CRYPTO_CONSTANTS.userId.hash, identityKeyBuffer));
 
-async function parseAuthenticatedRequest(body: Uint8Array): Promise<AuthenticatedRequest> {
-  const publicKeyLength = CRYPTO_CONSTANTS.identityKey.publicKeyLength;
+async function parseAuthenticatedRequest(request: Uint8Array): Promise<AuthenticatedRequest> {
+  const identityKeyLength = CRYPTO_CONSTANTS.identityKey.publicKeyLength;
   const signatureLength = CRYPTO_CONSTANTS.identityKey.signatureLength;
+  const timestampLength = 8;
 
-  const publicKeyBuffer = body.slice(0, publicKeyLength);
-  const signature = body.slice(publicKeyLength, publicKeyLength + signatureLength);
-  const data = body.slice(publicKeyLength + signatureLength);
+  const requestView = new DataView(request.buffer, request.byteOffset, request.byteLength);
 
-  const publicKey = await crypto.subtle.importKey(
+  const signature = request.subarray(0, signatureLength);
+  const identityKeyBuffer = request.subarray(signatureLength, signatureLength + identityKeyLength);
+  const timestamp = Number(requestView.getBigUint64(signatureLength + identityKeyLength));
+  const body = request.subarray(signatureLength + identityKeyLength + timestampLength);
+
+  if (Math.abs(Date.now() - timestamp) > MAX_TIMESTAMP_DIFFERENCE) throw new Error('Unauthorized');
+
+  const identityKey = await crypto.subtle.importKey(
     'spki',
-    publicKeyBuffer,
+    identityKeyBuffer,
     {
       name: 'RSA-PSS',
       hash: CRYPTO_CONSTANTS.identityKey.hash
@@ -33,22 +42,25 @@ async function parseAuthenticatedRequest(body: Uint8Array): Promise<Authenticate
     ['verify']
   );
 
+  const toBeVerified = request.subarray(signatureLength);
+
   const isValid = await crypto.subtle.verify(
     { name: 'RSA-PSS', saltLength: CRYPTO_CONSTANTS.identityKey.saltLength },
-    publicKey,
+    identityKey,
     signature,
-    data
+    toBeVerified
   );
 
   if (!isValid) throw new Error('Unauthorized');
 
   return {
     authenticationInfo: {
-      userId: await getUserId(publicKeyBuffer),
-      publicKey,
-      publicKeyBuffer
+      userId: await getUserId(identityKeyBuffer),
+      identityKey,
+      identityKeyBuffer,
+      timestamp
     },
-    data
+    body
   };
 }
 
