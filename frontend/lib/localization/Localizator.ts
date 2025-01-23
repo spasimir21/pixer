@@ -17,6 +17,7 @@ class Localizator<TLang extends string = string, T extends FlatTranslations = Fl
 
   constructor(public readonly config: LocalizatorConfig<TLang, T>) {
     this.language = config.defaultLanguage;
+    this.loadLanguage();
   }
 
   @Effect<Localizator>({ track: l => l.language })
@@ -37,7 +38,9 @@ class Localizator<TLang extends string = string, T extends FlatTranslations = Fl
 
   getTranslation(key: keyof T) {
     return (
-      (this.loadedTranslations[this.language] ?? this.loadedTranslations[this.config.defaultLanguage])?.[key] ?? key
+      this.loadedTranslations[this.language]?.[key] ??
+      this.loadedTranslations[this.config.defaultLanguage]?.[key] ??
+      key
     );
   }
 }

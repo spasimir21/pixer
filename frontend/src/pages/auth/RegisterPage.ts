@@ -1,9 +1,11 @@
 import { exportUserEncryptedKeys, exportUserPublicKeys, generateUserKeys } from '../../logic/crypto';
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
+import { useLocalization } from '../../service/LocalizationService';
 import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { APIServiceManager } from '../../service/APIService';
 import LoadingPageComponent from '../LoadingPage';
+import { TranslationKey } from '../../lang/en';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
@@ -16,6 +18,7 @@ const RegisterPageComponent = Component((): UINode => {
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
   const { navigate } = useNavigation();
+  const l = useLocalization();
   const route = useRoute();
 
   if (authService.isLoggedIn) {
@@ -33,15 +36,15 @@ const RegisterPageComponent = Component((): UINode => {
     return LoadingPage();
   }
 
-  useTitle('PiXer - Register');
+  useTitle(() => `${l('pixer.title')} - ${l('register.title')}`);
 
   const formData = useState({
     username: '',
     password: ''
   });
 
+  const errorKey = useState<TranslationKey | null>(null);
   const isLoading = useState(false);
-  const error = useState('');
 
   const isUsernameValid = useComputed(() => validate($formData.username.trim(), user.username));
 
@@ -53,7 +56,7 @@ const RegisterPageComponent = Component((): UINode => {
     if (!$canRegister) return;
 
     $isLoading = true;
-    $error = '';
+    $errorKey = null;
 
     const keys = await generateUserKeys();
 
@@ -75,7 +78,7 @@ const RegisterPageComponent = Component((): UINode => {
     $isLoading = false;
 
     if (registerResponse.error || registerResponse.result == null) {
-      $error = 'This user already exists!';
+      $errorKey = 'register.error';
       return;
     }
 
@@ -91,15 +94,17 @@ const RegisterPageComponent = Component((): UINode => {
     <div class="fixed w-screen h-screen top-0 left-0 flex flex-col items-center justify-around">
       <div class="flex flex-col gap-3 items-center">
         <div class="flex items-center gap-3">
-          <img class="w-10" src="/assets/logo.png" alt="PiXer Logo" />
-          <h1 class="text-5xl font-bold">PiXer</h1>
+          <img class="w-10" src="/assets/logo.png" />
+          <h1 class="text-5xl font-bold">${l('pixer.title')}</h1>
         </div>
-        <h3 class="text-xl text-gray-700 italic">Create your new account</h3>
+        <h3 class="text-xl text-gray-700 italic">${l('register.description')}</h3>
       </div>
       <div class="flex flex-col gap-8 items-center">
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-1">
-            <p class=${`text-lg italic ${$shouldUsernameBeRed ? 'text-red-600' : 'text-gray-700'}`}>Username</p>
+            <p class=${`text-lg italic ${$shouldUsernameBeRed ? 'text-red-600' : 'text-gray-700'}`}>
+              ${l('register.username')}
+            </p>
             <input
               type="text"
               class=${`${
@@ -108,7 +113,7 @@ const RegisterPageComponent = Component((): UINode => {
               :value#=${$formData.username} />
           </div>
           <div class="flex flex-col gap-1">
-            <p class="text-lg italic text-gray-700">Password</p>
+            <p class="text-lg italic text-gray-700">${l('register.password')}</p>
             <input
               type="password"
               class="border-gray-600 border-2 rounded-lg text-xl outline-none px-2 py-1"
@@ -120,14 +125,14 @@ const RegisterPageComponent = Component((): UINode => {
           .cursor-pointer=${$canRegister}
           .opacity-75=${!$canRegister}
           @click=${register}>
-          Register
+          ${l('register.register')}
         </button>
-        <p class="italic text-red-600 h-0">${$error}</p>
+        <p class="italic text-red-600 h-0">${$errorKey ? l($errorKey!) : ''}</p>
       </div>
       <p
         class="underline italic text-gray-600 text-lg cursor-pointer"
         @click=${() => navigate({ route: 'auth.login' })}>
-        Or log into your account
+        ${l('register.logInText')}
       </p>
     </div>
   `;

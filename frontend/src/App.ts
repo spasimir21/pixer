@@ -1,6 +1,6 @@
 import { AuthenticationServiceManager } from './service/AuthenticationService';
 import { Component, useChildComponents, useState } from '@lib/component';
-import { clearSavedUserId, getSavedUserId } from './logic/storage';
+import { useLanguage } from './service/LocalizationService';
 import { OutletComponent, useRouting } from '@lib/router';
 import { APIServiceManager } from './service/APIService';
 import LoadingPageComponent from './pages/LoadingPage';
@@ -17,8 +17,9 @@ const AppComponent = Component((): UINode => {
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
+  const language = useLanguage();
 
-  const savedUserId = getSavedUserId();
+  const savedUserId = authService.getSavedUserId();
 
   const isLoadingUser = useState(savedUserId != null);
 
@@ -33,8 +34,13 @@ const AppComponent = Component((): UINode => {
         $isLoadingUser = false;
 
         if (!error && user) authService.logIn(user as UserWithEncryptedKeys);
-        else clearSavedUserId();
+        else authService.logOut();
       });
+
+  window.addEventListener('keydown', e => {
+    if (!e.altKey || e.code !== 'KeyL') return;
+    $language = $language === 'en' ? 'bg' : 'en';
+  });
 
   return html`
     <if ${$isLoadingUser}> ${LoadingPage()} </if>

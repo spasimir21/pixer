@@ -93,8 +93,8 @@ const ProfileIconUploadComponent = Component((): UINode => {
   return html`
     <img
       src=${$profileIconSrc ?? '/assets/blank.png'}
-      alt="Profile Icon"
       class="w-1/2 max-w-48 aspect-square rounded-full object-cover bg-gray-300"
+      .cursor-pointer=${!$isLoading}
       .brightness-75=${$isLoading}
       @click=${changeProfileIcon} />
   `;

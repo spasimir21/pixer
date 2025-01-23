@@ -1,9 +1,11 @@
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
+import { useLocalization } from '../../service/LocalizationService';
 import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { importUserEncryptedKeys } from '../../logic/crypto';
 import LoadingPageComponent from '../LoadingPage';
+import { TranslationKey } from '../../lang/en';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 
@@ -12,6 +14,7 @@ const PasswordPageComponent = Component((): UINode => {
 
   const authService = useService(AuthenticationServiceManager);
   const { navigate } = useNavigation();
+  const l = useLocalization();
   const route = useRoute();
 
   if (!authService.isLoggedIn) {
@@ -34,12 +37,12 @@ const PasswordPageComponent = Component((): UINode => {
     return LoadingPage();
   }
 
-  useTitle('PiXer - Password');
+  useTitle(() => `${l('pixer.title')} - ${l('password.title')} (${authService.user?.username})`);
 
-  const password = useState('password1234');
+  const password = useState('');
 
+  const errorKey = useState<TranslationKey | null>(null);
   const isLoading = useState(false);
-  const error = useState('');
 
   const canEnter = useComputed(() => !$isLoading && $password.trim().length > 3);
 
@@ -47,7 +50,7 @@ const PasswordPageComponent = Component((): UINode => {
     if (!$canEnter) return;
 
     $isLoading = true;
-    $error = '';
+    $errorKey = null;
 
     try {
       const keys = await importUserEncryptedKeys(
@@ -60,7 +63,7 @@ const PasswordPageComponent = Component((): UINode => {
 
       navigate($route.search.get('redirectTo') ?? '/');
     } catch {
-      $error = 'Incorrect password!';
+      $errorKey = 'password.error';
     }
 
     $isLoading = false;
@@ -77,16 +80,18 @@ const PasswordPageComponent = Component((): UINode => {
     });
   };
 
+  // TODO: remove
+  $password = 'password1234';
   enter();
 
   return html`
     <div class="fixed w-screen h-screen top-0 left-0 flex flex-col items-center justify-around">
       <div class="flex flex-col gap-3 items-center">
         <div class="flex items-center gap-3">
-          <img class="w-10" src="/assets/logo.png" alt="PiXer Logo" />
-          <h1 class="text-5xl font-bold">PiXer</h1>
+          <img class="w-10" src="/assets/logo.png" />
+          <h1 class="text-5xl font-bold">${l('pixer.title')}</h1>
         </div>
-        <h3 class="text-xl text-gray-700 italic">Enter your password</h3>
+        <h3 class="text-xl text-gray-700 italic">${l('password.description')}</h3>
       </div>
       <div class="flex flex-col gap-6 items-center">
         <div class="flex items-center gap-4 self-stretch">
@@ -97,25 +102,27 @@ const PasswordPageComponent = Component((): UINode => {
           })}
 
           <div class="flex flex-col">
-            <p class="text-xl text-gray-700 italic">Logged in as</p>
+            <p class="text-xl text-gray-700 italic">${l('password.loggedInAs')}</p>
             <p class="text-xl text-black font-bold">${authService.user?.username}</p>
           </div>
         </div>
         <input
           type="password"
           class="border-gray-600 border-2 rounded-lg text-xl outline-none px-2 py-1"
-          placeholder="Password"
+          placeholder=${l('password.password')}
           :value#=${$password} />
         <button
           class="outline-none bg-gray-300 text-gray-800 text-xl rounded-lg py-2 w-1/2"
           .cursor-pointer=${$canEnter}
           .opacity-75=${!$canEnter}
           @click=${enter}>
-          Enter
+          ${l('password.enter')}
         </button>
-        <p class="italic text-red-600 h-0">${$error}</p>
+        <p class="italic text-red-600 h-0">${$errorKey ? l($errorKey!) : ''}</p>
       </div>
-      <p class="underline italic text-gray-600 text-lg cursor-pointer" @click=${logout}>Or try a different account</p>
+      <p class="underline italic text-gray-600 text-lg cursor-pointer" @click=${logout}>
+        ${l('password.tryADifferentAccountText')}
+      </p>
     </div>
   `;
 });
