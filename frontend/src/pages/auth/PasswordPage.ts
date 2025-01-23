@@ -92,6 +92,7 @@ const PasswordPageComponent = Component((): UINode => {
         <div class="flex items-center gap-4 self-stretch">
           ${ProfileIcon({
             userId: () => authService.user?.id ?? null,
+            invalidatable: true,
             classes: 'w-14 h-14'
           })}
 

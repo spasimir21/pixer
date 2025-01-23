@@ -23,6 +23,7 @@ const HomePageComponent = Component((): UINode => {
           <div class="w-9 h-9" @click=${() => navigate({ route: 'user.profile' })}>
             ${ProfileIcon({
               userId: () => authService.user?.id ?? null,
+              invalidatable: true,
               classes: 'w-9 h-9'
             })}
           </div>

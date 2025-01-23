@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Bytes            @id
+  username        String           @unique
+
+  identityKey     Bytes            @unique
+  encryptionKey   Bytes            @unique
+  encryptedKeys   EncryptedKeys?
+}
+
+model EncryptedKeys {
+  userId            Bytes   @id
+  user              User    @relation(fields: [userId], references: [id])
+
+  passwordSalt      Bytes
+
+  identityKey       Bytes
+  identityKeyIv     Bytes
+
+  encryptionKey     Bytes
+  encryptionKeyIv   Bytes
+}

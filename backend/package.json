@@ -1,11 +1,13 @@
 {
   "dependencies": {
     "@aws-sdk/client-s3": "^3.732.0",
-    "@aws-sdk/s3-presigned-post": "^3.733.0",
     "@aws-sdk/s3-request-presigner": "^3.733.0",
+    "@prisma/client": "^6.2.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "mongoose": "^8.9.5"
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.2.1"
   }
 }

@@ -8,8 +8,11 @@ class B2Service extends Service {
     super();
   }
 
-  profileIcon(hexId: string) {
-    return `https://profile-icons.${this.b2Origin}/${hexId}?temp=${this.profileIconTemp}`;
+  profileIcon(hexId: string, fullSize = false, invalidatable = false) {
+    return (
+      `https://profile-icons.${this.b2Origin}/${fullSize ? 'full' : 'small'}/${hexId}` +
+      (invalidatable ? `?temp=${this.profileIconTemp}` : '')
+    );
   }
 
   invalidateProfileIcons() {

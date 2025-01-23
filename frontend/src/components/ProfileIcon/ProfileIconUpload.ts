@@ -25,7 +25,7 @@ const ProfileIconUploadComponent = Component((): UINode => {
     const hexId = toHex(authService.user.id);
 
     const image = document.createElement('img');
-    image.src = b2Service.profileIcon(hexId);
+    image.src = b2Service.profileIcon(hexId, true, true);
 
     image.onload = () => ($profileIconSrc = image.src);
     image.onerror = () => ($profileIconSrc = '/assets/profile.png');
@@ -53,21 +53,27 @@ const ProfileIconUploadComponent = Component((): UINode => {
         originalImage.src = fileReader.result;
 
         originalImage.onload = async () => {
-          const blob = await resizeAndCropImage(originalImage, 'rgb(209 213 219)', { width: 200, height: 200 });
-          if (blob == null) return;
+          const fullBlob = await resizeAndCropImage(originalImage, 'rgb(209 213 219)', { width: 200, height: 200 });
+          if (fullBlob == null) return;
+
+          const smallBlob = await resizeAndCropImage(originalImage, 'rgb(209 213 219)', { width: 36, height: 36 });
+          if (smallBlob == null) return;
 
           const prevProfileIconSrc = $profileIconSrc;
-          $profileIconSrc = URL.createObjectURL(blob);
+          $profileIconSrc = URL.createObjectURL(fullBlob);
 
           $isLoading = true;
 
           const uploadResponse = await apiService.send(requests.user.uploadProfileIcon, {
-            fileSize: blob.size
+            fullFileSize: fullBlob.size,
+            smallFileSize: smallBlob.size
           });
 
           let didSucceed = false;
-          if (uploadResponse.error == null && uploadResponse.result?.uploadUrl != null)
-            didSucceed = await b2Service.upload(uploadResponse.result.uploadUrl, blob);
+          if (uploadResponse.error == null && uploadResponse.result != null)
+            didSucceed =
+              (await b2Service.upload(uploadResponse.result.fullUploadUrl, fullBlob)) &&
+              (await b2Service.upload(uploadResponse.result.smallUploadUrl, smallBlob));
 
           if (didSucceed) {
             URL.revokeObjectURL(prevProfileIconSrc ?? '');

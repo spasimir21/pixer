@@ -24,11 +24,15 @@ const APIUser = apiRoutes({
       name: 'uploadProfileIcon',
       isAuthenticated: true,
       input: object({
-        fileSize: int({ max: 256 * 1000 }) // 256 kB
+        fullFileSize: int({ max: 256 * 1000 }), // 256 kB
+        smallFileSize: int({ max: 16 * 1000 }) // 16 kB
       }),
-      result: object({
-        uploadUrl: nullable(string())
-      })
+      result: nullable(
+        object({
+          fullUploadUrl: string(),
+          smallUploadUrl: string()
+        })
+      )
     }
   ]
 } as const);

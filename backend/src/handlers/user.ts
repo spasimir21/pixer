@@ -1,15 +1,14 @@
-import { deepToBuffer, deepToUint8Array, toBuffer } from '../utils/buffer';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { User } from '../database/schema/User';
+import { b2Client } from '../data/b2Client';
+import { dbClient } from '../data/dbClient';
 import { toHex } from '@lib/utils/hex';
 import { APIHandlers } from './index';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { b2Client } from '../database/b2';
 
 const APIUserHandlers: APIHandlers['user'] = {
   create: async (input, auth) => {
-    const existingUser = await User.findOne({ username: input.username });
+    const existingUser = await dbClient.user.findFirst({ where: { username: input.username } });
     if (existingUser != null) return null;
 
     const user: UserWithEncryptedKeys = {
@@ -17,39 +16,61 @@ const APIUserHandlers: APIHandlers['user'] = {
       ...input
     };
 
-    await User.create(deepToBuffer(user));
+    await dbClient.user.create({
+      data: {
+        id: user.id,
+        username: user.username,
+        ...user.publicKeys,
+        encryptedKeys: { create: user.encryptedKeys }
+      }
+    });
 
     return user;
   },
   get: async ({ userId, username, includeEncryptedKeys }) => {
     if (userId == null && username == null) return null;
 
-    const user = await User.findOne(
-      userId != null ? { id: toBuffer(userId) } : { username },
-      includeEncryptedKeys ? undefined : '-encryptedKeys'
-    );
+    const user = await dbClient.user.findFirst({
+      where: userId == null ? { username: username! } : { id: userId },
+      include: {
+        encryptedKeys: includeEncryptedKeys ? { omit: { userId: true } } : false
+      }
+    });
 
     if (user == null) return null;
 
-    return deepToUint8Array({
+    return {
       id: user.id,
       username: user.username,
-      publicKeys: user.publicKeys,
-      encryptedKeys: user.encryptedKeys ?? null
-    });
+      publicKeys: {
+        identityKey: user.identityKey,
+        encryptionKey: user.encryptionKey
+      },
+      encryptedKeys: user.encryptedKeys
+    };
   },
-  uploadProfileIcon: async ({ fileSize }, { userId }) => {
-    const command = new PutObjectCommand({
+  uploadProfileIcon: async ({ fullFileSize, smallFileSize }, { userId }) => {
+    const fullSizeCommand = new PutObjectCommand({
       Bucket: 'profile-icons',
-      Key: toHex(userId),
+      Key: `full/${toHex(userId)}`,
       ContentType: 'image/png',
-      ContentLength: fileSize
+      ContentLength: fullFileSize
+    });
+
+    const smallSizeCommand = new PutObjectCommand({
+      Bucket: 'profile-icons',
+      Key: `small/${toHex(userId)}`,
+      ContentType: 'image/png',
+      ContentLength: smallFileSize
     });
 
     try {
-      return { uploadUrl: await getSignedUrl(b2Client, command, { expiresIn: 60 }) };
+      return {
+        fullUploadUrl: await getSignedUrl(b2Client, fullSizeCommand, { expiresIn: 60 }),
+        smallUploadUrl: await getSignedUrl(b2Client, smallSizeCommand, { expiresIn: 60 })
+      };
     } catch {
-      return { uploadUrl: null };
+      return null;
     }
   }
 };
