@@ -37,5 +37,11 @@
       "export { $1Component };"
     ],
     "description": "Uix Component"
+  },
+  "Uix Localization": {
+    "scope": "html",
+    "prefix": "lang",
+    "body": ["${l($1)}"],
+    "description": "Uix Localization"
   }
 }

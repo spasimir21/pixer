@@ -1,9 +1,11 @@
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
+import { useLocalization } from '../../service/LocalizationService';
 import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { APIServiceManager } from '../../service/APIService';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import LoadingPageComponent from '../LoadingPage';
+import { TranslationKey } from '../../lang/en';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
@@ -14,6 +16,7 @@ const LoginPageComponent = Component((): UINode => {
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
   const { navigate } = useNavigation();
+  const l = useLocalization();
   const route = useRoute();
 
   if (authService.isLoggedIn) {
@@ -35,8 +38,8 @@ const LoginPageComponent = Component((): UINode => {
 
   const username = useState('');
 
+  const errorKey = useState<TranslationKey | null>(null);
   const isLoading = useState(false);
-  const error = useState('');
 
   const canLogin = useComputed(() => !$isLoading && $username.trim().length >= 3);
 
@@ -44,7 +47,7 @@ const LoginPageComponent = Component((): UINode => {
     if (!$canLogin) return;
 
     $isLoading = true;
-    $error = '';
+    $errorKey = null;
 
     const loginResponse = await apiService.send(requests.user.get, {
       userId: null,
@@ -55,7 +58,7 @@ const LoginPageComponent = Component((): UINode => {
     $isLoading = false;
 
     if (loginResponse.error || loginResponse.result == null) {
-      $error = 'No such user exists!';
+      $errorKey = 'login.error';
       return;
     }
 
@@ -70,13 +73,13 @@ const LoginPageComponent = Component((): UINode => {
       <div class="flex flex-col gap-3 items-center">
         <div class="flex items-center gap-3">
           <img class="w-10" src="/assets/logo.png" alt="PiXer Logo" />
-          <h1 class="text-5xl font-bold">PiXer</h1>
+          <h1 class="text-5xl font-bold">${l('pixer')}</h1>
         </div>
-        <h3 class="text-xl text-gray-700 italic">Log into your account</h3>
+        <h3 class="text-xl text-gray-700 italic">${l('login.description')}</h3>
       </div>
       <div class="flex flex-col gap-6 items-center">
         <div class="flex flex-col gap-1">
-          <p class="text-lg italic text-gray-700">Username</p>
+          <p class="text-lg italic text-gray-700">${l('login.username')}</p>
           <input
             type="text"
             class="border-gray-600 border-2 rounded-lg text-xl outline-none px-2 py-1"
@@ -87,14 +90,14 @@ const LoginPageComponent = Component((): UINode => {
           .cursor-pointer=${$canLogin}
           .opacity-75=${!$canLogin}
           @click=${login}>
-          Log in
+          ${l('login.logIn')}
         </button>
-        <p class="italic text-red-600 h-0">${$error}</p>
+        <p class="italic text-red-600 h-0">${$errorKey ? l($errorKey!) : ''}</p>
       </div>
       <p
         class="underline italic text-gray-600 text-lg cursor-pointer"
         @click=${() => navigate({ route: 'auth.register' })}>
-        Or create an account
+        ${l('login.createAccountText')}
       </p>
     </div>
   `;
