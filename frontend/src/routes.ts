@@ -14,20 +14,28 @@ const ROUTES: RouteDefinition[] = [
       {
         name: 'login',
         path: '/login',
-        title: 'PiXer - Login',
         component: async () => (await import('./pages/auth/LoginPage')).default
       },
       {
         name: 'register',
         path: '/register',
-        title: 'PiXer - Register',
         component: async () => (await import('./pages/auth/RegisterPage')).default
       },
       {
         name: 'password',
         path: '/password',
-        title: 'PiXer - Password',
         component: async () => (await import('./pages/auth/PasswordPage')).default
+      }
+    ]
+  },
+  {
+    name: 'user',
+    path: '/user',
+    children: [
+      {
+        name: 'profile',
+        path: '/profile',
+        component: async () => (await import('./pages/user/ProfilePage')).default
       }
     ]
   },

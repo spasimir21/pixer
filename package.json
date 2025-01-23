@@ -8,12 +8,6 @@
     "backend": "cd backend && nodemon .",
     "postinstall": "patch-package"
   },
-  "dependencies": {
-    "body-parser": "^1.20.3",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "mongoose": "^8.9.5"
-  },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",

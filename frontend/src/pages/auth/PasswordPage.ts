@@ -1,13 +1,14 @@
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
+import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
+import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { importUserEncryptedKeys } from '../../logic/crypto';
-import { useNavigation, useRoute } from '@lib/router';
 import LoadingPageComponent from '../LoadingPage';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 
 const PasswordPageComponent = Component((): UINode => {
-  const [LoadingPage] = useChildComponents(LoadingPageComponent);
+  const [LoadingPage, ProfileIcon] = useChildComponents(LoadingPageComponent, ProfileIconComponent);
 
   const authService = useService(AuthenticationServiceManager);
   const { navigate } = useNavigation();
@@ -33,7 +34,9 @@ const PasswordPageComponent = Component((): UINode => {
     return LoadingPage();
   }
 
-  const password = useState('');
+  useTitle('PiXer - Password');
+
+  const password = useState('password1234');
 
   const isLoading = useState(false);
   const error = useState('');
@@ -74,18 +77,24 @@ const PasswordPageComponent = Component((): UINode => {
     });
   };
 
+  enter();
+
   return html`
     <div class="fixed w-screen h-screen top-0 left-0 flex flex-col items-center justify-around">
       <div class="flex flex-col gap-3 items-center">
         <div class="flex items-center gap-3">
-          <img class="w-10" src="/icon.png" alt="PiXer Logo" />
+          <img class="w-10" src="/assets/logo.png" alt="PiXer Logo" />
           <h1 class="text-5xl font-bold">PiXer</h1>
         </div>
         <h3 class="text-xl text-gray-700 italic">Enter your password</h3>
       </div>
       <div class="flex flex-col gap-6 items-center">
         <div class="flex items-center gap-4 self-stretch">
-          <img src="/profile.png" alt="Profile Picture" class="h-14" />
+          ${ProfileIcon({
+            userId: () => authService.user?.id ?? null,
+            classes: 'w-14 h-14'
+          })}
+
           <div class="flex flex-col">
             <p class="text-xl text-gray-700 italic">Logged in as</p>
             <p class="text-xl text-black font-bold">${authService.user?.username}</p>

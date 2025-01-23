@@ -6,7 +6,6 @@ type RouteComponent = Component<() => UINode> | (() => Promise<Component<() => U
 interface RouteDefinition {
   name: string;
   path?: string;
-  title?: string | ((params: Record<string, string>) => string);
   component?: RouteComponent;
   children?: RouteDefinition[];
 }
@@ -14,7 +13,6 @@ interface RouteDefinition {
 interface FlatRouteDefinition {
   name: string;
   path: string;
-  title?: string | ((params: Record<string, string>) => string);
   pathRegexp: RegExp;
   components: RouteComponent[];
 }
@@ -48,7 +46,6 @@ const flattenRouteDefinition = (route: RouteDefinition): FlatRouteDefinition[] =
     return {
       name: `${route.name}.${child.name}`,
       path,
-      title: child.title ?? route.title,
       pathRegexp: pathToPathRegexp(path),
       components: route.component ? [route.component, ...child.components] : child.components
     };
@@ -56,7 +53,6 @@ const flattenRouteDefinition = (route: RouteDefinition): FlatRouteDefinition[] =
   {
     name: route.name,
     path: route.path ?? '/',
-    title: route.title,
     pathRegexp: pathToPathRegexp(route.path ?? '/'),
     components: route.component ? [route.component] : []
   }

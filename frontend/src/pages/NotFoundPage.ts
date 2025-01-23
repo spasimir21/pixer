@@ -1,9 +1,11 @@
 import { Component, useChildComponents, useTimeout } from '@lib/component';
+import { useNavigation, useTitle } from '@lib/router';
 import LoadingPageComponent from './LoadingPage';
-import { useNavigation } from '@lib/router';
 import { UINode } from '@lib/ui';
 
 const NotFoundPageComponent = Component((): UINode => {
+  useTitle('PiXer');
+
   const [LoadingPage] = useChildComponents(LoadingPageComponent);
 
   const { navigate } = useNavigation();

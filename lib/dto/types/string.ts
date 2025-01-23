@@ -1,14 +1,15 @@
 import { buffer } from './buffer';
 import { DTO } from '../DTO';
+import { int } from './int';
 
 const TEXT_ENCODER = new TextEncoder();
 
 interface StringOptions {
-  length: DTO<number>;
+  length?: DTO<number>;
   pattern?: RegExp;
 }
 
-function string({ length, pattern }: StringOptions): DTO<string> {
+function string({ length = int(), pattern }: StringOptions = {}): DTO<string> {
   const bufferDTO = buffer({ length });
 
   return {

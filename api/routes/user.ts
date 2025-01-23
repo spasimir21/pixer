@@ -1,5 +1,5 @@
+import { boolean, int, nullable, object, string } from '@lib/dto';
 import { user, userWithEncryptedKeys } from '../dto/user';
-import { boolean, nullable, object } from '@lib/dto';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -19,6 +19,16 @@ const APIUser = apiRoutes({
         includeEncryptedKeys: boolean()
       }),
       result: nullable(user)
+    },
+    {
+      name: 'uploadProfileIcon',
+      isAuthenticated: true,
+      input: object({
+        fileSize: int({ max: 256 * 1000 }) // 256 kB
+      }),
+      result: object({
+        uploadUrl: nullable(string())
+      })
     }
   ]
 } as const);

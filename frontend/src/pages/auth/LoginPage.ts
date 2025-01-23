@@ -1,7 +1,7 @@
 import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
+import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { APIServiceManager } from '../../service/APIService';
-import { useNavigation, useRoute } from '@lib/router';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import LoadingPageComponent from '../LoadingPage';
 import { requests } from '../../api/requests';
@@ -30,6 +30,8 @@ const LoginPageComponent = Component((): UINode => {
 
     return LoadingPage();
   }
+
+  useTitle('PiXer - Login');
 
   const username = useState('');
 
@@ -67,7 +69,7 @@ const LoginPageComponent = Component((): UINode => {
     <div class="fixed w-screen h-screen top-0 left-0 flex flex-col items-center justify-around">
       <div class="flex flex-col gap-3 items-center">
         <div class="flex items-center gap-3">
-          <img class="w-10" src="/icon.png" alt="PiXer Logo" />
+          <img class="w-10" src="/assets/logo.png" alt="PiXer Logo" />
           <h1 class="text-5xl font-bold">PiXer</h1>
         </div>
         <h3 class="text-xl text-gray-700 italic">Log into your account</h3>

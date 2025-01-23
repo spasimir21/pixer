@@ -7,7 +7,6 @@ interface Route {
   search: URLSearchParams;
   hash: string;
   params: Record<string, string>;
-  title: string | null;
   components: RouteComponent[];
   forcedRefresh: boolean;
 }
@@ -44,19 +43,12 @@ function matchRoute(routes: FlatRouteDefinition[], forcedRefresh: boolean = fals
 
   const params = match?.groups ?? {};
 
-  // prettier-ignore
-  const title = 
-      routeDefinition == null ? null
-    : typeof routeDefinition.title === 'function' ? routeDefinition.title(params)
-    : routeDefinition.title ?? null
-
   return {
     name: routeDefinition?.name ?? '',
     path,
     search: new URLSearchParams(location.search),
     hash: location.hash.slice(1),
     params,
-    title,
     components: routeDefinition?.components ?? [],
     forcedRefresh
   };
@@ -111,13 +103,20 @@ function useRouting(routes: RouteDefinition[]) {
     refresh: () => ($route = matchRoute(flatRoutes, true))
   }));
 
-  useEffect(() => {
-    if ($route.title != null) document.title = $route.title as string;
-  });
-
   window.addEventListener('popstate', updateRoute);
 
   useCleanup(() => window.removeEventListener('popstate', updateRoute));
 }
 
-export { useRouting, Route, useRoute, Navigation, useNavigation, NavigateLocation };
+function useTitle(title: string | (() => string)) {
+  if (typeof title === 'string') {
+    document.title = title;
+    return;
+  }
+
+  useEffect(() => {
+    document.title = title();
+  });
+}
+
+export { useRouting, Route, useRoute, useTitle, Navigation, useNavigation, NavigateLocation };
