@@ -18,7 +18,7 @@ const ProfileIconUploadComponent = Component((): UINode => {
 
   useEffect(() => {
     if (authService.user?.id == null) {
-      $profileIconSrc = '/assets/profile.png';
+      $profileIconSrc = '/assets/blank.png';
       return;
     }
 

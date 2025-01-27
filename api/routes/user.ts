@@ -1,5 +1,6 @@
 import { boolean, int, nullable, object, string } from '@lib/dto';
 import { user, userWithEncryptedKeys } from '../dto/user';
+import { userStats } from '../dto/userStats';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -19,6 +20,14 @@ const APIUser = apiRoutes({
         includeEncryptedKeys: boolean()
       }),
       result: nullable(user)
+    },
+    {
+      name: 'getStats',
+      input: object({
+        userId: nullable(user.id),
+        username: nullable(user.username)
+      }),
+      result: nullable(userStats)
     },
     {
       name: 'uploadProfileIcon',

@@ -1,7 +1,7 @@
-import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
+import { Component, useChildComponents, useComputed, useState } from '@lib/component';
+import { NavigateToComponent, useNavigation, useRoute, useTitle } from '@lib/router';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { useLocalization } from '../../service/LocalizationService';
-import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { APIServiceManager } from '../../service/APIService';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import LoadingPageComponent from '../LoadingPage';
@@ -11,7 +11,7 @@ import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 
 const LoginPageComponent = Component((): UINode => {
-  const [LoadingPage] = useChildComponents(LoadingPageComponent);
+  const [NavigateTo, LoadingPage] = useChildComponents(NavigateToComponent, LoadingPageComponent);
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
@@ -19,20 +19,16 @@ const LoginPageComponent = Component((): UINode => {
   const l = useLocalization();
   const route = useRoute();
 
-  if (authService.isLoggedIn) {
-    useTimeout(
-      () =>
-        navigate({
-          route: 'auth.password',
-          search: {
-            redirectTo: $route.search.get('redirectTo') ?? '/'
-          }
-        }),
-      0
+  if (authService.isLoggedIn)
+    return NavigateTo(
+      {
+        route: 'auth.password',
+        search: {
+          redirectTo: $route.search.get('redirectTo') ?? '/'
+        }
+      },
+      LoadingPage
     );
-
-    return LoadingPage();
-  }
 
   useTitle(() => `${l('pixer.title')} - ${l('login.title')}`);
 

@@ -37,6 +37,7 @@ const AppComponent = Component((): UINode => {
         else authService.logOut();
       });
 
+  // TODO: remove
   window.addEventListener('keydown', e => {
     if (!e.altKey || e.code !== 'KeyL') return;
     $language = $language === 'en' ? 'bg' : 'en';

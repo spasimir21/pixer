@@ -1,31 +1,32 @@
 import { AuthenticationServiceManager } from '../service/AuthenticationService';
-import { Component, useChildComponents, useTimeout } from '@lib/component';
+import { Component, useChildComponents } from '@lib/component';
+import { NavigateToComponent, useRoute } from '@lib/router';
 import LoadingPageComponent from '../pages/LoadingPage';
-import { useNavigation, useRoute } from '@lib/router';
 import { useService } from '@lib/service';
 import { UINode } from '@lib/ui';
 
 const AuthenticatedRoute = (component: Component<() => UINode>) =>
   Component((): UINode => {
-    const [childComponent, LoadingPage] = useChildComponents(component, LoadingPageComponent);
+    const [childComponent, NavigateTo, LoadingPage] = useChildComponents(
+      component,
+      NavigateToComponent,
+      LoadingPageComponent
+    );
 
     const authService = useService(AuthenticationServiceManager);
-    const { navigate } = useNavigation();
     const route = useRoute();
 
-    if (!authService.isAuthenticated)
-      useTimeout(
-        () =>
-          navigate({
+    return authService.isAuthenticated
+      ? childComponent()
+      : NavigateTo(
+          {
             route: 'auth.login',
             search: {
               redirectTo: $route.path ?? '/'
             }
-          }),
-        0
-      );
-
-    return authService.isAuthenticated ? childComponent() : LoadingPage();
+          },
+          LoadingPage
+        );
   });
 
 export { AuthenticatedRoute };

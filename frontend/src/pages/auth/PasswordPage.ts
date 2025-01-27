@@ -1,8 +1,8 @@
-import { Component, useChildComponents, useComputed, useState, useTimeout } from '@lib/component';
+import { Component, useChildComponents, useComputed, useState } from '@lib/component';
+import { NavigateToComponent, useNavigation, useRoute, useTitle } from '@lib/router';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
 import { useLocalization } from '../../service/LocalizationService';
-import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { importUserEncryptedKeys } from '../../logic/crypto';
 import LoadingPageComponent from '../LoadingPage';
 import { TranslationKey } from '../../lang/en';
@@ -10,32 +10,29 @@ import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 
 const PasswordPageComponent = Component((): UINode => {
-  const [LoadingPage, ProfileIcon] = useChildComponents(LoadingPageComponent, ProfileIconComponent);
+  const [NavigateTo, LoadingPage, ProfileIcon] = useChildComponents(
+    NavigateToComponent,
+    LoadingPageComponent,
+    ProfileIconComponent
+  );
 
   const authService = useService(AuthenticationServiceManager);
   const { navigate } = useNavigation();
   const l = useLocalization();
   const route = useRoute();
 
-  if (!authService.isLoggedIn) {
-    useTimeout(
-      () =>
-        navigate({
-          route: 'auth.login',
-          search: {
-            redirectTo: $route.search.get('redirectTo') ?? '/'
-          }
-        }),
-      0
+  if (!authService.isLoggedIn)
+    return NavigateTo(
+      {
+        route: 'auth.login',
+        search: {
+          redirectTo: $route.search.get('redirectTo') ?? '/'
+        }
+      },
+      LoadingPage
     );
 
-    return LoadingPage();
-  }
-
-  if (authService.isAuthenticated) {
-    useTimeout(() => navigate($route.search.get('redirectTo') ?? '/'), 0);
-    return LoadingPage();
-  }
+  if (authService.isAuthenticated) return NavigateTo($route.search.get('redirectTo') ?? '/', LoadingPage);
 
   useTitle(() => `${l('pixer.title')} - ${l('password.title')} (${authService.user?.username})`);
 

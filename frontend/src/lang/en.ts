@@ -32,15 +32,19 @@ const EN = {
     tryADifferentAccountText: 'Or try a different account',
     error: 'Incorrect password!'
   },
-  user: {
+  me: {
     profile: {
-      title: 'Profile',
-      headerTitle: 'User Profile',
+      title: 'My Profile',
       friends: 'Friends',
       requests: 'Requests',
       joinedOn: 'Joined on',
       uploadedImages: 'Uploaded Images',
       createdAlbums: 'Created Albums'
+    }
+  },
+  user: {
+    profile: {
+      title: 'User Profile'
     }
   }
 } as const;

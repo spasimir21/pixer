@@ -33,15 +33,19 @@ const BG: Translations = {
     tryADifferentAccountText: 'Или пробвай с друг профил',
     error: 'Грешна парола!'
   },
-  user: {
+  me: {
     profile: {
-      title: 'Профил',
-      headerTitle: 'Профил',
+      title: 'Моят Профил',
       friends: 'Приятеля',
       requests: 'Покани',
       joinedOn: 'Създаден на',
       uploadedImages: 'Качени Снимки',
       createdAlbums: 'Създадени Албума'
+    }
+  },
+  user: {
+    profile: {
+      title: 'Профил'
     }
   }
 };

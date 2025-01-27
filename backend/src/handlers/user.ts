@@ -49,6 +49,22 @@ const APIUserHandlers: APIHandlers['user'] = {
       encryptedKeys: user.encryptedKeys
     };
   },
+  getStats: async ({ userId, username }) => {
+    if (userId == null && username == null) return null;
+
+    const user = await dbClient.user.findFirst({
+      where: userId == null ? { username: username! } : { id: userId },
+      select: { id: true, username: true, createdAt: true }
+    });
+
+    if (user == null) return null;
+
+    return {
+      ...user,
+      uploadedImages: 0,
+      createdAlbums: 0
+    };
+  },
   uploadProfileIcon: async ({ fullFileSize, smallFileSize }, { userId }) => {
     const fullSizeCommand = new PutObjectCommand({
       Bucket: 'profile-icons',

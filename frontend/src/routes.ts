@@ -1,4 +1,4 @@
-import NotFoundPageComponent from './pages/NotFoundPage';
+import { NotFoundPageComponent } from './pages/NotFoundPage';
 import { RouteDefinition } from '@lib/router';
 
 const ROUTES: RouteDefinition[] = [
@@ -29,15 +29,20 @@ const ROUTES: RouteDefinition[] = [
     ]
   },
   {
-    name: 'user',
-    path: '/user',
+    name: 'me',
+    path: '/me',
     children: [
       {
         name: 'profile',
         path: '/profile',
-        component: async () => (await import('./pages/user/ProfilePage')).default
+        component: async () => (await import('./pages/me/ProfilePage')).default
       }
     ]
+  },
+  {
+    name: 'user',
+    path: '/user/[username]',
+    component: async () => (await import('./pages/UserPage')).default
   },
   {
     name: 'not-found',

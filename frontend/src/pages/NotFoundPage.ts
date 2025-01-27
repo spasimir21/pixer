@@ -1,21 +1,12 @@
-import { Component, useChildComponents, useTimeout } from '@lib/component';
-import { useLocalization } from '../service/LocalizationService';
-import { useNavigation, useTitle } from '@lib/router';
+import { Component, useChildComponents } from '@lib/component';
+import { NavigateToComponent } from '@lib/router';
 import LoadingPageComponent from './LoadingPage';
 import { UINode } from '@lib/ui';
 
 const NotFoundPageComponent = Component((): UINode => {
-  const l = useLocalization();
+  const [NavigateTo, LoadingPage] = useChildComponents(NavigateToComponent, LoadingPageComponent);
 
-  useTitle(() => l('pixer.title'));
-
-  const [LoadingPage] = useChildComponents(LoadingPageComponent);
-
-  const { navigate } = useNavigation();
-
-  useTimeout(() => navigate({ route: 'home' }), 0);
-
-  return LoadingPage();
+  return NavigateTo({ route: 'home' }, LoadingPage);
 });
 
-export default NotFoundPageComponent;
+export { NotFoundPageComponent };

@@ -24,7 +24,7 @@ const ProfileIconComponent = Component(
       const id = userId();
 
       if (id == null) {
-        $imageSrc = '/assets/profile.png';
+        $imageSrc = '/assets/blank.png';
         return;
       }
 
