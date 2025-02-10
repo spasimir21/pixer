@@ -1,6 +1,7 @@
 import { array, boolean, int, nullable, object, string } from '@lib/dto';
 import { userOwnStats, userStats } from '../dto/userStats';
 import { user, userWithEncryptedKeys } from '../dto/user';
+import { friend } from '../dto/friendRequest';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -42,10 +43,7 @@ const APIUser = apiRoutes({
       input: object({}),
       result: array({
         length: int(),
-        of: object({
-          id: user.id,
-          username: user.username
-        })
+        of: friend
       })
     },
     {

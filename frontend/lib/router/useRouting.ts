@@ -56,7 +56,7 @@ function matchRoute(routes: FlatRouteDefinition[], forcedRefresh: boolean = fals
 
 function insertPathParams(path: string, params: any) {
   path = path.replace(/\*\*?/g, '');
-  for (const key in params) path = path.replace(new RegExp(`\[?\[${key}\]\]?`, 'g'), params[key]);
+  for (const key in params) path = path.replace(new RegExp(`\\[?\\[${key}\\]\\]?`, 'g'), params[key]);
   return path;
 }
 

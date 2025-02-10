@@ -35,10 +35,14 @@ function bootstrapRouter(structure: readonly APISegment[], handlers: any): Route
         return;
       }
 
-      const result = await handlers[segment.name](input, authenticationInfo);
-      const response = serialize(result, segment.result);
+      try {
+        const result = await handlers[segment.name](input, authenticationInfo);
+        const response = serialize(result, segment.result);
 
-      res.end(new Uint8Array(response));
+        res.end(new Uint8Array(response));
+      } catch {
+        res.sendStatus(500);
+      }
     });
   }
 

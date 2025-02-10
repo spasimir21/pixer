@@ -40,7 +40,16 @@ const BG: Translations = {
       requests: 'Покани',
       joinedOn: 'Създаден на',
       uploadedImages: 'Качени Снимки',
-      createdAlbums: 'Създадени Албума'
+      createdAlbums: 'Създадени Албуми'
+    },
+    friends: {
+      title: 'Приятели',
+      noFriends: 'Нямате добавени приятели',
+      remove: 'Премахни'
+    },
+    requests: {
+      title: 'Покани',
+      noRequests: 'Нямате покани'
     }
   },
   user: {

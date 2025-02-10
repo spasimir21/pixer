@@ -70,13 +70,15 @@ const ProfilePageComponent = Component((): UINode => {
 
         <div class="flex gap-4 w-full px-6">
           <button
-            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow">
+            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
+            @click=${() => navigate({ route: 'me.friends' })}>
             ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$ownStats?.friends ?? '??'}
             ${l('me.profile.friends')}
           </button>
 
           <button
-            class="outline-none bg-blue-500 text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow">
+            class="outline-none bg-blue-500 text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
+            @click=${() => navigate({ route: 'me.requests' })}>
             ${Icon({ icon: faEnvelope, fill: 'white', classes: 'w-6' })} ${$ownStats?.requests ?? '??'}
             ${l('me.profile.requests')}
           </button>

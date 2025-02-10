@@ -25,11 +25,15 @@ const APIFriendRequestsHandlers: APIHandlers['friendRequests'] = {
     return request != null;
   },
   cancelRequest: async ({ to }, { userId }) => {
-    const request = await dbClient.friendRequest.delete({
-      where: { senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(to) } }
-    });
+    try {
+      await dbClient.friendRequest.delete({
+        where: { senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(to) } }
+      });
 
-    return request != null;
+      return true;
+    } catch {
+      return false;
+    }
   },
   acceptRequest: async ({ from }, { userId }) => {
     const result = await dbClient.friendRequest.update({
@@ -40,11 +44,15 @@ const APIFriendRequestsHandlers: APIHandlers['friendRequests'] = {
     return result != null;
   },
   rejectRequest: async ({ from }, { userId }) => {
-    const request = await dbClient.friendRequest.delete({
-      where: { senderId_recipientId: { senderId: toBuffer(from), recipientId: toBuffer(userId) } }
-    });
+    try {
+      await dbClient.friendRequest.delete({
+        where: { senderId_recipientId: { senderId: toBuffer(from), recipientId: toBuffer(userId) } }
+      });
 
-    return request != null;
+      return true;
+    } catch {
+      return false;
+    }
   },
   getRequests: async ({}, { userId }) => {
     const outgoingRequests = await dbClient.friendRequest.findMany({

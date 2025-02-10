@@ -40,6 +40,15 @@ const EN = {
       joinedOn: 'Joined on',
       uploadedImages: 'Uploaded Images',
       createdAlbums: 'Created Albums'
+    },
+    friends: {
+      title: 'Friends',
+      noFriends: 'You currently have no friends',
+      remove: 'Remove'
+    },
+    requests: {
+      title: 'Requests',
+      noRequests: 'You currently have no requests'
     }
   },
   user: {

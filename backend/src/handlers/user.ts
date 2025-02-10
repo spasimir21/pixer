@@ -165,24 +165,31 @@ const APIUserHandlers: APIHandlers['user'] = {
     ];
   },
   unfriend: async ({ userId }, { userId: meId }) => {
-    const [a, b] = await dbClient.$transaction([
-      dbClient.friendRequest.delete({
+    try {
+      await dbClient.friendRequest.delete({
         where: {
           senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(meId) },
           accepted: true
         }
-      }),
-      dbClient.friendRequest.delete({
+      });
+
+      return true;
+    } catch {}
+
+    try {
+      await dbClient.friendRequest.delete({
         where: {
           senderId_recipientId: { senderId: toBuffer(meId), recipientId: toBuffer(userId) },
           accepted: true
         }
-      })
-    ]);
+      });
+
+      return true;
+    } catch {}
 
     // TODO: Remove from shared albums
 
-    return a != null || b != null;
+    return false;
   },
   uploadProfileIcon: async ({ fullFileSize, smallFileSize }, { userId }) => {
     const fullSizeCommand = new PutObjectCommand({

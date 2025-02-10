@@ -36,6 +36,16 @@ const ROUTES: RouteDefinition[] = [
         name: 'profile',
         path: '/profile',
         component: async () => (await import('./pages/me/ProfilePage')).default
+      },
+      {
+        name: 'friends',
+        path: '/friends',
+        component: async () => (await import('./pages/me/FriendsPage')).default
+      },
+      {
+        name: 'requests',
+        path: '/requests',
+        component: async () => (await import('./pages/me/RequestsPage')).default
       }
     ]
   },
