@@ -160,8 +160,8 @@ const APIUserHandlers: APIHandlers['user'] = {
     });
 
     return [
-      ...sentFriendRequests.map(req => ({ id: req.recipient.id, username: req.recipient.username })),
-      ...friendRequests.map(req => ({ id: req.sender.id, username: req.sender.username }))
+      ...sentFriendRequests.map(req => ({ id: toUint8Array(req.recipient.id), username: req.recipient.username })),
+      ...friendRequests.map(req => ({ id: toUint8Array(req.sender.id), username: req.sender.username }))
     ];
   },
   unfriend: async ({ userId }, { userId: meId }) => {
