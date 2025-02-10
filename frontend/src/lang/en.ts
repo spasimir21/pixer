@@ -44,7 +44,13 @@ const EN = {
   },
   user: {
     profile: {
-      title: 'User Profile'
+      title: 'User Profile',
+      friendStatus: {
+        friends: 'Friends',
+        sendRequest: 'Send Request',
+        cancelRequest: 'Cancel Request',
+        acceptRequest: 'Accept Request'
+      }
     }
   }
 } as const;

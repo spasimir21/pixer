@@ -2,6 +2,7 @@ import { deepToBuffer, toBuffer, toUint8Array } from '../utils/buffer';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { FriendStatus } from '@api/dto/userStats';
 import { b2Client } from '../data/b2Client';
 import { dbClient } from '../data/dbClient';
 import { toHex } from '@lib/utils/hex';
@@ -55,25 +56,133 @@ const APIUserHandlers: APIHandlers['user'] = {
       }
     };
   },
+  getOwnStats: async ({}, { userId }) => {
+    const [user, requests] = await dbClient.$transaction([
+      dbClient.user.findFirst({
+        where: { id: toBuffer(userId) },
+        select: {
+          createdAt: true,
+          _count: {
+            select: {
+              friendRequests: { where: { accepted: true } },
+              sentFriendRequests: { where: { accepted: true } }
+            }
+          }
+        }
+      }),
+      dbClient.friendRequest.count({
+        where: {
+          recipientId: toBuffer(userId),
+          accepted: false
+        }
+      })
+    ]);
+
+    if (user == null) return null;
+
+    return {
+      createdAt: user.createdAt,
+      friends: user._count.friendRequests + user._count.sentFriendRequests,
+      requests,
+      uploadedImages: 0,
+      createdAlbums: 0
+    };
+  },
   getStats: async ({ userId, username }, { userId: meId }) => {
     if (userId == null && username == null) return null;
 
     const user = await dbClient.user.findFirst({
       where: userId == null ? { username: username! } : { id: toBuffer(userId) },
-      select: { id: true, username: true, createdAt: true }
+      select: {
+        id: true,
+        username: true,
+        createdAt: true,
+        _count: {
+          select: {
+            friendRequests: { where: { accepted: true } },
+            sentFriendRequests: { where: { accepted: true } }
+          }
+        }
+      }
     });
 
     if (user == null) return null;
+
+    const request = await dbClient.friendRequest.findFirst({
+      where: {
+        OR: [
+          { senderId: user.id, recipientId: toBuffer(meId) },
+          { senderId: toBuffer(meId), recipientId: user.id }
+        ]
+      }
+    });
+
+    // prettier-ignore
+    const friendStatus: FriendStatus =
+        request == null ? 'not-friends'
+      : request.accepted ? 'friends'
+      : request.senderId.toString('hex') === user.id.toString('hex') ? 'request-waiting'
+      : 'request-sent';
 
     return {
       id: toUint8Array(user.id),
       username: user.username,
       createdAt: user.createdAt,
-      friendStatus: 'request-waiting',
-      friends: 0,
+      friendStatus,
+      friends: user._count.friendRequests + user._count.sentFriendRequests,
       uploadedImages: 0,
       createdAlbums: 0
     };
+  },
+  getFriends: async ({}, { userId }) => {
+    const friendRequests = await dbClient.friendRequest.findMany({
+      where: {
+        recipientId: toBuffer(userId),
+        accepted: true
+      },
+      include: {
+        sender: {
+          select: { id: true, username: true }
+        }
+      }
+    });
+
+    const sentFriendRequests = await dbClient.friendRequest.findMany({
+      where: {
+        senderId: toBuffer(userId),
+        accepted: true
+      },
+      include: {
+        recipient: {
+          select: { id: true, username: true }
+        }
+      }
+    });
+
+    return [
+      ...sentFriendRequests.map(req => ({ id: req.recipient.id, username: req.recipient.username })),
+      ...friendRequests.map(req => ({ id: req.sender.id, username: req.sender.username }))
+    ];
+  },
+  unfriend: async ({ userId }, { userId: meId }) => {
+    const [a, b] = await dbClient.$transaction([
+      dbClient.friendRequest.delete({
+        where: {
+          senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(meId) },
+          accepted: true
+        }
+      }),
+      dbClient.friendRequest.delete({
+        where: {
+          senderId_recipientId: { senderId: toBuffer(meId), recipientId: toBuffer(userId) },
+          accepted: true
+        }
+      })
+    ]);
+
+    // TODO: Remove from shared albums
+
+    return a != null || b != null;
   },
   uploadProfileIcon: async ({ fullFileSize, smallFileSize }, { userId }) => {
     const fullSizeCommand = new PutObjectCommand({

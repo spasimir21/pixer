@@ -2,17 +2,17 @@ import { DTO } from '../DTO';
 
 interface ArrayOptions<T> {
   length: DTO<number>;
-  item: DTO<T>;
+  of: DTO<T>;
 }
 
-const array = <T>({ length, item }: ArrayOptions<T>): DTO<T[]> => ({
+const array = <T>({ length, of }: ArrayOptions<T>): DTO<T[]> => ({
   validator: {
     isValid: (value): value is T[] => {
       if (!Array.isArray(value)) return false;
 
       if (!length.validator.isValid(array.length)) return false;
 
-      for (const v of value) if (!item.validator.isValid(v)) return false;
+      for (const v of value) if (!of.validator.isValid(v)) return false;
 
       return true;
     }
@@ -20,18 +20,18 @@ const array = <T>({ length, item }: ArrayOptions<T>): DTO<T[]> => ({
   serializer: {
     write: (value, writer) => {
       length.serializer.write(value.length, writer);
-      for (const v of value) item.serializer.write(v, writer);
+      for (const v of value) of.serializer.write(v, writer);
     },
     read: reader => {
       const size = length.serializer.read(reader);
 
       const value: T[] = new Array(size);
 
-      for (let i = 0; i < size; i++) value[i] = item.serializer.read(reader);
+      for (let i = 0; i < size; i++) value[i] = of.serializer.read(reader);
 
       return value;
     },
-    size: value => length.serializer.size(value.length) + value.reduce((total, v) => total + item.serializer.size(v), 0)
+    size: value => length.serializer.size(value.length) + value.reduce((total, v) => total + of.serializer.size(v), 0)
   }
 });
 

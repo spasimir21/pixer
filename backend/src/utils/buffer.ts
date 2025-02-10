@@ -10,6 +10,7 @@ type DeepToBuffer<T> =
 function deepToBuffer<T>(value: T): DeepToBuffer<T> {
   if (value == null || typeof value !== 'object') return value as any;
   if (value instanceof Uint8Array) return toBuffer(value) as any;
+  if (value instanceof Array) return value.map(deepToBuffer) as any;
 
   const constructor = Object.getPrototypeOf(value)?.constructor;
   if (constructor != null && constructor !== Object) return value as any;
@@ -30,6 +31,7 @@ type DeepToUint8Array<T> =
 function deepToUint8Array<T>(value: T): DeepToUint8Array<T> {
   if (value == null || typeof value !== 'object') return value as any;
   if (value instanceof Buffer) return toUint8Array(value) as any;
+  if (value instanceof Array) return value.map(deepToUint8Array) as any;
 
   const constructor = Object.getPrototypeOf(value)?.constructor;
   if (constructor != null && constructor !== Object) return value as any;

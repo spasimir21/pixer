@@ -1,12 +1,4 @@
-import {
-  faCheck,
-  faEnvelopeCircleCheck,
-  faLink,
-  faUserGroup,
-  faEnvelope,
-  faEnvelopeOpen,
-  faUserCheck
-} from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faFolderClosed, faImage, IconDefinition } from '@fortawesome/free-regular-svg-icons';
 import { NavigateToComponent, useNavigation, useRoute, useTitle } from '@lib/router';
 import { AuthenticationServiceManager } from '../service/AuthenticationService';
 import { ProfileIconComponent } from '../components/ProfileIcon/ProfileIcon';
@@ -19,16 +11,25 @@ import { APIServiceManager } from '../service/APIService';
 import { HeaderComponent } from '../components/Header';
 import { IconComponent } from '../components/Icon';
 import LoadingPageComponent from './LoadingPage';
-import { faCalendar, faFolderClosed, faImage, IconDefinition } from '@fortawesome/free-regular-svg-icons';
+import { TranslationKey } from '../lang/en';
 import { requests } from '../api/requests';
+import { formatDate } from '../misc/date';
 import { useService } from '@lib/service';
+import {
+  faEnvelopeCircleCheck,
+  faLink,
+  faUserGroup,
+  faEnvelope,
+  faUserCheck,
+  faEnvelopeOpen
+} from '@fortawesome/free-solid-svg-icons';
 import { html, UINode } from '@lib/ui';
 
-const friendButtonTextMap: Record<FriendStatus, string> = {
-  'friends': 'Your Friend',
-  'not-friends': 'Send Request',
-  'request-sent': 'Request Sent',
-  'request-waiting': 'Accept Request'
+const friendButtonTextMap: Record<FriendStatus, TranslationKey> = {
+  'friends': 'user.profile.friendStatus.friends',
+  'not-friends': 'user.profile.friendStatus.sendRequest',
+  'request-sent': 'user.profile.friendStatus.cancelRequest',
+  'request-waiting': 'user.profile.friendStatus.acceptRequest'
 };
 
 const friendButtonIconMap: Record<FriendStatus, IconDefinition> = {
@@ -71,6 +72,33 @@ const UserPageComponent = Component((): UINode => {
       $userStats = result;
     });
 
+  const isDoingFriendAction = useState(false);
+
+  const doFriendAction = async () => {
+    if ($isDoingFriendAction || $userStats == null) return;
+
+    $isDoingFriendAction = true;
+
+    if ($userStats!.friendStatus === 'not-friends') {
+      const response = await apiService.send(requests.friendRequests.sendRequest, { to: $userStats!.id });
+
+      if (response.error == null && response.result === true) $userStats!.friendStatus = 'request-sent';
+    } else if ($userStats!.friendStatus === 'request-sent') {
+      const response = await apiService.send(requests.friendRequests.cancelRequest, { to: $userStats!.id });
+
+      if (response.error == null && response.result === true) $userStats!.friendStatus = 'not-friends';
+    } else if ($userStats!.friendStatus === 'request-waiting') {
+      const response = await apiService.send(requests.friendRequests.acceptRequest, { from: $userStats!.id });
+
+      if (response.error == null && response.result === true) {
+        $userStats!.friendStatus = 'friends';
+        $userStats!.friends++;
+      }
+    }
+
+    $isDoingFriendAction = false;
+  };
+
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
@@ -90,15 +118,17 @@ const UserPageComponent = Component((): UINode => {
 
           <p class="font-bold text-gray-800 text-2xl">${$route.params.username}</p>
 
-          <div class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer">
+          <div
+            class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer"
+            @click=${() =>
+              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}>
             ${Icon({ icon: faLink, fill: 'white', classes: 'w-5' })}
           </div>
         </div>
 
         <div class="flex gap-4 w-full px-6">
           <button
-            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default"
-          >
+            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default">
             ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$userStats?.friends ?? '??'}
             ${l('me.profile.friends')}
           </button>
@@ -106,14 +136,15 @@ const UserPageComponent = Component((): UINode => {
           <button
             class="outline-none text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
             .bg-green-500=${$userStats?.friendStatus === 'friends' || $userStats?.friendStatus === 'request-waiting'}
-            .bg-blue-500=${$userStats?.friendStatus === 'request-sent' || $userStats?.friendStatus === 'not-friends'}
-          >
+            .bg-red-500=${$userStats?.friendStatus === 'request-sent'}
+            .bg-blue-500=${$userStats?.friendStatus === 'not-friends'}
+            @click=${doFriendAction}>
             ${Icon({
               icon: $userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus],
               fill: 'white',
               classes: 'w-6'
             })}
-            ${$userStats == null ? '...' : friendButtonTextMap[$userStats!.friendStatus]}
+            ${$userStats == null ? '...' : l(friendButtonTextMap[$userStats!.friendStatus])}
           </button>
         </div>
 
@@ -122,13 +153,7 @@ const UserPageComponent = Component((): UINode => {
             ${Icon({ icon: faCalendar, fill: 'rgb(55 65 81)', classes: 'w-6' })}
             <p class="text-gray-700 text-xl">
               ${l('me.profile.joinedOn')}
-              <span class="font-bold"
-                >${$userStats == null
-                  ? '??/??/????'
-                  : `${$userStats!.createdAt.getDate()}/${
-                      $userStats!.createdAt.getMonth() + 1
-                    }/${$userStats!.createdAt.getFullYear()}`}</span
-              >
+              <span class="font-bold">${$userStats == null ? '??/??/????' : formatDate($userStats!.createdAt)}</span>
             </p>
           </div>
 

@@ -19,9 +19,6 @@ model User {
 
   friendRequests       FriendRequest[]   @relation(name: "recipient")
   sentFriendRequests   FriendRequest[]   @relation(name: "sender")
-
-  followedBy           User[]            @relation(name: "friends")
-  followers            User[]            @relation(name: "friends")
 }
 
 model EncryptedKeys {
@@ -38,11 +35,15 @@ model EncryptedKeys {
 }
 
 model FriendRequest {
+  @@id([senderId, recipientId])
+
+  createdAt     DateTime    @default(now())
+
+  accepted      Boolean     @default(false)
+
   senderId      Bytes
-  sender        User    @relation(name: "sender", fields: [senderId], references: [id])
+  sender        User        @relation(name: "sender", fields: [senderId], references: [id])
 
   recipientId   Bytes
-  recipient     User    @relation(name: "recipient", fields: [recipientId], references: [id])
-
-  @@id([senderId, recipientId])
+  recipient     User        @relation(name: "recipient", fields: [recipientId], references: [id])
 }

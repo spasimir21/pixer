@@ -36,7 +36,7 @@ const BG: Translations = {
   me: {
     profile: {
       title: 'Моят Профил',
-      friends: 'Приятеля',
+      friends: 'Приятели',
       requests: 'Покани',
       joinedOn: 'Създаден на',
       uploadedImages: 'Качени Снимки',
@@ -45,7 +45,13 @@ const BG: Translations = {
   },
   user: {
     profile: {
-      title: 'Профил'
+      title: 'Профил',
+      friendStatus: {
+        friends: 'Приятел',
+        sendRequest: 'Прати Покана',
+        cancelRequest: 'Спри Поканата',
+        acceptRequest: 'Приеми Покана'
+      }
     }
   }
 };

@@ -1,6 +1,6 @@
-import { boolean, int, nullable, object, string } from '@lib/dto';
+import { array, boolean, int, nullable, object, string } from '@lib/dto';
+import { userOwnStats, userStats } from '../dto/userStats';
 import { user, userWithEncryptedKeys } from '../dto/user';
-import { userStats } from '../dto/userStats';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -22,6 +22,12 @@ const APIUser = apiRoutes({
       result: nullable(user)
     },
     {
+      name: 'getOwnStats',
+      isAuthenticated: true,
+      input: object({}),
+      result: nullable(userOwnStats)
+    },
+    {
       name: 'getStats',
       isAuthenticated: true,
       input: object({
@@ -29,6 +35,24 @@ const APIUser = apiRoutes({
         username: nullable(user.username)
       }),
       result: nullable(userStats)
+    },
+    {
+      name: 'getFriends',
+      isAuthenticated: true,
+      input: object({}),
+      result: array({
+        length: int(),
+        of: object({
+          id: user.id,
+          username: user.username
+        })
+      })
+    },
+    {
+      name: 'unfriend',
+      isAuthenticated: true,
+      input: object({ userId: user.id }),
+      result: boolean()
     },
     {
       name: 'uploadProfileIcon',

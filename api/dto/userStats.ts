@@ -17,4 +17,14 @@ const userStats = object({
 
 type UserStats = DTOType<typeof userStats>;
 
-export { userStats, UserStats, friendStatus, FriendStatus };
+const userOwnStats = object({
+  createdAt: date(),
+  friends: int(),
+  requests: int(),
+  uploadedImages: int(),
+  createdAlbums: int()
+});
+
+type UserOwnStats = DTOType<typeof userOwnStats>;
+
+export { userStats, UserStats, friendStatus, FriendStatus, userOwnStats, UserOwnStats };
