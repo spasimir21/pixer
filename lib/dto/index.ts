@@ -20,4 +20,5 @@ export * from './types/value';
 export * from './types/array';
 export * from './types/const';
 export * from './types/date';
+export * from './types/enum';
 export * from './types/int';

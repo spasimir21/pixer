@@ -23,6 +23,7 @@ const APIUser = apiRoutes({
     },
     {
       name: 'getStats',
+      isAuthenticated: true,
       input: object({
         userId: nullable(user.id),
         username: nullable(user.username)

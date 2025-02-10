@@ -1,3 +1,4 @@
+import { deepToBuffer, toBuffer, toUint8Array } from '../utils/buffer';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
@@ -18,10 +19,11 @@ const APIUserHandlers: APIHandlers['user'] = {
 
     await dbClient.user.create({
       data: {
-        id: user.id,
+        id: toBuffer(user.id),
         username: user.username,
-        ...user.publicKeys,
-        encryptedKeys: { create: user.encryptedKeys }
+        identityKey: toBuffer(user.publicKeys.identityKey),
+        encryptionKey: toBuffer(user.publicKeys.encryptionKey),
+        encryptedKeys: { create: deepToBuffer(user.encryptedKeys) }
       }
     });
 
@@ -31,36 +33,44 @@ const APIUserHandlers: APIHandlers['user'] = {
     if (userId == null && username == null) return null;
 
     const user = await dbClient.user.findFirst({
-      where: userId == null ? { username: username! } : { id: userId },
-      include: {
-        encryptedKeys: includeEncryptedKeys ? { omit: { userId: true } } : false
-      }
+      where: userId == null ? { username: username! } : { id: toBuffer(userId) },
+      include: { encryptedKeys: includeEncryptedKeys }
     });
 
     if (user == null) return null;
 
     return {
-      id: user.id,
+      id: toUint8Array(user.id),
       username: user.username,
       publicKeys: {
-        identityKey: user.identityKey,
-        encryptionKey: user.encryptionKey
+        identityKey: toUint8Array(user.identityKey),
+        encryptionKey: toUint8Array(user.encryptionKey)
       },
-      encryptedKeys: user.encryptedKeys
+      encryptedKeys: {
+        passwordSalt: toUint8Array(user.encryptedKeys!.passwordSalt),
+        identityKey: toUint8Array(user.encryptedKeys!.identityKey),
+        identityKeyIv: toUint8Array(user.encryptedKeys!.identityKeyIv),
+        encryptionKey: toUint8Array(user.encryptedKeys!.encryptionKey),
+        encryptionKeyIv: toUint8Array(user.encryptedKeys!.encryptionKeyIv)
+      }
     };
   },
-  getStats: async ({ userId, username }) => {
+  getStats: async ({ userId, username }, { userId: meId }) => {
     if (userId == null && username == null) return null;
 
     const user = await dbClient.user.findFirst({
-      where: userId == null ? { username: username! } : { id: userId },
+      where: userId == null ? { username: username! } : { id: toBuffer(userId) },
       select: { id: true, username: true, createdAt: true }
     });
 
     if (user == null) return null;
 
     return {
-      ...user,
+      id: toUint8Array(user.id),
+      username: user.username,
+      createdAt: user.createdAt,
+      friendStatus: 'request-waiting',
+      friends: 0,
       uploadedImages: 0,
       createdAlbums: 0
     };

@@ -1,19 +1,42 @@
-import { faCalendar, faFolderClosed, faImage } from '@fortawesome/free-regular-svg-icons';
+import {
+  faCheck,
+  faEnvelopeCircleCheck,
+  faLink,
+  faUserGroup,
+  faEnvelope,
+  faEnvelopeOpen,
+  faUserCheck
+} from '@fortawesome/free-solid-svg-icons';
 import { NavigateToComponent, useNavigation, useRoute, useTitle } from '@lib/router';
-import { faCheck, faLink, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { AuthenticationServiceManager } from '../service/AuthenticationService';
 import { ProfileIconComponent } from '../components/ProfileIcon/ProfileIcon';
 import { Component, useChildComponents, useState } from '@lib/component';
 import { HomeButtonComponent } from '../components/buttons/HomeButton';
+import { AuthenticatedRoute } from '../components/AuthenticatedRoute';
 import { useLocalization } from '../service/LocalizationService';
+import { FriendStatus, UserStats } from '@api/dto/userStats';
 import { APIServiceManager } from '../service/APIService';
 import { HeaderComponent } from '../components/Header';
 import { IconComponent } from '../components/Icon';
 import LoadingPageComponent from './LoadingPage';
-import { UserStats } from '@api/dto/userStats';
+import { faCalendar, faFolderClosed, faImage, IconDefinition } from '@fortawesome/free-regular-svg-icons';
 import { requests } from '../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
+
+const friendButtonTextMap: Record<FriendStatus, string> = {
+  'friends': 'Your Friend',
+  'not-friends': 'Send Request',
+  'request-sent': 'Request Sent',
+  'request-waiting': 'Accept Request'
+};
+
+const friendButtonIconMap: Record<FriendStatus, IconDefinition> = {
+  'friends': faUserCheck,
+  'not-friends': faEnvelope,
+  'request-sent': faEnvelopeOpen,
+  'request-waiting': faEnvelopeCircleCheck
+};
 
 const UserPageComponent = Component((): UINode => {
   const [NavigateTo, LoadingPage, Icon, Header, HomeButton, ProfileIcon] = useChildComponents(
@@ -74,13 +97,23 @@ const UserPageComponent = Component((): UINode => {
 
         <div class="flex gap-4 w-full px-6">
           <button
-            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default">
-            ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} 123 ${l('me.profile.friends')}
+            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default"
+          >
+            ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$userStats?.friends ?? '??'}
+            ${l('me.profile.friends')}
           </button>
 
           <button
-            class="outline-none bg-green-500 text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow">
-            ${Icon({ icon: faCheck, fill: 'white', classes: 'w-5' })} Your Friend
+            class="outline-none text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
+            .bg-green-500=${$userStats?.friendStatus === 'friends' || $userStats?.friendStatus === 'request-waiting'}
+            .bg-blue-500=${$userStats?.friendStatus === 'request-sent' || $userStats?.friendStatus === 'not-friends'}
+          >
+            ${Icon({
+              icon: $userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus],
+              fill: 'white',
+              classes: 'w-6'
+            })}
+            ${$userStats == null ? '...' : friendButtonTextMap[$userStats!.friendStatus]}
           </button>
         </div>
 
@@ -118,4 +151,4 @@ const UserPageComponent = Component((): UINode => {
   `;
 });
 
-export default UserPageComponent;
+export default AuthenticatedRoute(UserPageComponent);

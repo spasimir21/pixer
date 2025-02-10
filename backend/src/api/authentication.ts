@@ -1,4 +1,7 @@
 import { CRYPTO_CONSTANTS } from '@api/cryptoConstants';
+import { Crypto } from '@peculiar/webcrypto';
+
+const crypto = new Crypto();
 
 const MAX_TIMESTAMP_DIFFERENCE = Number(process.env.AUTH_MAX_TIMESTAMP_DIFFERENCE ?? '60000'); // 1m
 
