@@ -19,6 +19,14 @@ model User {
 
   friendRequests       FriendRequest[]   @relation(name: "recipient")
   sentFriendRequests   FriendRequest[]   @relation(name: "sender")
+
+  createdAlbums        Album[]           @relation(name: "createdAlbums")
+  sharedAlbums         Album[]           @relation(name: "sharedAlbums")
+
+  uploadedImages       Image[]
+  submissions          Submission[]
+
+  imageKeys            ImageKey[]
 }
 
 model EncryptedKeys {
@@ -46,4 +54,66 @@ model FriendRequest {
 
   recipientId   Bytes
   recipient     User        @relation(name: "recipient", fields: [recipientId], references: [id])
+}
+
+enum AlbumType {
+  PRIVATE
+  PUBLIC
+}
+
+model Album {
+  id                 String         @id @default(uuid())
+  createdAt          DateTime       @default(now())
+
+  creatorId          Bytes
+  creator            User           @relation(name: "createdAlbums", fields: [creatorId], references: [id])
+
+  name               String
+  type               AlbumType
+  
+  users              User[]         @relation(name: "sharedAlbums")
+  images             Image[]
+
+  allowSubmissions   Boolean        @default(false)
+  submissions        Submission[]
+}
+
+model ImageKey {
+  @@id([userId, imageId])
+
+  userId         Bytes
+  user           User     @relation(fields: [userId], references: [id])
+
+  imageId        String
+  image          Image    @relation(fields: [imageId], references: [id])
+
+  encryptedKey   Bytes
+}
+
+model Image {
+  id                 String       @id @default(uuid())
+  createdAt          DateTime     @default(now())
+  
+  creatorId          Bytes
+  creator            User         @relation(fields: [creatorId], references: [id])
+
+  albumId            String
+  album              Album        @relation(fields: [albumId], references: [id])
+
+  isSubmission       Boolean
+
+  isEncrypted        Boolean
+  encryptedRootKey   Bytes?
+  keys               ImageKey[]
+}
+
+model Submission {
+  id          String     @id @default(uuid())
+  createdAt   DateTime   @default(now())
+  
+  creatorId   Bytes
+  creator     User       @relation(fields: [creatorId], references: [id])
+
+  albumId     String
+  album       Album      @relation(fields: [albumId], references: [id])
 }
