@@ -3,7 +3,7 @@ import { NavigateToComponent, useNavigation, useRoute, useTitle } from '@lib/rou
 import { AuthenticationServiceManager } from '../service/AuthenticationService';
 import { ProfileIconComponent } from '../components/ProfileIcon/ProfileIcon';
 import { Component, useChildComponents, useState } from '@lib/component';
-import { HomeButtonComponent } from '../components/buttons/HomeButton';
+import { BackButtonComponent } from '../components/buttons/BackButton';
 import { AuthenticatedRoute } from '../components/AuthenticatedRoute';
 import { useLocalization } from '../service/LocalizationService';
 import { FriendStatus, UserStats } from '@api/dto/userStats';
@@ -40,12 +40,12 @@ const friendButtonIconMap: Record<FriendStatus, IconDefinition> = {
 };
 
 const UserPageComponent = Component((): UINode => {
-  const [NavigateTo, LoadingPage, Icon, Header, HomeButton, ProfileIcon] = useChildComponents(
+  const [NavigateTo, LoadingPage, Icon, Header, BackButton, ProfileIcon] = useChildComponents(
     NavigateToComponent,
     LoadingPageComponent,
     IconComponent,
     HeaderComponent,
-    HomeButtonComponent,
+    BackButtonComponent,
     ProfileIconComponent
   );
 
@@ -102,7 +102,7 @@ const UserPageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        left: HomeButton,
+        left: BackButton,
         title: () => l('user.profile.title')
       })}
 
@@ -121,14 +121,16 @@ const UserPageComponent = Component((): UINode => {
           <div
             class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer"
             @click=${() =>
-              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}>
+              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}
+          >
             ${Icon({ icon: faLink, fill: 'white', classes: 'w-5' })}
           </div>
         </div>
 
         <div class="flex gap-4 w-full px-6">
           <button
-            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default">
+            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default"
+          >
             ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$userStats?.friends ?? '??'}
             ${l('me.profile.friends')}
           </button>
@@ -138,7 +140,8 @@ const UserPageComponent = Component((): UINode => {
             .bg-green-500=${$userStats?.friendStatus === 'friends' || $userStats?.friendStatus === 'request-waiting'}
             .bg-red-500=${$userStats?.friendStatus === 'request-sent'}
             .bg-blue-500=${$userStats?.friendStatus === 'not-friends'}
-            @click=${doFriendAction}>
+            @click=${doFriendAction}
+          >
             ${Icon({
               icon: $userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus],
               fill: 'white',

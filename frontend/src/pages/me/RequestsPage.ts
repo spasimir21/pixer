@@ -12,6 +12,7 @@ import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { faCross, faMinus, faUserMinus, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useBackNavigate } from '../../hooks/useBackNavigate';
 
 const RequestsPageComponent = Component((): UINode => {
   const [Header, ProfileIcon, Icon, ProfileButton] = useChildComponents(
@@ -22,7 +23,7 @@ const RequestsPageComponent = Component((): UINode => {
   );
 
   const apiService = useService(APIServiceManager);
-  const { navigate } = useNavigation();
+  const navigate = useBackNavigate();
   const l = useLocalization();
 
   useTitle(() => `${l('pixer.title')} - ${l('me.requests.title')}`);

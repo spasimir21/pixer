@@ -3,6 +3,7 @@ import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
 import { Component, useChildComponents, useState } from '@lib/component';
 import { AuthenticatedRoute } from '../../components/AuthenticatedRoute';
 import { useLocalization } from '../../service/LocalizationService';
+import { useBackNavigate } from '../../hooks/useBackNavigate';
 import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
@@ -22,7 +23,7 @@ const FriendsPageComponent = Component((): UINode => {
   );
 
   const apiService = useService(APIServiceManager);
-  const { navigate } = useNavigation();
+  const navigate = useBackNavigate();
   const l = useLocalization();
 
   useTitle(() => `${l('pixer.title')} - ${l('me.friends.title')}`);
