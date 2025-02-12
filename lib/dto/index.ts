@@ -15,6 +15,7 @@ export * from './types/string';
 export * from './types/either';
 export * from './types/buffer';
 export * from './types/object';
+export * from './types/uuidV4';
 export * from './types/float';
 export * from './types/value';
 export * from './types/array';

@@ -74,7 +74,7 @@ model Album {
   users              User[]         @relation(name: "sharedAlbums")
   images             Image[]
 
-  allowSubmissions   Boolean        @default(false)
+  allowSubmissions   Boolean
   submissions        Submission[]
 }
 
