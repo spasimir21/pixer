@@ -1,15 +1,15 @@
 import { _enum, date, DTOType, int, object } from '@lib/dto';
 import { user } from './user';
 
-const friendStatus = _enum('friends', 'not-friends', 'request-sent', 'request-waiting');
+const FriendStatus = _enum('Friends', 'NotFriends', 'RequestSent', 'RequestWaiting');
 
-type FriendStatus = DTOType<typeof friendStatus>;
+type FriendStatus = DTOType<typeof FriendStatus>;
 
 const userStats = object({
   id: user.id,
   username: user.username,
   createdAt: date(),
-  friendStatus,
+  friendStatus: FriendStatus,
   friends: int(),
   uploadedImages: int(),
   createdAlbums: int()
@@ -27,4 +27,4 @@ const userOwnStats = object({
 
 type UserOwnStats = DTOType<typeof userOwnStats>;
 
-export { userStats, UserStats, friendStatus, FriendStatus, userOwnStats, UserOwnStats };
+export { userStats, UserStats, FriendStatus, userOwnStats, UserOwnStats };

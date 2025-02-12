@@ -119,10 +119,10 @@ const APIUserHandlers: APIHandlers['user'] = {
 
     // prettier-ignore
     const friendStatus: FriendStatus =
-        request == null ? 'not-friends'
-      : request.accepted ? 'friends'
-      : request.senderId.toString('hex') === user.id.toString('hex') ? 'request-waiting'
-      : 'request-sent';
+        request == null ? FriendStatus.NotFriends
+      : request.accepted ? FriendStatus.Friends
+      : request.senderId.toString('hex') === user.id.toString('hex') ? FriendStatus.RequestWaiting
+      : FriendStatus.RequestSent;
 
     return {
       id: toUint8Array(user.id),

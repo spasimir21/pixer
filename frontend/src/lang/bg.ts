@@ -7,6 +7,9 @@ const BG: Translations = {
     tagline: 'Споделени, енкриптирани албуми'
   },
   loading: 'Зарежда се...',
+  home: {
+    noAlbums: 'Нямате албуми'
+  },
   login: {
     title: 'Логин',
     description: 'Влезни в профила си',
@@ -61,6 +64,11 @@ const BG: Translations = {
         cancelRequest: 'Спри Поканата',
         acceptRequest: 'Приеми Покана'
       }
+    }
+  },
+  album: {
+    create: {
+      title: 'Създай Албум'
     }
   }
 };

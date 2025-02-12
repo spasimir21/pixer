@@ -6,6 +6,9 @@ const EN = {
     tagline: 'Shared, encrypted albums for all'
   },
   loading: 'Loading...',
+  home: {
+    noAlbums: 'You currently have no albums'
+  },
   login: {
     title: 'Login',
     description: 'Log into your account',
@@ -60,6 +63,11 @@ const EN = {
         cancelRequest: 'Cancel Request',
         acceptRequest: 'Accept Request'
       }
+    }
+  },
+  album: {
+    create: {
+      title: 'Create an Album'
     }
   }
 } as const;

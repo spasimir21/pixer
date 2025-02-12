@@ -55,6 +55,17 @@ const ROUTES: RouteDefinition[] = [
     component: async () => (await import('./pages/UserPage')).default
   },
   {
+    name: 'album',
+    path: '/album',
+    children: [
+      {
+        name: 'create',
+        path: '/create',
+        component: async () => (await import('./pages/album/CreateAlbumPage')).default
+      }
+    ]
+  },
+  {
     name: 'not-found',
     path: '**',
     component: NotFoundPageComponent

@@ -26,17 +26,17 @@ import {
 import { html, UINode } from '@lib/ui';
 
 const friendButtonTextMap: Record<FriendStatus, TranslationKey> = {
-  'friends': 'user.profile.friendStatus.friends',
-  'not-friends': 'user.profile.friendStatus.sendRequest',
-  'request-sent': 'user.profile.friendStatus.cancelRequest',
-  'request-waiting': 'user.profile.friendStatus.acceptRequest'
+  [FriendStatus.Friends]: 'user.profile.friendStatus.friends',
+  [FriendStatus.NotFriends]: 'user.profile.friendStatus.sendRequest',
+  [FriendStatus.RequestSent]: 'user.profile.friendStatus.cancelRequest',
+  [FriendStatus.RequestWaiting]: 'user.profile.friendStatus.acceptRequest'
 };
 
 const friendButtonIconMap: Record<FriendStatus, IconDefinition> = {
-  'friends': faUserCheck,
-  'not-friends': faEnvelope,
-  'request-sent': faEnvelopeOpen,
-  'request-waiting': faEnvelopeCircleCheck
+  [FriendStatus.Friends]: faUserCheck,
+  [FriendStatus.NotFriends]: faEnvelope,
+  [FriendStatus.RequestSent]: faEnvelopeOpen,
+  [FriendStatus.RequestWaiting]: faEnvelopeCircleCheck
 };
 
 const UserPageComponent = Component((): UINode => {
@@ -79,19 +79,19 @@ const UserPageComponent = Component((): UINode => {
 
     $isDoingFriendAction = true;
 
-    if ($userStats!.friendStatus === 'not-friends') {
+    if ($userStats!.friendStatus === FriendStatus.NotFriends) {
       const response = await apiService.send(requests.friendRequests.sendRequest, { to: $userStats!.id });
 
-      if (response.error == null && response.result === true) $userStats!.friendStatus = 'request-sent';
-    } else if ($userStats!.friendStatus === 'request-sent') {
+      if (response.error == null && response.result === true) $userStats!.friendStatus = FriendStatus.RequestSent;
+    } else if ($userStats!.friendStatus === FriendStatus.RequestSent) {
       const response = await apiService.send(requests.friendRequests.cancelRequest, { to: $userStats!.id });
 
-      if (response.error == null && response.result === true) $userStats!.friendStatus = 'not-friends';
-    } else if ($userStats!.friendStatus === 'request-waiting') {
+      if (response.error == null && response.result === true) $userStats!.friendStatus = FriendStatus.NotFriends;
+    } else if ($userStats!.friendStatus === FriendStatus.RequestWaiting) {
       const response = await apiService.send(requests.friendRequests.acceptRequest, { from: $userStats!.id });
 
       if (response.error == null && response.result === true) {
-        $userStats!.friendStatus = 'friends';
+        $userStats!.friendStatus = FriendStatus.Friends;
         $userStats!.friends++;
       }
     }
@@ -121,27 +121,25 @@ const UserPageComponent = Component((): UINode => {
           <div
             class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer"
             @click=${() =>
-              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}
-          >
+              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}>
             ${Icon({ icon: faLink, fill: 'white', classes: 'w-5' })}
           </div>
         </div>
 
         <div class="flex gap-4 w-full px-6">
           <button
-            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default"
-          >
+            class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow cursor-default">
             ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$userStats?.friends ?? '??'}
             ${l('me.profile.friends')}
           </button>
 
           <button
             class="outline-none text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
-            .bg-green-500=${$userStats?.friendStatus === 'friends' || $userStats?.friendStatus === 'request-waiting'}
-            .bg-red-500=${$userStats?.friendStatus === 'request-sent'}
-            .bg-blue-500=${$userStats?.friendStatus === 'not-friends'}
-            @click=${doFriendAction}
-          >
+            .bg-green-500=${$userStats?.friendStatus === FriendStatus.Friends ||
+            $userStats?.friendStatus === FriendStatus.RequestWaiting}
+            .bg-red-500=${$userStats?.friendStatus === FriendStatus.RequestSent}
+            .bg-blue-500=${$userStats?.friendStatus === FriendStatus.NotFriends}
+            @click=${doFriendAction}>
             ${Icon({
               icon: $userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus],
               fill: 'white',
