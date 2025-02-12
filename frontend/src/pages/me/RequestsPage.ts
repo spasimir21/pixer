@@ -68,7 +68,7 @@ const RequestsPageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        left: ProfileButton,
+        right: ProfileButton,
         title: () => l('me.requests.title')
       })}
 
