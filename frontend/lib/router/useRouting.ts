@@ -72,7 +72,12 @@ function useRouting(routes: RouteDefinition[]) {
   useProvideNavigation(() => ({
     navigate: location => {
       if (typeof location === 'string') {
-        history.pushState(null, '', location);
+        history.pushState(
+          { currentLocation: location, prevLocation: history.state?.currentLocation ?? null },
+          '',
+          location
+        );
+
         updateRoute();
         return;
       }
@@ -96,7 +101,7 @@ function useRouting(routes: RouteDefinition[]) {
       path += search;
       path += location.hash != null ? `#${location.hash}` : window.location.hash;
 
-      history.pushState(null, '', path);
+      history.pushState({ currentLocation: path, prevLocation: history.state?.currentLocation ?? null }, '', path);
       updateRoute();
     },
     back: () => window.history.back(),

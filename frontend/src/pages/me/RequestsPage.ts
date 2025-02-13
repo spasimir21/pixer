@@ -7,12 +7,11 @@ import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
 import { IconComponent } from '../../components/Icon';
-import { Friend, FriendRequest } from '@api/dto/friendRequest';
+import { Friend, FriendRequest } from '@api/dto/friend';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { faCross, faMinus, faUserMinus, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { useBackNavigate } from '../../hooks/useBackNavigate';
 import { BackButtonComponent } from '../../components/buttons/BackButton';
 
 const RequestsPageComponent = Component((): UINode => {
@@ -24,14 +23,14 @@ const RequestsPageComponent = Component((): UINode => {
   );
 
   const apiService = useService(APIServiceManager);
-  const navigate = useBackNavigate();
+  const { navigate } = useNavigation();
   const l = useLocalization();
 
   useTitle(() => `${l('pixer.title')} - ${l('me.requests.title')}`);
 
   const friendRequests = useState<FriendRequest[] | null>(null);
 
-  apiService.send(requests.friendRequests.getRequests, {}).then(response => {
+  apiService.send(requests.friend.getRequests, {}).then(response => {
     if (response.error) {
       navigate({ route: 'home' });
       return;
@@ -46,7 +45,7 @@ const RequestsPageComponent = Component((): UINode => {
     if ($isDoingAction) return;
     $isDoingAction = true;
 
-    const response = await apiService.send(requests.friendRequests.acceptRequest, { from: request.userId });
+    const response = await apiService.send(requests.friend.acceptRequest, { from: request.userId });
 
     if (response.error == null && response.result === true)
       $friendRequests!.splice($friendRequests!.indexOf(request), 1);
@@ -58,7 +57,7 @@ const RequestsPageComponent = Component((): UINode => {
     if ($isDoingAction) return;
     $isDoingAction = true;
 
-    const response = await apiService.send(requests.friendRequests.rejectRequest, { from: request.userId });
+    const response = await apiService.send(requests.friend.rejectRequest, { from: request.userId });
 
     if (response.error == null && response.result === true)
       $friendRequests!.splice($friendRequests!.indexOf(request), 1);
@@ -75,10 +74,10 @@ const RequestsPageComponent = Component((): UINode => {
 
       <div class="flex-grow flex flex-col w-full max-w-[430px]">
         <if ${$friendRequests == null}>
-          <p class="text-gray-700 text-lg text-center mt-4">${l('loading')}</p>
+          <p class="text-gray-400 text-lg text-center mt-4">${l('loading')}</p>
         </if>
         <else-if ${$friendRequests!.length === 0}>
-          <p class="text-gray-700 text-lg text-center mt-4">${l('me.requests.noRequests')}</p>
+          <p class="text-gray-400 text-lg text-center mt-4">${l('me.requests.noRequests')}</p>
         </else-if>
         <else>
           <each ${$friendRequests!}>
@@ -89,20 +88,20 @@ const RequestsPageComponent = Component((): UINode => {
                 <div class="flex items-center gap-4">
                   ${ProfileIcon({
                     userId: () => request.userId,
-                    classes: 'w-9'
+                    classes: 'w-9 cursor-pointer'
                   })}
 
-                  <p class="text-gray-700 text-xl font-bold">${request.username}</p>
+                  <p class="text-gray-700 text-xl font-bold cursor-pointer">${request.username}</p>
                 </div>
 
                 <div class="flex items-center gap-2">
                   <div
-                    class="w-9 h-9 grid place-items-center rounded-lg bg-red-500 text-white font-bold"
+                    class="cursor-pointer w-9 h-9 grid place-items-center rounded-lg bg-red-500 text-white font-bold"
                     @click:stopPropagation=${() => rejectRequest(request)}>
                     ${Icon({ icon: faUserMinus, fill: 'white', classes: 'w-5' })}
                   </div>
                   <div
-                    class="w-9 h-9 grid place-items-center rounded-lg bg-green-500 text-white font-bold"
+                    class="cursor-pointer w-9 h-9 grid place-items-center rounded-lg bg-green-500 text-white font-bold"
                     @click:stopPropagation=${() => acceptRequest(request)}>
                     ${Icon({ icon: faUserPlus, fill: 'white', classes: 'w-5' })}
                   </div>

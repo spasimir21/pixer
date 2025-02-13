@@ -1,6 +1,6 @@
 import { StateNode, ValueNode } from '@lib/reactivity';
 import { Component, useChildComponents, useComputed, useEffect, useState } from '@lib/component';
-import { Friend } from '@api/dto/friendRequest';
+import { Friend } from '@api/dto/friend';
 import { html, UINode } from '@lib/ui';
 import { ProfileIconComponent } from '../ProfileIcon/ProfileIcon';
 import { useLocalization } from '../../service/LocalizationService';
@@ -44,7 +44,7 @@ const UserSelectComponent = Component(
           <div class="flex flex-col items-stretch grow overflow-y-auto">
             <p
               .hidden=${$users.some(user => user.username.toLowerCase().includes($search.toLowerCase()))}
-              class="text-xl text-gray-700 text-center">
+              class="text-xl text-gray-400 text-center">
               ${l('user.select.noUsers')}
             </p>
 
@@ -52,7 +52,7 @@ const UserSelectComponent = Component(
               ${(user: Friend) => html`
                 <div
                   .hidden=${!user.username.toLowerCase().includes($search.toLowerCase())}
-                  class="flex items-center gap-4 py-3 px-3 border-b-2 border-gray-200"
+                  class="flex items-center gap-4 py-3 px-3 border-b-2 border-gray-200 cursor-pointer"
                   @click=${() => (($isOpen = false), onUserSelected(user))}>
                   ${ProfileIcon({
                     userId: () => user.id,

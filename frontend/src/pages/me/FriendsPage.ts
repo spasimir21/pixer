@@ -3,12 +3,11 @@ import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
 import { Component, useChildComponents, useState } from '@lib/component';
 import { AuthenticatedRoute } from '../../components/AuthenticatedRoute';
 import { useLocalization } from '../../service/LocalizationService';
-import { useBackNavigate } from '../../hooks/useBackNavigate';
 import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
 import { IconComponent } from '../../components/Icon';
-import { Friend } from '@api/dto/friendRequest';
+import { Friend } from '@api/dto/friend';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
@@ -24,14 +23,14 @@ const FriendsPageComponent = Component((): UINode => {
   );
 
   const apiService = useService(APIServiceManager);
-  const navigate = useBackNavigate();
+  const { navigate } = useNavigation();
   const l = useLocalization();
 
   useTitle(() => `${l('pixer.title')} - ${l('me.friends.title')}`);
 
   const friends = useState<Friend[] | null>(null);
 
-  apiService.send(requests.user.getFriends, {}).then(response => {
+  apiService.send(requests.friend.getFriends, {}).then(response => {
     if (response.error) {
       navigate({ route: 'home' });
       return;
@@ -46,7 +45,7 @@ const FriendsPageComponent = Component((): UINode => {
     if ($isRemoving) return;
     $isRemoving = true;
 
-    const response = await apiService.send(requests.user.unfriend, { userId: friend.id });
+    const response = await apiService.send(requests.friend.unfriend, { userId: friend.id });
 
     if (response.error == null && response.result === true) $friends!.splice($friends!.indexOf(friend), 1);
 
@@ -62,10 +61,10 @@ const FriendsPageComponent = Component((): UINode => {
 
       <div class="flex-grow flex flex-col w-full max-w-[430px]">
         <if ${$friends == null}>
-          <p class="text-gray-700 text-lg text-center mt-4">${l('loading')}</p>
+          <p class="text-gray-400 text-lg text-center mt-4">${l('loading')}</p>
         </if>
         <else-if ${$friends?.length === 0}>
-          <p class="text-gray-700 text-lg text-center mt-4">${l('me.friends.noFriends')}</p>
+          <p class="text-gray-400 text-lg text-center mt-4">${l('me.friends.noFriends')}</p>
         </else-if>
         <else>
           <each ${$friends}>
@@ -76,14 +75,14 @@ const FriendsPageComponent = Component((): UINode => {
                 <div class="flex items-center gap-4">
                   ${ProfileIcon({
                     userId: () => friend.id,
-                    classes: 'w-9'
+                    classes: 'w-9 cursor-pointer'
                   })}
 
-                  <p class="text-gray-700 text-xl font-bold">${friend.username}</p>
+                  <p class="text-gray-700 text-xl font-bold cursor-pointer">${friend.username}</p>
                 </div>
 
                 <div
-                  class="flex px-3 py-1 gap-2 items-center rounded-lg bg-red-500 text-white font-bold"
+                  class="cursor-pointer flex px-3 py-1 gap-2 items-center rounded-lg bg-red-500 text-white font-bold"
                   @click:stopPropagation=${() => removeFriend(friend)}>
                   ${Icon({ icon: faUserMinus, fill: 'white', classes: 'w-4' })} ${l('me.friends.remove')}
                 </div>

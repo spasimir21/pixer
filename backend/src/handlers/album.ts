@@ -1,9 +1,9 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { toBuffer, toUint8Array } from '../utils/buffer';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { dbClient } from '../data/dbClient';
 import { b2Client } from '../data/b2Client';
 import { AlbumType } from '@prisma/client';
-import { toBuffer } from '../utils/buffer';
 import { toHex } from '@lib/utils/hex';
 import { APIHandlers } from './index';
 
@@ -25,10 +25,79 @@ const APIAlbumHandlers: APIHandlers['album'] = {
         }
       });
 
-      return { id: album.id };
+      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users };
     } catch {
       return null;
     }
+  },
+  getAccessibleAlbumsInfo: async ({ includeUsers }, { userId }) => {
+    const user = await dbClient.user.findFirst({
+      where: {
+        id: toBuffer(userId)
+      },
+      select: {
+        createdAlbums: {
+          include: {
+            users: includeUsers
+              ? {
+                  select: { id: true }
+                }
+              : false
+          }
+        },
+        sharedAlbums: {
+          include: {
+            users: includeUsers
+              ? {
+                  select: { id: true }
+                }
+              : false
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    if (user == null) return { own: [], shared: [] };
+
+    return {
+      own: user.createdAlbums.map(album => ({
+        ...album,
+        creatorId: toUint8Array(album.creatorId),
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+      })),
+      shared: user.sharedAlbums.map(album => ({
+        ...album,
+        creatorId: toUint8Array(album.creatorId),
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+      }))
+    };
+  },
+  getPublicAlbumsInfo: async ({ includeUsers, albumIds }) => {
+    const albums = await dbClient.album.findMany({
+      where: {
+        id: { in: albumIds },
+        type: AlbumType.PUBLIC
+      },
+      include: {
+        users: includeUsers
+          ? {
+              select: { id: true }
+            }
+          : false
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    return albums.map(album => ({
+      ...album,
+      creatorId: toUint8Array(album.creatorId),
+      users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+    }));
   },
   uploadAlbumCover: async ({ albumId, fileSize }, { userId }) => {
     const album = await dbClient.album.findFirst({
@@ -41,8 +110,8 @@ const APIAlbumHandlers: APIHandlers['album'] = {
     if (album == null) return null;
 
     const coverCommand = new PutObjectCommand({
-      Bucket: 'profile-icons',
-      Key: `album/${albumId}`,
+      Bucket: 'album-covers',
+      Key: `${albumId}`,
       ContentType: 'image/png',
       ContentLength: fileSize
     });

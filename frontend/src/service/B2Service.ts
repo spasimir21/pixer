@@ -9,15 +9,14 @@ class B2Service extends Service {
     super();
   }
 
-  profileIcon(hexId: string, fullSize = false, invalidatable = false) {
-    return (
-      `https://profile-icons.${this.b2Origin}/${fullSize ? 'full' : 'small'}/${hexId}` +
-      (invalidatable ? `?temp=${this.profileIconTemp}` : '')
-    );
+  profileIcon(hexId: string, fullSize = false) {
+    return `https://profile-icons.${this.b2Origin}/${fullSize ? 'full' : 'small'}/${hexId}?temp=${
+      this.profileIconTemp
+    }`;
   }
 
   albumCover(id: string) {
-    return `https://profile-icons.${this.b2Origin}/album/${id}?temp=${this.albumCoverTemp}`;
+    return `https://album-covers.${this.b2Origin}/${id}?temp=${this.albumCoverTemp}`;
   }
 
   invalidateProfileIcons() {

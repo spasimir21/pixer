@@ -1,11 +1,12 @@
 import { DTO } from '../DTO';
+import { int } from './int';
 
 interface ArrayOptions<T> {
-  length: DTO<number>;
+  length?: DTO<number>;
   of: DTO<T>;
 }
 
-const array = <T>({ length, of }: ArrayOptions<T>): DTO<T[]> => ({
+const array = <T>({ length = int(), of }: ArrayOptions<T>): DTO<T[]> => ({
   validator: {
     isValid: (value): value is T[] => {
       if (!Array.isArray(value)) return false;

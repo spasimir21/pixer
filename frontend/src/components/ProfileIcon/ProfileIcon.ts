@@ -7,12 +7,10 @@ import { toHex } from '@lib/utils/hex';
 const ProfileIconComponent = Component(
   ({
     userId,
-    invalidatable = false,
     fullSize = false,
     classes = ''
   }: {
     userId: () => Uint8Array | null;
-    invalidatable?: boolean;
     fullSize?: boolean;
     classes?: string;
   }): UINode => {
@@ -31,7 +29,7 @@ const ProfileIconComponent = Component(
       const hexId = toHex(id);
 
       const image = document.createElement('img');
-      image.src = b2Service.profileIcon(hexId, fullSize, invalidatable);
+      image.src = b2Service.profileIcon(hexId, fullSize);
 
       image.onload = () => ($imageSrc = image.src);
       image.onerror = () => ($imageSrc = '/assets/profile.png');

@@ -80,15 +80,15 @@ const UserPageComponent = Component((): UINode => {
     $isDoingFriendAction = true;
 
     if ($userStats!.friendStatus === FriendStatus.NotFriends) {
-      const response = await apiService.send(requests.friendRequests.sendRequest, { to: $userStats!.id });
+      const response = await apiService.send(requests.friend.sendRequest, { to: $userStats!.id });
 
       if (response.error == null && response.result === true) $userStats!.friendStatus = FriendStatus.RequestSent;
     } else if ($userStats!.friendStatus === FriendStatus.RequestSent) {
-      const response = await apiService.send(requests.friendRequests.cancelRequest, { to: $userStats!.id });
+      const response = await apiService.send(requests.friend.cancelRequest, { to: $userStats!.id });
 
       if (response.error == null && response.result === true) $userStats!.friendStatus = FriendStatus.NotFriends;
     } else if ($userStats!.friendStatus === FriendStatus.RequestWaiting) {
-      const response = await apiService.send(requests.friendRequests.acceptRequest, { from: $userStats!.id });
+      const response = await apiService.send(requests.friend.acceptRequest, { from: $userStats!.id });
 
       if (response.error == null && response.result === true) {
         $userStats!.friendStatus = FriendStatus.Friends;
@@ -161,14 +161,14 @@ const UserPageComponent = Component((): UINode => {
           <div class="flex items-center gap-4">
             ${Icon({ icon: faImage, fill: 'rgb(55 65 81)', classes: 'w-6' })}
             <p class="text-gray-700 text-xl">
-              <span class="font-bold">${$userStats?.uploadedImages ?? '??'}</span> ${l('me.profile.uploadedImages')}
+              <span class="font-bold">${$userStats?.publicImages ?? '??'}</span> ${l('user.profile.publicImages')}
             </p>
           </div>
 
           <div class="flex items-center gap-4">
             ${Icon({ icon: faFolderClosed, fill: 'rgb(55 65 81)', classes: 'w-6' })}
             <p class="text-gray-700 text-xl">
-              <span class="font-bold">${$userStats?.createdAlbums ?? '??'}</span> ${l('me.profile.createdAlbums')}
+              <span class="font-bold">${$userStats?.publicAlbums ?? '??'}</span> ${l('user.profile.publicAlbums')}
             </p>
           </div>
         </div>

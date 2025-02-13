@@ -2,12 +2,10 @@ import { faFolderClosed, faImage, faCalendar, faEnvelope } from '@fortawesome/fr
 import { ProfileIconUploadComponent } from '../../components/ProfileIcon/ProfileIconUpload';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { LogOutButtonComponent } from '../../components/buttons/LogOutButton';
-import { HomeButtonComponent } from '../../components/buttons/HomeButton';
 import { Component, useChildComponents, useState } from '@lib/component';
 import { AuthenticatedRoute } from '../../components/AuthenticatedRoute';
 import { faLink, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { useLocalization } from '../../service/LocalizationService';
-import { useBackNavigate } from '../../hooks/useBackNavigate';
 import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
@@ -17,19 +15,19 @@ import { requests } from '../../api/requests';
 import { formatDate } from '../../misc/date';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
+import { BackButtonComponent } from '../../components/buttons/BackButton';
 
 const ProfilePageComponent = Component((): UINode => {
-  const [Header, ProfileIconUpload, Icon, HomeButton, LogOutButton] = useChildComponents(
+  const [Header, ProfileIconUpload, Icon, BackButton, LogOutButton] = useChildComponents(
     HeaderComponent,
     ProfileIconUploadComponent,
     IconComponent,
-    HomeButtonComponent,
+    BackButtonComponent,
     LogOutButtonComponent
   );
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
-  const backNavigate = useBackNavigate();
   const { navigate } = useNavigation();
   const l = useLocalization();
 
@@ -49,7 +47,7 @@ const ProfilePageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        left: HomeButton,
+        left: BackButton,
         title: () => l('me.profile.title'),
         right: LogOutButton
       })}
@@ -73,14 +71,14 @@ const ProfilePageComponent = Component((): UINode => {
         <div class="flex gap-4 w-full px-6">
           <button
             class="outline-none bg-gray-300 text-gray-700 font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
-            @click=${() => backNavigate({ route: 'me.friends' })}>
+            @click=${() => navigate({ route: 'me.friends' })}>
             ${Icon({ icon: faUserGroup, fill: 'rgb(55 65 81)', classes: 'w-6' })} ${$ownStats?.friends ?? '??'}
             ${l('me.profile.friends')}
           </button>
 
           <button
             class="outline-none bg-blue-500 text-white font-bold text-xl rounded-lg flex gap-3 items-center justify-center py-3 flex-grow"
-            @click=${() => backNavigate({ route: 'me.requests' })}>
+            @click=${() => navigate({ route: 'me.requests' })}>
             ${Icon({ icon: faEnvelope, fill: 'white', classes: 'w-6' })} ${$ownStats?.requests ?? '??'}
             ${l('me.profile.requests')}
           </button>

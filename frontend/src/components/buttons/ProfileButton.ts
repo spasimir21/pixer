@@ -15,7 +15,6 @@ const ProfileButtonComponent = Component((): UINode => {
     <div class="w-9 h-9 cursor-pointer" @click=${() => navigate({ route: 'me.profile' })}>
       ${ProfileIcon({
         userId: () => authService.user?.id ?? null,
-        invalidatable: true,
         classes: 'w-9 h-9'
       })}
     </div>

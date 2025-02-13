@@ -1,10 +1,10 @@
 import { array, boolean, int, object } from '@lib/dto';
-import { friendRequest } from '../dto/friendRequest';
+import { friend, friendRequest } from '../dto/friend';
 import { apiRoutes } from '../APISegment';
 import { user } from '../dto/user';
 
-const APIFriendRequests = apiRoutes({
-  name: 'friendRequests',
+const APIFriend = apiRoutes({
+  name: 'friend',
   routes: [
     {
       name: 'sendRequest',
@@ -36,16 +36,28 @@ const APIFriendRequests = apiRoutes({
       input: object({}),
       result: object({
         outgoing: array({
-          length: int(),
           of: friendRequest
         }),
         incoming: array({
-          length: int(),
           of: friendRequest
         })
       })
+    },
+    {
+      name: 'getFriends',
+      isAuthenticated: true,
+      input: object({}),
+      result: array({
+        of: friend
+      })
+    },
+    {
+      name: 'unfriend',
+      isAuthenticated: true,
+      input: object({ userId: user.id }),
+      result: boolean()
     }
   ]
 } as const);
 
-export { APIFriendRequests };
+export { APIFriend };

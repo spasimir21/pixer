@@ -21,7 +21,7 @@ const LogOutButtonComponent = Component((): UINode => {
     <div class="w-9 grid place-items-center cursor-pointer" @click=${logout}>
       ${Icon({
         icon: faDoorOpen,
-        fill: 'rgb(55 65 81)',
+        fill: '#374151',
         classes: 'w-8'
       })}
     </div>

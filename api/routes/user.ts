@@ -1,7 +1,6 @@
 import { array, boolean, int, nullable, object, string } from '@lib/dto';
 import { userOwnStats, userStats } from '../dto/userStats';
 import { user, userWithEncryptedKeys } from '../dto/user';
-import { friend } from '../dto/friendRequest';
 import { apiRoutes } from '../APISegment';
 
 const APIUser = apiRoutes({
@@ -36,21 +35,6 @@ const APIUser = apiRoutes({
         username: nullable(user.username)
       }),
       result: nullable(userStats)
-    },
-    {
-      name: 'getFriends',
-      isAuthenticated: true,
-      input: object({}),
-      result: array({
-        length: int(),
-        of: friend
-      })
-    },
-    {
-      name: 'unfriend',
-      isAuthenticated: true,
-      input: object({ userId: user.id }),
-      result: boolean()
     },
     {
       name: 'uploadProfileIcon',

@@ -8,7 +8,9 @@ const BG: Translations = {
   },
   loading: 'Зарежда се...',
   home: {
-    noAlbums: 'Нямате албуми'
+    noAlbums: 'Нямате албуми',
+    yourAlbums: 'Твоите Албуми',
+    sharedAlbums: 'Споделени Албуми'
   },
   login: {
     title: 'Логин',
@@ -63,7 +65,9 @@ const BG: Translations = {
         sendRequest: 'Прати Покана',
         cancelRequest: 'Спри Поканата',
         acceptRequest: 'Приеми Покана'
-      }
+      },
+      publicImages: 'Публични Снимки',
+      publicAlbums: 'Публични Албуми'
     },
     select: {
       search: 'Потърси Потребител',

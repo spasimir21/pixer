@@ -2,7 +2,7 @@ import { toBuffer, toUint8Array } from '../utils/buffer';
 import { dbClient } from '../data/dbClient';
 import { APIHandlers } from './index';
 
-const APIFriendRequestsHandlers: APIHandlers['friendRequests'] = {
+const APIFriendHandlers: APIHandlers['friend'] = {
   sendRequest: async ({ to }, { userId }) => {
     const existingRequest = await dbClient.friendRequest.findFirst({
       where: {
@@ -85,7 +85,64 @@ const APIFriendRequestsHandlers: APIHandlers['friendRequests'] = {
         username: req.sender.username
       }))
     };
+  },
+  getFriends: async ({}, { userId }) => {
+    const friendRequests = await dbClient.friendRequest.findMany({
+      where: {
+        recipientId: toBuffer(userId),
+        accepted: true
+      },
+      include: {
+        sender: {
+          select: { id: true, username: true }
+        }
+      }
+    });
+
+    const sentFriendRequests = await dbClient.friendRequest.findMany({
+      where: {
+        senderId: toBuffer(userId),
+        accepted: true
+      },
+      include: {
+        recipient: {
+          select: { id: true, username: true }
+        }
+      }
+    });
+
+    return [
+      ...sentFriendRequests.map(req => ({ id: toUint8Array(req.recipient.id), username: req.recipient.username })),
+      ...friendRequests.map(req => ({ id: toUint8Array(req.sender.id), username: req.sender.username }))
+    ];
+  },
+  unfriend: async ({ userId }, { userId: meId }) => {
+    try {
+      await dbClient.friendRequest.delete({
+        where: {
+          senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(meId) },
+          accepted: true
+        }
+      });
+
+      return true;
+    } catch {}
+
+    try {
+      await dbClient.friendRequest.delete({
+        where: {
+          senderId_recipientId: { senderId: toBuffer(meId), recipientId: toBuffer(userId) },
+          accepted: true
+        }
+      });
+
+      return true;
+    } catch {}
+
+    // TODO: Remove from shared albums
+
+    return false;
   }
 };
 
-export { APIFriendRequestsHandlers };
+export { APIFriendHandlers };

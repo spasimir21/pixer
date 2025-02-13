@@ -11,8 +11,8 @@ const userStats = object({
   createdAt: date(),
   friendStatus: FriendStatus,
   friends: int(),
-  uploadedImages: int(),
-  createdAlbums: int()
+  publicImages: int(),
+  publicAlbums: int()
 });
 
 type UserStats = DTOType<typeof userStats>;

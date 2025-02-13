@@ -72,7 +72,7 @@ const AlbumCoverUploadComponent = Component(
       <div
         class=${`w-60 h-60 rounded-lg ${
           $coverSrc == null ? 'border-2' : ''
-        } border-gray-400 grid place-items-center shadow-md`}
+        } border-gray-400 grid place-items-center shadow-md cursor-pointer`}
         @click=${changeCover}>
         <if ${$coverSrc == null}>
           ${Icon({

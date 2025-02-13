@@ -7,7 +7,9 @@ const EN = {
   },
   loading: 'Loading...',
   home: {
-    noAlbums: 'You currently have no albums'
+    noAlbums: 'You currently have no albums',
+    yourAlbums: 'Your Albums',
+    sharedAlbums: 'Shared Albums'
   },
   login: {
     title: 'Login',
@@ -62,7 +64,9 @@ const EN = {
         sendRequest: 'Send Request',
         cancelRequest: 'Cancel Request',
         acceptRequest: 'Accept Request'
-      }
+      },
+      publicImages: 'Public Images',
+      publicAlbums: 'Public Albums'
     },
     select: {
       search: 'Search User',

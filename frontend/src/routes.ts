@@ -62,6 +62,11 @@ const ROUTES: RouteDefinition[] = [
         name: 'create',
         path: '/create',
         component: async () => (await import('./pages/album/CreateAlbumPage')).default
+      },
+      {
+        name: 'view',
+        path: '/[albumId]',
+        component: async () => (await import('./pages/album/ViewAlbumPage')).default
       }
     ]
   },

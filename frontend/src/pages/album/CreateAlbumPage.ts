@@ -1,5 +1,4 @@
 import { AlbumCoverUploadComponent } from '../../components/album/AlbumCoverUpload';
-import { HomeButtonComponent } from '../../components/buttons/HomeButton';
 import { AuthenticatedRoute } from '../../components/AuthenticatedRoute';
 import { useLocalization } from '../../service/LocalizationService';
 import { Component, useChildComponents, useComputed, useEffect, useState } from '@lib/component';
@@ -12,17 +11,18 @@ import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
 import { useService } from '@lib/service';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { ValueNode } from '@lib/reactivity';
-import { Friend } from '@api/dto/friendRequest';
+import { Friend } from '@api/dto/friend';
 import { APIServiceManager } from '../../service/APIService';
 import { requests } from '../../api/requests';
 import { UserSelectComponent } from '../../components/user/UserSelect';
 import { AlbumType } from '@api/dto/album';
 import { toHex } from '@lib/utils/hex';
+import { BackButtonComponent } from '../../components/buttons/BackButton';
 
 const CreateAlbumPageComponent = Component((): UINode => {
-  const [Header, HomeButton, AlbumCoverUpload, Icon, ProfileIcon, UserSelect] = useChildComponents(
+  const [Header, BackButton, AlbumCoverUpload, Icon, ProfileIcon, UserSelect] = useChildComponents(
     HeaderComponent,
-    HomeButtonComponent,
+    BackButtonComponent,
     AlbumCoverUploadComponent,
     IconComponent,
     ProfileIconComponent,
@@ -51,7 +51,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
 
   const friends = useState<Friend[]>([]);
 
-  apiService.send(requests.user.getFriends, {}).then(response => {
+  apiService.send(requests.friend.getFriends, {}).then(response => {
     if (response.error) return;
     $friends = response.result;
   });
@@ -83,8 +83,6 @@ const CreateAlbumPageComponent = Component((): UINode => {
     if (response.error == null && response.result != null) {
       await $uploadAlbumCover(response.result.id);
 
-      console.log(response.result);
-
       navigate({ route: 'home' });
 
       return;
@@ -96,7 +94,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        left: HomeButton,
+        left: BackButton,
         title: () => l('album.create.title')
       })}
 
@@ -163,7 +161,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
 
             <each ${$users}>
               ${(user: Friend) => html`
-                <div @click=${() => removeUser(user)}>
+                <div class="cursor-pointer" @click=${() => removeUser(user)}>
                   ${ProfileIcon({
                     userId: () => user.id,
                     classes: 'w-8'
@@ -172,7 +170,9 @@ const CreateAlbumPageComponent = Component((): UINode => {
               `}
             </each>
 
-            <div class="w-8 h-8 bg-white rounded-full grid place-items-center" @click=${() => $openUserSelect()}>
+            <div
+              class="w-8 h-8 bg-white rounded-full grid place-items-center cursor-pointer"
+              @click=${() => $openUserSelect()}>
               ${Icon({
                 icon: faPlus,
                 fill: '#9ca3af',
@@ -201,7 +201,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
         </div>
 
         <div
-          class="bg-blue-500 rounded-lg text-xl text-white py-2 font-bold w-1/2 text-center"
+          class="cursor-pointer bg-blue-500 rounded-lg text-xl text-white py-2 font-bold w-1/2 text-center"
           .opacity-75=${!$canCreate}
           @click=${createAlbum}>
           ${l('album.create.create')}

@@ -1,6 +1,6 @@
 import { array, boolean, int, nullable, object, string, uuidV4 } from '@lib/dto';
+import { albumInfo, AlbumType } from '../dto/album';
 import { apiRoutes } from '../APISegment';
-import { AlbumType } from '../dto/album';
 import { user } from '../dto/user';
 
 const APIAlbum = apiRoutes({
@@ -16,15 +16,29 @@ const APIAlbum = apiRoutes({
         type: AlbumType,
         allowSubmissions: boolean(),
         users: array({
-          length: int(),
           of: user.id
         })
       }),
-      result: nullable(
-        object({
-          id: uuidV4()
-        })
-      )
+      result: nullable(albumInfo)
+    },
+    {
+      name: 'getAccessibleAlbumsInfo',
+      isAuthenticated: true,
+      input: object({
+        includeUsers: boolean()
+      }),
+      result: object({
+        own: array({ of: albumInfo }),
+        shared: array({ of: albumInfo })
+      })
+    },
+    {
+      name: 'getPublicAlbumsInfo',
+      input: object({
+        albumIds: array({ of: albumInfo.id }),
+        includeUsers: boolean()
+      }),
+      result: array({ of: albumInfo })
     },
     {
       name: 'uploadAlbumCover',

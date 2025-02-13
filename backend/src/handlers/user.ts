@@ -1,10 +1,11 @@
-import { deepToBuffer, toBuffer, toUint8Array } from '../utils/buffer';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { toBuffer, toUint8Array } from '../utils/buffer';
 import { UserWithEncryptedKeys } from '@api/dto/user';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { FriendStatus } from '@api/dto/userStats';
 import { b2Client } from '../data/b2Client';
 import { dbClient } from '../data/dbClient';
+import { AlbumType } from '@prisma/client';
 import { toHex } from '@lib/utils/hex';
 import { APIHandlers } from './index';
 
@@ -24,7 +25,15 @@ const APIUserHandlers: APIHandlers['user'] = {
         username: user.username,
         identityKey: toBuffer(user.publicKeys.identityKey),
         encryptionKey: toBuffer(user.publicKeys.encryptionKey),
-        encryptedKeys: { create: deepToBuffer(user.encryptedKeys) }
+        encryptedKeys: {
+          create: {
+            passwordSalt: toBuffer(user.encryptedKeys.passwordSalt),
+            identityKey: toBuffer(user.encryptedKeys.identityKey),
+            identityKeyIv: toBuffer(user.encryptedKeys.identityKeyIv),
+            encryptionKey: toBuffer(user.encryptedKeys.encryptionKey),
+            encryptionKeyIv: toBuffer(user.encryptedKeys.encryptionKeyIv)
+          }
+        }
       }
     });
 
@@ -65,7 +74,8 @@ const APIUserHandlers: APIHandlers['user'] = {
           _count: {
             select: {
               friendRequests: { where: { accepted: true } },
-              sentFriendRequests: { where: { accepted: true } }
+              sentFriendRequests: { where: { accepted: true } },
+              createdAlbums: true
             }
           }
         }
@@ -85,7 +95,7 @@ const APIUserHandlers: APIHandlers['user'] = {
       friends: user._count.friendRequests + user._count.sentFriendRequests,
       requests,
       uploadedImages: 0,
-      createdAlbums: 0
+      createdAlbums: user._count.createdAlbums
     };
   },
   getStats: async ({ userId, username }, { userId: meId }) => {
@@ -100,7 +110,8 @@ const APIUserHandlers: APIHandlers['user'] = {
         _count: {
           select: {
             friendRequests: { where: { accepted: true } },
-            sentFriendRequests: { where: { accepted: true } }
+            sentFriendRequests: { where: { accepted: true } },
+            createdAlbums: { where: { type: AlbumType.PUBLIC } }
           }
         }
       }
@@ -130,66 +141,9 @@ const APIUserHandlers: APIHandlers['user'] = {
       createdAt: user.createdAt,
       friendStatus,
       friends: user._count.friendRequests + user._count.sentFriendRequests,
-      uploadedImages: 0,
-      createdAlbums: 0
+      publicImages: 0,
+      publicAlbums: user._count.createdAlbums
     };
-  },
-  getFriends: async ({}, { userId }) => {
-    const friendRequests = await dbClient.friendRequest.findMany({
-      where: {
-        recipientId: toBuffer(userId),
-        accepted: true
-      },
-      include: {
-        sender: {
-          select: { id: true, username: true }
-        }
-      }
-    });
-
-    const sentFriendRequests = await dbClient.friendRequest.findMany({
-      where: {
-        senderId: toBuffer(userId),
-        accepted: true
-      },
-      include: {
-        recipient: {
-          select: { id: true, username: true }
-        }
-      }
-    });
-
-    return [
-      ...sentFriendRequests.map(req => ({ id: toUint8Array(req.recipient.id), username: req.recipient.username })),
-      ...friendRequests.map(req => ({ id: toUint8Array(req.sender.id), username: req.sender.username }))
-    ];
-  },
-  unfriend: async ({ userId }, { userId: meId }) => {
-    try {
-      await dbClient.friendRequest.delete({
-        where: {
-          senderId_recipientId: { senderId: toBuffer(userId), recipientId: toBuffer(meId) },
-          accepted: true
-        }
-      });
-
-      return true;
-    } catch {}
-
-    try {
-      await dbClient.friendRequest.delete({
-        where: {
-          senderId_recipientId: { senderId: toBuffer(meId), recipientId: toBuffer(userId) },
-          accepted: true
-        }
-      });
-
-      return true;
-    } catch {}
-
-    // TODO: Remove from shared albums
-
-    return false;
   },
   uploadProfileIcon: async ({ fullFileSize, smallFileSize }, { userId }) => {
     const fullSizeCommand = new PutObjectCommand({
