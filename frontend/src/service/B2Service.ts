@@ -3,6 +3,7 @@ import { id } from '@lib/utils/id';
 
 class B2Service extends Service {
   public profileIconTemp: string = id();
+  public albumCoverTemp: string = id();
 
   constructor(public readonly b2Origin: string) {
     super();
@@ -15,8 +16,16 @@ class B2Service extends Service {
     );
   }
 
+  albumCover(id: string) {
+    return `https://profile-icons.${this.b2Origin}/album/${id}?temp=${this.albumCoverTemp}`;
+  }
+
   invalidateProfileIcons() {
     this.profileIconTemp = id();
+  }
+
+  invalidateAlbumCovers() {
+    this.albumCoverTemp = id();
   }
 
   async upload(signedUploadUrl: string, data: Blob) {

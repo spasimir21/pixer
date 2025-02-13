@@ -13,13 +13,14 @@ import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { faCross, faMinus, faUserMinus, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useBackNavigate } from '../../hooks/useBackNavigate';
+import { BackButtonComponent } from '../../components/buttons/BackButton';
 
 const RequestsPageComponent = Component((): UINode => {
-  const [Header, ProfileIcon, Icon, ProfileButton] = useChildComponents(
+  const [Header, ProfileIcon, Icon, BackButton] = useChildComponents(
     HeaderComponent,
     ProfileIconComponent,
     IconComponent,
-    ProfileButtonComponent
+    BackButtonComponent
   );
 
   const apiService = useService(APIServiceManager);
@@ -68,7 +69,7 @@ const RequestsPageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        right: ProfileButton,
+        left: BackButton,
         title: () => l('me.requests.title')
       })}
 

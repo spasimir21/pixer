@@ -55,10 +55,10 @@ class Fragment extends Comment {
 
   override appendChild<T extends Node>(node: T): T {
     this.removeChild(node);
-    this.nodes.push(node);
     (node as any).fragmentParent = this;
     if (this.parentNode != null)
-      this.parentNode.insertBefore(node, (this.nodes[this.nodes.length - 2] ?? this).nextSibling);
+      this.parentNode.insertBefore(node, (this.nodes[this.nodes.length - 1] ?? this).nextSibling);
+    this.nodes.push(node);
     if (node instanceof Fragment) node.insertNodes();
     return node;
   }

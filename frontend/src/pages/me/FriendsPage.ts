@@ -13,13 +13,14 @@ import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { faCross, faMinus, faUserMinus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { BackButtonComponent } from '../../components/buttons/BackButton';
 
 const FriendsPageComponent = Component((): UINode => {
-  const [Header, ProfileIcon, Icon, ProfileButton] = useChildComponents(
+  const [Header, ProfileIcon, Icon, BackButton] = useChildComponents(
     HeaderComponent,
     ProfileIconComponent,
     IconComponent,
-    ProfileButtonComponent
+    BackButtonComponent
   );
 
   const apiService = useService(APIServiceManager);
@@ -55,7 +56,7 @@ const FriendsPageComponent = Component((): UINode => {
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
-        right: ProfileButton,
+        left: BackButton,
         title: () => l('me.friends.title')
       })}
 

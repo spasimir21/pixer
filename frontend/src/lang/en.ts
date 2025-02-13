@@ -63,11 +63,21 @@ const EN = {
         cancelRequest: 'Cancel Request',
         acceptRequest: 'Accept Request'
       }
+    },
+    select: {
+      search: 'Search User',
+      noUsers: 'No users found'
     }
   },
   album: {
     create: {
-      title: 'Create an Album'
+      title: 'Create an Album',
+      public: 'Public',
+      private: 'Private',
+      albumName: 'Album Name',
+      users: 'Users',
+      allowSubmissions: 'Allow Submissions',
+      create: 'Create'
     }
   }
 } as const;

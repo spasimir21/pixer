@@ -11,7 +11,7 @@ const APIAlbum = apiRoutes({
       isAuthenticated: true,
       input: object({
         name: string({
-          length: int({ max: 128 })
+          length: int({ min: 3, max: 128 })
         }),
         type: AlbumType,
         allowSubmissions: boolean(),
@@ -20,7 +20,24 @@ const APIAlbum = apiRoutes({
           of: user.id
         })
       }),
-      result: nullable(uuidV4())
+      result: nullable(
+        object({
+          id: uuidV4()
+        })
+      )
+    },
+    {
+      name: 'uploadAlbumCover',
+      isAuthenticated: true,
+      input: object({
+        albumId: uuidV4(),
+        fileSize: int({ max: 512 * 1000 }) // 512 kB
+      }),
+      result: nullable(
+        object({
+          coverUploadUrl: string()
+        })
+      )
     }
   ]
 } as const);

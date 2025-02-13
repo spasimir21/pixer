@@ -64,11 +64,21 @@ const BG: Translations = {
         cancelRequest: 'Спри Поканата',
         acceptRequest: 'Приеми Покана'
       }
+    },
+    select: {
+      search: 'Потърси Потребител',
+      noUsers: 'Няма намерени потребители'
     }
   },
   album: {
     create: {
-      title: 'Създай Албум'
+      title: 'Създай Албум',
+      public: 'Публичен',
+      private: 'Частен',
+      albumName: 'Име на Албума',
+      users: 'Потребители',
+      allowSubmissions: 'Предложения',
+      create: 'Създай'
     }
   }
 };
