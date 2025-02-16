@@ -141,7 +141,7 @@ const UserPageComponent = Component((): UINode => {
             .bg-blue-500=${$userStats?.friendStatus === FriendStatus.NotFriends}
             @click=${doFriendAction}>
             ${Icon({
-              icon: $userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus],
+              icon: () => ($userStats == null ? faUserGroup : friendButtonIconMap[$userStats!.friendStatus]),
               fill: 'white',
               classes: 'w-6'
             })}

@@ -106,7 +106,13 @@ const CreateAlbumPageComponent = Component((): UINode => {
       })}
 
       <div class="flex-grow flex flex-col w-full max-w-72 items-center pt-6 gap-6">
-        ${AlbumCoverUpload({ upload: uploadAlbumCover })}
+        ${AlbumCoverUpload({ upload: uploadAlbumCover, isPrivate, allowSubmissions })}
+
+        <input
+          type="text"
+          class="border-gray-400 border-2 rounded-md text-xl outline-none px-2 py-1 w-full"
+          placeholder=${l('album.create.albumName')}
+          :value#=${$name} />
 
         <div class="flex items-center justify-between self-stretch">
           <div class="flex items-center gap-3">
@@ -136,11 +142,23 @@ const CreateAlbumPageComponent = Component((): UINode => {
           </div>
         </div>
 
-        <input
-          type="text"
-          class="border-gray-400 border-2 rounded-md text-xl outline-none px-2 py-1 w-full"
-          placeholder=${l('album.create.albumName')}
-          :value#=${$name} />
+        <div class="flex items-center justify-between self-stretch">
+          <div class="flex items-center gap-3">
+            ${Icon({
+              icon: faInbox,
+              fill: '#9ca3af',
+              classes: 'w-6'
+            })}
+
+            <p class="text-xl text-gray-700" .opacity-75=${$isPrivate}>${l('album.create.allowSubmissions')}</p>
+          </div>
+
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" :checked=${$allowSubmissions} disabled=${$isPrivate} class="sr-only peer" />
+            <div
+              class="relative w-11 h-6 bg-gray-300 outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+          </label>
+        </div>
 
         <div class="flex flex-col self-stretch gap-3 bg-gray-200 rounded-lg p-3">
           <div class="flex items-center gap-3">
@@ -180,24 +198,6 @@ const CreateAlbumPageComponent = Component((): UINode => {
               })}
             </div>
           </div>
-        </div>
-
-        <div class="flex items-center justify-between self-stretch">
-          <div class="flex items-center gap-3">
-            ${Icon({
-              icon: faInbox,
-              fill: '#9ca3af',
-              classes: 'w-6'
-            })}
-
-            <p class="text-xl text-gray-700" .opacity-75=${$isPrivate}>${l('album.create.allowSubmissions')}</p>
-          </div>
-
-          <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox" :checked=${$allowSubmissions} disabled=${$isPrivate} class="sr-only peer" />
-            <div
-              class="relative w-11 h-6 bg-gray-300 outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
-          </label>
         </div>
 
         <div

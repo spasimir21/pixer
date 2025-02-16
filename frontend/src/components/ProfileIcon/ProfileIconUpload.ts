@@ -25,7 +25,7 @@ const ProfileIconUploadComponent = Component((): UINode => {
     const hexId = toHex(authService.user.id);
 
     const image = document.createElement('img');
-    image.src = b2Service.profileIcon(hexId, true, true);
+    image.src = b2Service.profileIcon(hexId, true);
 
     image.onload = () => ($profileIconSrc = image.src);
     image.onerror = () => ($profileIconSrc = '/assets/profile.png');
@@ -53,10 +53,10 @@ const ProfileIconUploadComponent = Component((): UINode => {
         originalImage.src = fileReader.result;
 
         originalImage.onload = async () => {
-          const fullBlob = await resizeAndCropImage(originalImage, 'rgb(209 213 219)', { width: 200, height: 200 });
+          const fullBlob = await resizeAndCropImage(originalImage, '#d1d5db', { width: 200, height: 200 });
           if (fullBlob == null) return;
 
-          const smallBlob = await resizeAndCropImage(originalImage, 'rgb(209 213 219)', { width: 36, height: 36 });
+          const smallBlob = await resizeAndCropImage(originalImage, '#d1d5db', { width: 36, height: 36 });
           if (smallBlob == null) return;
 
           const prevProfileIconSrc = $profileIconSrc;

@@ -34,8 +34,8 @@ const AlbumInfoComponent = Component(({ album }: { album: AlbumInfo }): UINode =
         <div class="absolute w-7 h-7 -top-1 -left-1 bg-white rounded-br-xl"></div>
 
         ${Icon({
-          icon: album.type === AlbumType.PUBLIC ? faUnlock : faLock,
-          fill: album.type === AlbumType.PUBLIC ? '#9ca3af' : '#3b82f6',
+          icon: () => (album.type === AlbumType.PUBLIC ? faUnlock : faLock),
+          fill: () => (album.type === AlbumType.PUBLIC ? '#9ca3af' : '#3b82f6'),
           classes: 'absolute w-4 h-4 top-[2px] left-[2px] z-50'
         })}
 
@@ -48,7 +48,7 @@ const AlbumInfoComponent = Component(({ album }: { album: AlbumInfo }): UINode =
         ${Icon({
           icon: faInbox,
           fill: '#9ca3af',
-          classes: `absolute w-4 h-4 top-[2px] right-[1px] z-50 ${album.allowSubmissions ? '' : 'hidden'}`
+          classes: () => `absolute w-4 h-4 top-[2px] right-[1px] z-50 ${album.allowSubmissions ? '' : 'hidden'}`
         })}
 
         <!-- Album Creator -->
@@ -62,7 +62,7 @@ const AlbumInfoComponent = Component(({ album }: { album: AlbumInfo }): UINode =
         ${Icon({
           icon: faImages,
           fill: '#9ca3af',
-          classes: `w-14 h-14 ${$hasCover ? 'hidden' : ''}`
+          classes: () => `w-14 h-14 ${$hasCover ? 'hidden' : ''}`
         })}
       </div>
 
