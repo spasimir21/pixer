@@ -38,6 +38,14 @@ const APIAlbum = apiRoutes({
       result: nullable(albumInfo)
     },
     {
+      name: 'delete',
+      isAuthenticated: true,
+      input: object({
+        id: albumInfo.id
+      }),
+      result: boolean()
+    },
+    {
       name: 'getAccessibleAlbumsInfo',
       isAuthenticated: true,
       input: object({

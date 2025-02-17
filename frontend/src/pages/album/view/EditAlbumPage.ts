@@ -8,7 +8,7 @@ import { AlbumCoverUploadComponent } from '../../../components/album/AlbumCoverU
 import { useService } from '@lib/service';
 import { AuthenticationServiceManager } from '../../../service/AuthenticationService';
 import { APIServiceManager } from '../../../service/APIService';
-import { useNavigation } from '@lib/router';
+import { NavigateToComponent, useNavigation } from '@lib/router';
 import { useLocalization } from '../../../service/LocalizationService';
 import { requests } from '../../../api/requests';
 import { toHex } from '@lib/utils/hex';
@@ -20,11 +20,12 @@ import { faInbox, faLock, faPlus, faUnlock, faUsers } from '@fortawesome/free-so
 
 // TODO: add deletion
 const EditAlbumPageComponent = Component((): UINode => {
-  const [AlbumCoverUpload, Icon, ProfileIcon, UserSelect] = useChildComponents(
+  const [AlbumCoverUpload, Icon, ProfileIcon, UserSelect, NavigateTo] = useChildComponents(
     AlbumCoverUploadComponent,
     IconComponent,
     ProfileIconComponent,
-    UserSelectComponent
+    UserSelectComponent,
+    NavigateToComponent
   );
 
   const authService = useService(AuthenticationServiceManager);
@@ -33,6 +34,8 @@ const EditAlbumPageComponent = Component((): UINode => {
   const l = useLocalization();
 
   const album = useAlbum();
+
+  if ($album == null || toHex($album!.creatorId) !== toHex(authService.user!.id)) return NavigateTo({ route: 'home' });
 
   const name = useState($album?.name ?? '');
   const allowSubmissions = useState($album?.allowSubmissions ?? false);

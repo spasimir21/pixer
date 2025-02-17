@@ -16,16 +16,19 @@ import { PinAlbumButtonComponent } from '../../../components/buttons/PinAlbumBut
 import { AlbumType } from '@api/dto/album';
 import { toHex } from '@lib/utils/hex';
 import { EditAlbumButtonComponent } from '../../../components/buttons/EditAlbumButton';
+import { DeleteAlbumButtonComponent } from '../../../components/buttons/DeleteAlbumButton';
 
 const ViewAlbumPageComponent = Component((): UINode => {
-  const [Outlet, Header, BackButton, AlbumInfoButton, PinAlbumButton, EditAlbumButton] = useChildComponents(
-    OutletComponent,
-    HeaderComponent,
-    BackButtonComponent,
-    AlbumInfoButtonComponent,
-    PinAlbumButtonComponent,
-    EditAlbumButtonComponent
-  );
+  const [Outlet, Header, BackButton, AlbumInfoButton, PinAlbumButton, EditAlbumButton, DeleteAlbumButton] =
+    useChildComponents(
+      OutletComponent,
+      HeaderComponent,
+      BackButtonComponent,
+      AlbumInfoButtonComponent,
+      PinAlbumButtonComponent,
+      EditAlbumButtonComponent,
+      DeleteAlbumButtonComponent
+    );
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
@@ -57,6 +60,7 @@ const ViewAlbumPageComponent = Component((): UINode => {
       !$album!.users.some(id => toHex(id) === toHex(authService.user!.id))}>
       ${PinAlbumButton()}
     </else-if>
+    <else-if ${$route.name.endsWith('edit')}> ${DeleteAlbumButton()} </else-if>
   `;
 
   return html`

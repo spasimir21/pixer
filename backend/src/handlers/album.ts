@@ -30,6 +30,7 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       return null;
     }
   },
+  // Delete images
   edit: async (options, { userId }) => {
     if (options.type === AlbumType.PRIVATE && options.allowSubmissions) return null;
     if (options.users.map(toHex).includes(toHex(userId))) return null;
@@ -54,6 +55,17 @@ const APIAlbumHandlers: APIHandlers['album'] = {
     } catch {
       return null;
     }
+  },
+  // TODO: Delete images
+  delete: async ({ id }, { userId }) => {
+    const result = await dbClient.album.delete({
+      where: {
+        id,
+        creatorId: toBuffer(userId)
+      }
+    });
+
+    return result != null;
   },
   getAccessibleAlbumsInfo: async ({ includeUsers }, { userId }) => {
     const user = await dbClient.user.findFirst({
