@@ -25,7 +25,7 @@ const APIAlbumHandlers: APIHandlers['album'] = {
         }
       });
 
-      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users };
+      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users, isPinned: false };
     } catch {
       return null;
     }
@@ -75,17 +75,20 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       own: user.createdAlbums.map(album => ({
         ...album,
         creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        isPinned: false
       })),
       shared: user.sharedAlbums.map(album => ({
         ...album,
         creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        isPinned: false
       })),
       pinned: user.pinnedAlbums.map(album => ({
         ...album,
         creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        isPinned: true
       }))
     };
   },
@@ -102,7 +105,8 @@ const APIAlbumHandlers: APIHandlers['album'] = {
         ]
       },
       include: {
-        users: { select: { id: true } }
+        users: { select: { id: true } },
+        pinnedBy: { where: { id: toBuffer(userId) }, select: { id: true } }
       }
     });
 
@@ -111,7 +115,8 @@ const APIAlbumHandlers: APIHandlers['album'] = {
     return {
       ...album,
       creatorId: toUint8Array(album.creatorId),
-      users: album.users.map(user => toUint8Array(user.id))
+      users: album.users.map(user => toUint8Array(user.id)),
+      isPinned: album.pinnedBy.length > 0
     };
   },
   pinAlbum: async ({ albumId }, { userId }) => {

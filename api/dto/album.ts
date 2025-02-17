@@ -12,7 +12,8 @@ const albumInfoWithUsers = object({
   name: string(),
   type: AlbumType,
   allowSubmissions: boolean(),
-  users: array({ of: user.id })
+  users: array({ of: user.id }),
+  isPinned: boolean()
 });
 
 type AlbumInfoWithUsers = DTOType<typeof albumInfoWithUsers>;

@@ -17,7 +17,7 @@ const AlbumInfoButtonComponent = Component((): UINode => {
       ${Icon({
         icon: faInfoCircle,
         fill: '#374151',
-        classes: 'w-6'
+        classes: 'w-7'
       })}
     </div>
   `;

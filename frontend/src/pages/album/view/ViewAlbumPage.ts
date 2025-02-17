@@ -12,15 +12,20 @@ import { requests } from '../../../api/requests';
 import { HeaderComponent } from '../../../components/Header';
 import { BackButtonComponent } from '../../../components/buttons/BackButton';
 import { AlbumInfoButtonComponent } from '../../../components/buttons/AlbumInfoButton';
+import { PinAlbumButtonComponent } from '../../../components/buttons/PinAlbumButton';
+import { AlbumType } from '@api/dto/album';
+import { toHex } from '@lib/utils/hex';
 
 const ViewAlbumPageComponent = Component((): UINode => {
-  const [Outlet, Header, BackButton, AlbumInfoButton] = useChildComponents(
+  const [Outlet, Header, BackButton, AlbumInfoButton, PinAlbumButton] = useChildComponents(
     OutletComponent,
     HeaderComponent,
     BackButtonComponent,
-    AlbumInfoButtonComponent
+    AlbumInfoButtonComponent,
+    PinAlbumButtonComponent
   );
 
+  const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
   const { navigate } = useNavigation();
   const l = useLocalization();
@@ -39,12 +44,23 @@ const ViewAlbumPageComponent = Component((): UINode => {
     $album = response.result;
   });
 
+  const rightButton = () => html`
+    <if ${$route.name.endsWith('.images')}> ${AlbumInfoButton()} </if>
+    <else-if
+      ${$route.name.endsWith('.info') &&
+      $album!.type === AlbumType.PUBLIC &&
+      toHex($album!.creatorId) !== toHex(authService.user!.id) &&
+      !$album!.users.some(id => toHex(id) === toHex(authService.user!.id))}>
+      ${PinAlbumButton()}
+    </else-if>
+  `;
+
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
         left: BackButton,
         title: () => $album?.name ?? 'Album',
-        right: () => html` <if ${$route.name.endsWith('.images')}> ${AlbumInfoButton()} </if> `
+        right: rightButton
       })}
 
       <if ${$album == null}>
