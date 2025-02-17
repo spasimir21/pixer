@@ -6,10 +6,10 @@ import { html, UINode } from '@lib/ui';
 
 const [_, useProvideOutletDepth] = createContextValue<number>('outletDepth');
 
-const OutletComponent = Component((loadingComponent?: Component): UINode => {
+const OutletComponent = Component((loadingComponent?: () => UINode): UINode => {
   const route = useRoute();
 
-  const component = useState<any>(loadingComponent ? loadingComponent.create() : null);
+  const component = useState<any>(loadingComponent ? loadingComponent() : null);
 
   const outletDepth = useProvideOutletDepth(depth => (depth == null ? 0 : depth + 1));
 
@@ -35,7 +35,6 @@ const OutletComponent = Component((loadingComponent?: Component): UINode => {
         }
 
         let shouldLoad = true;
-        // $component = loadingComponent ? loadingComponent.create() : null;
 
         routeComponent().then(
           useCallback(loadedComponent => {

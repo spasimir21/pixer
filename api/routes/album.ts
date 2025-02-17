@@ -1,5 +1,5 @@
 import { array, boolean, int, nullable, object, string, uuidV4 } from '@lib/dto';
-import { albumInfo, AlbumType } from '../dto/album';
+import { albumInfo, albumInfoWithUsers, AlbumType } from '../dto/album';
 import { apiRoutes } from '../APISegment';
 import { user } from '../dto/user';
 
@@ -29,16 +29,33 @@ const APIAlbum = apiRoutes({
       }),
       result: object({
         own: array({ of: albumInfo }),
-        shared: array({ of: albumInfo })
+        shared: array({ of: albumInfo }),
+        pinned: array({ of: albumInfo })
       })
     },
     {
-      name: 'getPublicAlbumsInfo',
+      name: 'getAlbumInfo',
+      isAuthenticated: true,
       input: object({
-        albumIds: array({ of: albumInfo.id }),
-        includeUsers: boolean()
+        albumId: albumInfo.id
       }),
-      result: array({ of: albumInfo })
+      result: nullable(albumInfoWithUsers)
+    },
+    {
+      name: 'pinAlbum',
+      isAuthenticated: true,
+      input: object({
+        albumId: albumInfo.id
+      }),
+      result: boolean()
+    },
+    {
+      name: 'unpinAlbum',
+      isAuthenticated: true,
+      input: object({
+        albumId: albumInfo.id
+      }),
+      result: boolean()
     },
     {
       name: 'uploadAlbumCover',

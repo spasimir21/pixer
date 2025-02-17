@@ -45,7 +45,7 @@ const AppComponent = Component((): UINode => {
 
   return html`
     <if ${$isLoadingUser}> ${LoadingPage()} </if>
-    <else> ${Outlet(LoadingPageComponent)} </else>
+    <else> ${Outlet(LoadingPage)} </else>
   `;
 });
 

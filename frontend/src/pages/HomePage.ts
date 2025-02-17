@@ -35,7 +35,8 @@ const HomePageComponent = Component((): UINode => {
 
   const albums = useState({
     own: [] as AlbumInfo[],
-    shared: [] as AlbumInfo[]
+    shared: [] as AlbumInfo[],
+    pinned: [] as AlbumInfo[]
   });
 
   apiService.send(requests.album.getAccessibleAlbumsInfo, { includeUsers: false }).then(response => {
@@ -82,8 +83,13 @@ const HomePageComponent = Component((): UINode => {
             </div>
           </if>
 
-          <!-- TODO: Pinned Public Albums -->
-          <!-- <p class="text-gray-700 text-lg border-b-2 border-gray-200 w-fit">Pinned Public Albums</p> -->
+          <if ${$albums.pinned.length > 0}>
+            <p class="text-gray-700 text-lg border-b-2 border-gray-300 w-fit">${l('home.pinnedAlbums')}</p>
+
+            <div class="flex flex-row flex-wrap gap-4">
+              <each ${$albums.pinned}> ${(album: AlbumInfo) => AlbumInfo({ album })} </each>
+            </div>
+          </if>
         </else>
       </div>
     </div>

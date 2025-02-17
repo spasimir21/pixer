@@ -9,7 +9,8 @@ const EN = {
   home: {
     noAlbums: 'You currently have no albums',
     yourAlbums: 'Your Albums',
-    sharedAlbums: 'Shared Albums'
+    sharedAlbums: 'Shared Albums',
+    pinnedAlbums: 'Pinned Albums'
   },
   login: {
     title: 'Login',
@@ -82,6 +83,11 @@ const EN = {
       users: 'Users',
       allowSubmissions: 'Allow Submissions',
       create: 'Create'
+    },
+    view: {
+      info: {
+        allowsSubmissions: 'Allows Submissions'
+      }
     }
   }
 } as const;

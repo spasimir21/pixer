@@ -101,7 +101,7 @@ const AlbumCoverUploadComponent = Component(
         ${Icon({
           icon: faInbox,
           fill: '#9ca3af',
-          classes: () => `absolute w-8 h-8 top-[2px] right-[2px] z-50 ${$allowSubmissions ? '' : 'hidden'}`
+          classes: () => `absolute w-8 h-8 top-[3px] right-[2px] z-50 ${$allowSubmissions ? '' : 'hidden'}`
         })}
 
         <if ${$coverSrc == null}>

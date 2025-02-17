@@ -66,7 +66,19 @@ const ROUTES: RouteDefinition[] = [
       {
         name: 'view',
         path: '/[albumId]',
-        component: async () => (await import('./pages/album/ViewAlbumPage')).default
+        component: async () => (await import('./pages/album/view/ViewAlbumPage')).default,
+        children: [
+          {
+            name: 'images',
+            path: '/',
+            component: async () => (await import('./pages/album/view/AlbumImagesPage')).default
+          },
+          {
+            name: 'info',
+            path: '/info',
+            component: async () => (await import('./pages/album/view/AlbumInfoPage')).default
+          }
+        ]
       }
     ]
   },

@@ -10,7 +10,8 @@ const BG: Translations = {
   home: {
     noAlbums: 'Нямате албуми',
     yourAlbums: 'Твоите Албуми',
-    sharedAlbums: 'Споделени Албуми'
+    sharedAlbums: 'Споделени Албуми',
+    pinnedAlbums: 'Запазени Албуми'
   },
   login: {
     title: 'Логин',
@@ -83,6 +84,11 @@ const BG: Translations = {
       users: 'Потребители',
       allowSubmissions: 'Предложения',
       create: 'Създай'
+    },
+    view: {
+      info: {
+        allowsSubmissions: 'Предложения'
+      }
     }
   }
 };

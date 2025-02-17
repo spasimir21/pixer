@@ -22,6 +22,7 @@ model User {
 
   createdAlbums        Album[]           @relation(name: "createdAlbums")
   sharedAlbums         Album[]           @relation(name: "sharedAlbums")
+  pinnedAlbums         Album[]           @relation(name: "pinnedAlbums")
 
   uploadedImages       Image[]
   submissions          Submission[]
@@ -73,6 +74,8 @@ model Album {
   
   users              User[]         @relation(name: "sharedAlbums")
   images             Image[]
+  
+  pinnedBy           User[]         @relation(name: "pinnedAlbums")
 
   allowSubmissions   Boolean
   submissions        Submission[]

@@ -53,6 +53,15 @@ const APIAlbumHandlers: APIHandlers['album'] = {
                 }
               : false
           }
+        },
+        pinnedAlbums: {
+          include: {
+            users: includeUsers
+              ? {
+                  select: { id: true }
+                }
+              : false
+          }
         }
       },
       orderBy: {
@@ -60,7 +69,7 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       }
     });
 
-    if (user == null) return { own: [], shared: [] };
+    if (user == null) return { own: [], shared: [], pinned: [] };
 
     return {
       own: user.createdAlbums.map(album => ({
@@ -72,32 +81,64 @@ const APIAlbumHandlers: APIHandlers['album'] = {
         ...album,
         creatorId: toUint8Array(album.creatorId),
         users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
+      })),
+      pinned: user.pinnedAlbums.map(album => ({
+        ...album,
+        creatorId: toUint8Array(album.creatorId),
+        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
       }))
     };
   },
-  getPublicAlbumsInfo: async ({ includeUsers, albumIds }) => {
-    const albums = await dbClient.album.findMany({
+  getAlbumInfo: async ({ albumId }, { userId }) => {
+    const album = await dbClient.album.findFirst({
       where: {
-        id: { in: albumIds },
-        type: AlbumType.PUBLIC
+        id: albumId,
+        OR: [
+          { type: AlbumType.PUBLIC },
+          {
+            type: AlbumType.PRIVATE,
+            OR: [{ creatorId: toBuffer(userId) }, { users: { some: { id: toBuffer(userId) } } }]
+          }
+        ]
       },
       include: {
-        users: includeUsers
-          ? {
-              select: { id: true }
-            }
-          : false
-      },
-      orderBy: {
-        createdAt: 'desc'
+        users: { select: { id: true } }
       }
     });
 
-    return albums.map(album => ({
+    if (album == null) return null;
+
+    return {
       ...album,
       creatorId: toUint8Array(album.creatorId),
-      users: album.users ? album.users.map(user => toUint8Array(user.id)) : null
-    }));
+      users: album.users.map(user => toUint8Array(user.id))
+    };
+  },
+  pinAlbum: async ({ albumId }, { userId }) => {
+    const result = await dbClient.user.update({
+      where: { id: toBuffer(userId) },
+      include: { pinnedAlbums: { select: { id: true } } },
+      data: {
+        pinnedAlbums: {
+          connect: {
+            id: albumId,
+            creatorId: { not: toBuffer(userId) },
+            type: AlbumType.PUBLIC
+          }
+        }
+      }
+    });
+
+    return result.pinnedAlbums.some(album => album.id === albumId);
+  },
+  unpinAlbum: async ({ albumId }, { userId }) => {
+    const result = await dbClient.user.update({
+      where: { id: toBuffer(userId) },
+      include: { pinnedAlbums: { select: { id: true } } },
+      data: { pinnedAlbums: { disconnect: { id: albumId } } }
+    });
+
+    return !result.pinnedAlbums.some(album => album.id === albumId);
   },
   uploadAlbumCover: async ({ albumId, fileSize }, { userId }) => {
     const album = await dbClient.album.findFirst({
