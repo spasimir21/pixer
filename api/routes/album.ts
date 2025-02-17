@@ -22,6 +22,22 @@ const APIAlbum = apiRoutes({
       result: nullable(albumInfo)
     },
     {
+      name: 'edit',
+      isAuthenticated: true,
+      input: object({
+        id: albumInfo.id,
+        name: string({
+          length: int({ min: 3, max: 128 })
+        }),
+        type: AlbumType,
+        allowSubmissions: boolean(),
+        users: array({
+          of: user.id
+        })
+      }),
+      result: nullable(albumInfo)
+    },
+    {
       name: 'getAccessibleAlbumsInfo',
       isAuthenticated: true,
       input: object({

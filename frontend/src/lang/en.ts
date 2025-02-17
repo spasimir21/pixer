@@ -87,6 +87,9 @@ const EN = {
     view: {
       info: {
         allowsSubmissions: 'Allows Submissions'
+      },
+      edit: {
+        save: 'Save'
       }
     }
   }

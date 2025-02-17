@@ -88,6 +88,9 @@ const BG: Translations = {
     view: {
       info: {
         allowsSubmissions: 'Предложения'
+      },
+      edit: {
+        save: 'Запази'
       }
     }
   }

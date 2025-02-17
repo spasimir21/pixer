@@ -1,5 +1,5 @@
 import { faImages, faInbox, faLock, faPlus, faUnlock } from '@fortawesome/free-solid-svg-icons';
-import { Component, useChildComponents, useCleanup, useState } from '@lib/component';
+import { Component, useChildComponents, useCleanup, useEffect, useState } from '@lib/component';
 import { ProfileIconComponent } from '../ProfileIcon/ProfileIcon';
 import { APIServiceManager } from '../../service/APIService';
 import { B2ServiceManager } from '../../service/B2Service';
@@ -14,10 +14,12 @@ import { AuthenticationServiceManager } from '../../service/AuthenticationServic
 
 const AlbumCoverUploadComponent = Component(
   ({
+    albumId,
     upload,
     isPrivate,
     allowSubmissions
   }: {
+    albumId: ValueNode<string | null>;
     upload: StateNode<(albumId: string) => Promise<boolean>>;
     isPrivate: ValueNode<boolean>;
     allowSubmissions: ValueNode<boolean>;
@@ -29,6 +31,16 @@ const AlbumCoverUploadComponent = Component(
 
     const coverSrc = useState<string | null>(null);
     const coverBlob = useState<Blob | null>(null);
+
+    const hasCover = useState(true);
+
+    useEffect(() => {
+      const image = document.createElement('img');
+      image.src = b2Service.albumCover($albumId ?? '');
+
+      image.onload = () => ($coverSrc = image.src);
+      image.onerror = () => ($hasCover = false);
+    });
 
     const changeCover = async () => {
       const fileSelect = document.createElement('input');
@@ -57,6 +69,7 @@ const AlbumCoverUploadComponent = Component(
             if (newCoverBlob == null) return;
 
             $coverBlob = newCoverBlob;
+            $hasCover = true;
 
             URL.revokeObjectURL($coverSrc ?? '');
             $coverSrc = URL.createObjectURL(newCoverBlob);
@@ -67,11 +80,17 @@ const AlbumCoverUploadComponent = Component(
       };
     };
 
-    $upload = async albumId => {
+    $upload = async () => {
       if ($coverBlob == null) return false;
 
-      const response = await apiService.send(requests.album.uploadAlbumCover, { albumId, fileSize: $coverBlob!.size });
+      const response = await apiService.send(requests.album.uploadAlbumCover, {
+        albumId: $albumId ?? '',
+        fileSize: $coverBlob!.size
+      });
+
       if (response.error || response.result == null) return false;
+
+      b2Service.invalidateAlbumCovers();
 
       const { coverUploadUrl } = response.result;
       return await b2Service.upload(coverUploadUrl, $coverBlob!);
@@ -104,7 +123,7 @@ const AlbumCoverUploadComponent = Component(
           classes: () => `absolute w-8 h-8 top-[3px] right-[2px] z-50 ${$allowSubmissions ? '' : 'hidden'}`
         })}
 
-        <if ${$coverSrc == null}>
+        <if ${$coverSrc == null || !$hasCover}>
           ${Icon({
             icon: faImages,
             fill: '#9ca3af',

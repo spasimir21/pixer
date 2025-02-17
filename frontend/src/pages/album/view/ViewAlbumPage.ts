@@ -15,14 +15,16 @@ import { AlbumInfoButtonComponent } from '../../../components/buttons/AlbumInfoB
 import { PinAlbumButtonComponent } from '../../../components/buttons/PinAlbumButton';
 import { AlbumType } from '@api/dto/album';
 import { toHex } from '@lib/utils/hex';
+import { EditAlbumButtonComponent } from '../../../components/buttons/EditAlbumButton';
 
 const ViewAlbumPageComponent = Component((): UINode => {
-  const [Outlet, Header, BackButton, AlbumInfoButton, PinAlbumButton] = useChildComponents(
+  const [Outlet, Header, BackButton, AlbumInfoButton, PinAlbumButton, EditAlbumButton] = useChildComponents(
     OutletComponent,
     HeaderComponent,
     BackButtonComponent,
     AlbumInfoButtonComponent,
-    PinAlbumButtonComponent
+    PinAlbumButtonComponent,
+    EditAlbumButtonComponent
   );
 
   const authService = useService(AuthenticationServiceManager);
@@ -46,10 +48,12 @@ const ViewAlbumPageComponent = Component((): UINode => {
 
   const rightButton = () => html`
     <if ${$route.name.endsWith('.images')}> ${AlbumInfoButton()} </if>
+    <else-if ${$route.name.endsWith('.info') && toHex($album!.creatorId) === toHex(authService.user!.id)}>
+      ${EditAlbumButton()}
+    </else-if>
     <else-if
       ${$route.name.endsWith('.info') &&
       $album!.type === AlbumType.PUBLIC &&
-      toHex($album!.creatorId) !== toHex(authService.user!.id) &&
       !$album!.users.some(id => toHex(id) === toHex(authService.user!.id))}>
       ${PinAlbumButton()}
     </else-if>

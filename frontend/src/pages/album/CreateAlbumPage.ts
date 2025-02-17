@@ -36,6 +36,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
 
   useTitle(() => `${l('pixer.title')} - ${l('album.create.title')}`);
 
+  const albumId = useState(null as string | null);
   const name = useState('');
   const isPrivate = useState(true);
   const allowSubmissions = useState(false);
@@ -66,7 +67,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
     $users.push(user);
   };
 
-  const uploadAlbumCover = useState(async (albumId: string) => false);
+  const uploadAlbumCover = useState(async () => false);
   const openUserSelect = useState(() => {});
 
   const createAlbum = async () => {
@@ -81,7 +82,8 @@ const CreateAlbumPageComponent = Component((): UINode => {
     });
 
     if (response.error == null && response.result != null) {
-      await $uploadAlbumCover(response.result.id);
+      $albumId = response.result.id;
+      await $uploadAlbumCover();
 
       navigate({ route: 'home' });
 
@@ -106,7 +108,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
       })}
 
       <div class="flex-grow flex flex-col w-full max-w-72 items-center pt-6 gap-6">
-        ${AlbumCoverUpload({ upload: uploadAlbumCover, isPrivate, allowSubmissions })}
+        ${AlbumCoverUpload({ albumId, upload: uploadAlbumCover, isPrivate, allowSubmissions })}
 
         <input
           type="text"

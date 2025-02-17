@@ -30,6 +30,31 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       return null;
     }
   },
+  edit: async (options, { userId }) => {
+    if (options.type === AlbumType.PRIVATE && options.allowSubmissions) return null;
+    if (options.users.map(toHex).includes(toHex(userId))) return null;
+
+    try {
+      const album = await dbClient.album.update({
+        where: {
+          id: options.id,
+          creatorId: toBuffer(userId),
+          type: options.type
+        },
+        data: {
+          name: options.name,
+          allowSubmissions: options.allowSubmissions,
+          users: {
+            set: options.users.map(id => ({ id: toBuffer(id) }))
+          }
+        }
+      });
+
+      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users, isPinned: false };
+    } catch {
+      return null;
+    }
+  },
   getAccessibleAlbumsInfo: async ({ includeUsers }, { userId }) => {
     const user = await dbClient.user.findFirst({
       where: {
