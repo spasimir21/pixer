@@ -57,7 +57,8 @@ const UserPageComponent = Component((): UINode => {
 
   useTitle(() => `${l('pixer.title')} - ${$route.params.username}`);
 
-  if ($route.params.username === authService.user?.username) return NavigateTo({ route: 'me.profile' }, LoadingPage);
+  if ($route.params.username === authService.user?.username)
+    return NavigateTo({ route: 'me.profile' }, LoadingPage, true);
 
   const userStats = useState<UserStats | null>(null);
 
@@ -65,7 +66,7 @@ const UserPageComponent = Component((): UINode => {
     .send(requests.user.getStats, { userId: null, username: $route.params.username })
     .then(({ error, result }) => {
       if (error || result == null) {
-        navigate({ route: 'home' });
+        navigate({ route: 'home' }, true);
         return;
       }
 

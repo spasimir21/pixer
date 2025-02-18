@@ -1,5 +1,5 @@
 import { _enum, array, boolean, date, DTOType, nullable, object, string, uuidV4 } from '@lib/dto';
-import { user } from './user';
+import { user, userInfo } from './user';
 
 const AlbumType = _enum('PRIVATE', 'PUBLIC');
 
@@ -8,11 +8,11 @@ type AlbumType = DTOType<typeof AlbumType>;
 const albumInfoWithUsers = object({
   id: uuidV4(),
   createdAt: date(),
-  creatorId: user.id,
+  creator: userInfo,
   name: string(),
   type: AlbumType,
   allowSubmissions: boolean(),
-  users: array({ of: user.id }),
+  users: array({ of: userInfo }),
   isPinned: boolean()
 });
 

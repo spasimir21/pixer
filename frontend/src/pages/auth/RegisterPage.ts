@@ -29,7 +29,8 @@ const RegisterPageComponent = Component((): UINode => {
           redirectTo: $route.search.get('redirectTo') ?? '/'
         }
       },
-      LoadingPage
+      LoadingPage,
+      true
     );
 
   useTitle(() => `${l('pixer.title')} - ${l('register.title')}`);

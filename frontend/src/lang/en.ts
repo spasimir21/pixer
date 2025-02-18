@@ -50,7 +50,8 @@ const EN = {
     friends: {
       title: 'Friends',
       noFriends: 'You currently have no friends',
-      remove: 'Remove'
+      remove: 'Unfriend',
+      cancel: 'Cancel'
     },
     requests: {
       title: 'Requests',
@@ -86,10 +87,15 @@ const EN = {
     },
     view: {
       info: {
-        allowsSubmissions: 'Allows Submissions'
+        allowsSubmissions: 'Allows Submissions',
+        share: 'Share Album'
       },
       edit: {
-        save: 'Save'
+        save: 'Save',
+        delete: {
+          delete: 'Delete',
+          cancel: 'Cancel'
+        }
       }
     }
   }

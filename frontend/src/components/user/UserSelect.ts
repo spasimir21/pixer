@@ -1,6 +1,6 @@
 import { StateNode, ValueNode } from '@lib/reactivity';
 import { Component, useChildComponents, useComputed, useEffect, useState } from '@lib/component';
-import { Friend } from '@api/dto/friend';
+import { UserInfo } from '@api/dto/user';
 import { html, UINode } from '@lib/ui';
 import { ProfileIconComponent } from '../ProfileIcon/ProfileIcon';
 import { useLocalization } from '../../service/LocalizationService';
@@ -12,8 +12,8 @@ const UserSelectComponent = Component(
     onUserSelected
   }: {
     open: StateNode<() => void>;
-    users: ValueNode<Friend[]>;
-    onUserSelected: (user: Friend) => void;
+    users: ValueNode<UserInfo[]>;
+    onUserSelected: (user: UserInfo) => void;
   }): UINode => {
     const [ProfileIcon] = useChildComponents(ProfileIconComponent);
 
@@ -49,7 +49,7 @@ const UserSelectComponent = Component(
             </p>
 
             <each ${$users}>
-              ${(user: Friend) => html`
+              ${(user: UserInfo) => html`
                 <div
                   .hidden=${!user.username.toLowerCase().includes($search.toLowerCase())}
                   class="flex items-center gap-4 py-3 px-3 border-b-2 border-gray-200 cursor-pointer"

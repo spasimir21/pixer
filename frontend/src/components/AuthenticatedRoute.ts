@@ -25,7 +25,8 @@ const AuthenticatedRoute = (component: Component<() => UINode>) =>
               redirectTo: $route.path ?? '/'
             }
           },
-          LoadingPage
+          LoadingPage,
+          true
         );
   });
 

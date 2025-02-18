@@ -53,7 +53,7 @@ const AlbumInfoComponent = Component(({ album }: { album: AlbumInfo }): UINode =
 
         <!-- Album Creator -->
         ${ProfileIcon({
-          userId: () => album.creatorId,
+          userId: () => album.creator.id,
           classes: 'absolute w-8 h-8 -bottom-2 -right-2 border-white border-4'
         })}
 

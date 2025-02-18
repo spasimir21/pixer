@@ -22,10 +22,29 @@ const APIAlbumHandlers: APIHandlers['album'] = {
           users: {
             connect: options.users.map(id => ({ id: toBuffer(id) }))
           }
+        },
+        include: {
+          creator: {
+            select: { id: true, username: true }
+          },
+          users: {
+            select: { id: true, username: true }
+          }
         }
       });
 
-      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users, isPinned: false };
+      return {
+        ...album,
+        creator: {
+          id: toUint8Array(album.creator.id),
+          username: album.creator.username
+        },
+        users: album.users.map(user => ({
+          id: toUint8Array(user.id),
+          username: user.username
+        })),
+        isPinned: false
+      };
     } catch {
       return null;
     }
@@ -48,10 +67,26 @@ const APIAlbumHandlers: APIHandlers['album'] = {
           users: {
             set: options.users.map(id => ({ id: toBuffer(id) }))
           }
+        },
+        include: {
+          creator: {
+            select: { id: true, username: true }
+          },
+          users: {
+            select: { id: true, username: true }
+          }
         }
       });
 
-      return { ...album, creatorId: toUint8Array(album.creatorId), users: options.users, isPinned: false };
+      return {
+        ...album,
+        creator: {
+          id: toUint8Array(album.creator.id),
+          username: album.creator.username
+        },
+        users: album.users.map(user => ({ id: toUint8Array(user.id), username: user.username })),
+        isPinned: false
+      };
     } catch {
       return null;
     }
@@ -75,27 +110,36 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       select: {
         createdAlbums: {
           include: {
+            creator: {
+              select: { id: true, username: true }
+            },
             users: includeUsers
               ? {
-                  select: { id: true }
+                  select: { id: true, username: true }
                 }
               : false
           }
         },
         sharedAlbums: {
           include: {
+            creator: {
+              select: { id: true, username: true }
+            },
             users: includeUsers
               ? {
-                  select: { id: true }
+                  select: { id: true, username: true }
                 }
               : false
           }
         },
         pinnedAlbums: {
           include: {
+            creator: {
+              select: { id: true, username: true }
+            },
             users: includeUsers
               ? {
-                  select: { id: true }
+                  select: { id: true, username: true }
                 }
               : false
           }
@@ -111,20 +155,29 @@ const APIAlbumHandlers: APIHandlers['album'] = {
     return {
       own: user.createdAlbums.map(album => ({
         ...album,
-        creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        creator: {
+          id: toUint8Array(album.creator.id),
+          username: album.creator.username
+        },
+        users: album.users ? album.users.map(user => ({ id: toUint8Array(user.id), username: user.username })) : null,
         isPinned: false
       })),
       shared: user.sharedAlbums.map(album => ({
         ...album,
-        creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        creator: {
+          id: toUint8Array(album.creator.id),
+          username: album.creator.username
+        },
+        users: album.users ? album.users.map(user => ({ id: toUint8Array(user.id), username: user.username })) : null,
         isPinned: false
       })),
       pinned: user.pinnedAlbums.map(album => ({
         ...album,
-        creatorId: toUint8Array(album.creatorId),
-        users: album.users ? album.users.map(user => toUint8Array(user.id)) : null,
+        creator: {
+          id: toUint8Array(album.creator.id),
+          username: album.creator.username
+        },
+        users: album.users ? album.users.map(user => ({ id: toUint8Array(user.id), username: user.username })) : null,
         isPinned: true
       }))
     };
@@ -142,7 +195,10 @@ const APIAlbumHandlers: APIHandlers['album'] = {
         ]
       },
       include: {
-        users: { select: { id: true } },
+        creator: {
+          select: { id: true, username: true }
+        },
+        users: { select: { id: true, username: true } },
         pinnedBy: { where: { id: toBuffer(userId) }, select: { id: true } }
       }
     });
@@ -151,8 +207,11 @@ const APIAlbumHandlers: APIHandlers['album'] = {
 
     return {
       ...album,
-      creatorId: toUint8Array(album.creatorId),
-      users: album.users.map(user => toUint8Array(user.id)),
+      creator: {
+        id: toUint8Array(album.creator.id),
+        username: album.creator.username
+      },
+      users: album.users.map(user => ({ id: toUint8Array(user.id), username: user.username })),
       isPinned: album.pinnedBy.length > 0
     };
   },

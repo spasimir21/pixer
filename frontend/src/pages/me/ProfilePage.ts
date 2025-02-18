@@ -37,7 +37,7 @@ const ProfilePageComponent = Component((): UINode => {
 
   apiService.send(requests.user.getOwnStats, {}).then(({ error, result }) => {
     if (error || result == null) {
-      navigate({ route: 'home' });
+      navigate({ route: 'home' }, true);
       return;
     }
 

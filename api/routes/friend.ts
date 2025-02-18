@@ -1,7 +1,7 @@
 import { array, boolean, int, object } from '@lib/dto';
-import { friend, friendRequest } from '../dto/friend';
+import { friendRequest } from '../dto/friend';
 import { apiRoutes } from '../APISegment';
-import { user } from '../dto/user';
+import { user, userInfo } from '../dto/user';
 
 const APIFriend = apiRoutes({
   name: 'friend',
@@ -48,7 +48,7 @@ const APIFriend = apiRoutes({
       isAuthenticated: true,
       input: object({}),
       result: array({
-        of: friend
+        of: userInfo
       })
     },
     {

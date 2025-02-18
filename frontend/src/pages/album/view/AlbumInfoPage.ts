@@ -2,12 +2,12 @@ import { BackButtonComponent } from '../../../components/buttons/BackButton';
 import { useLocalization } from '../../../service/LocalizationService';
 import { Component, useChildComponents, useEffect, useState } from '@lib/component';
 import { HeaderComponent } from '../../../components/Header';
-import { useRoute, useTitle } from '@lib/router';
+import { useNavigation, useRoute, useTitle } from '@lib/router';
 import { html, UINode } from '@lib/ui';
 import { useAlbum } from '../../../context/AlbumContext';
 import { IconComponent } from '../../../components/Icon';
 import { ProfileIconComponent } from '../../../components/ProfileIcon/ProfileIcon';
-import { faImages, faInbox, faLock, faUnlock, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faImages, faInbox, faLink, faLock, faUnlock, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { AlbumType } from '@api/dto/album';
 import { useService } from '@lib/service';
 import { B2ServiceManager } from '../../../service/B2Service';
@@ -20,6 +20,7 @@ const AlbumInfoPageComponent = Component((): UINode => {
   const album = useAlbum();
 
   const b2Service = useService(B2ServiceManager);
+  const { navigate } = useNavigation();
 
   const coverSrc = useState<string | null>(null);
   const hasCover = useState(true);
@@ -58,7 +59,7 @@ const AlbumInfoPageComponent = Component((): UINode => {
 
         <!-- Album Creator -->
         ${ProfileIcon({
-          userId: () => $album?.creatorId ?? null,
+          userId: () => $album?.creator?.id ?? null,
           classes: 'absolute w-16 h-16 -bottom-2 -right-2 border-white border-8'
         })}
 
@@ -129,16 +130,18 @@ const AlbumInfoPageComponent = Component((): UINode => {
         </div>
 
         <div class="flex gap-3 flex-wrap flex-row">
-          ${ProfileIcon({
-            userId: () => $album?.creatorId ?? null,
-            classes: 'w-8'
-          })}
+          <div @click=${() => navigate({ route: 'user', params: { username: $album?.creator?.username ?? '' } })}>
+            ${ProfileIcon({
+              userId: () => $album?.creator?.id ?? null,
+              classes: 'w-8'
+            })}
+          </div>
 
           <each ${$album?.users ?? []}>
-            ${(userId: Uint8Array) => html`
-              <div class="">
+            ${(user: { id: Uint8Array; username: string }) => html`
+              <div @click=${() => navigate({ route: 'user', params: { username: user.username } })}>
                 ${ProfileIcon({
-                  userId: () => userId,
+                  userId: () => user.id,
                   classes: 'w-8'
                 })}
               </div>
@@ -146,6 +149,14 @@ const AlbumInfoPageComponent = Component((): UINode => {
           </each>
         </div>
       </div>
+
+      <if ${$album?.type === AlbumType.PUBLIC}>
+        <div
+          class="py-3 bg-blue-500 rounded-lg w-3/4 cursor-pointer text-white flex items-center gap-3 justify-center font-bold text-xl"
+          @click=${() => navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/album/${$album?.id}`)}>
+          ${Icon({ icon: faLink, fill: 'white', classes: 'w-6' })} ${l('album.view.info.share')}
+        </div>
+      </if>
     </div>
   `;
 });

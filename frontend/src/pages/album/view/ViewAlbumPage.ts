@@ -42,7 +42,7 @@ const ViewAlbumPageComponent = Component((): UINode => {
 
   apiService.send(requests.album.getAlbumInfo, { albumId: $route.params.albumId }).then(response => {
     if (response.error || response.result == null) {
-      navigate({ route: 'home' });
+      navigate({ route: 'home' }, true);
       return;
     }
 
@@ -50,14 +50,15 @@ const ViewAlbumPageComponent = Component((): UINode => {
   });
 
   const rightButton = () => html`
-    <if ${$route.name.endsWith('.images')}> ${AlbumInfoButton()} </if>
-    <else-if ${$route.name.endsWith('.info') && toHex($album!.creatorId) === toHex(authService.user!.id)}>
+    <if ${$album == null || authService.user == null}></if>
+    <else-if ${$route.name.endsWith('.images')}> ${AlbumInfoButton()} </else-if>
+    <else-if ${$route.name.endsWith('.info') && toHex($album!.creator.id) === toHex(authService.user!.id)}>
       ${EditAlbumButton()}
     </else-if>
     <else-if
       ${$route.name.endsWith('.info') &&
       $album!.type === AlbumType.PUBLIC &&
-      !$album!.users.some(id => toHex(id) === toHex(authService.user!.id))}>
+      !$album!.users.some(({ id }) => toHex(id) === toHex(authService.user!.id))}>
       ${PinAlbumButton()}
     </else-if>
     <else-if ${$route.name.endsWith('edit')}> ${DeleteAlbumButton()} </else-if>

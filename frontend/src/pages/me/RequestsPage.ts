@@ -7,7 +7,7 @@ import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
 import { IconComponent } from '../../components/Icon';
-import { Friend, FriendRequest } from '@api/dto/friend';
+import { FriendRequest } from '@api/dto/friend';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
@@ -32,7 +32,7 @@ const RequestsPageComponent = Component((): UINode => {
 
   apiService.send(requests.friend.getRequests, {}).then(response => {
     if (response.error) {
-      navigate({ route: 'home' });
+      navigate({ route: 'home' }, true);
       return;
     }
 

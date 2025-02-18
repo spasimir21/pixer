@@ -29,10 +29,11 @@ const PasswordPageComponent = Component((): UINode => {
           redirectTo: $route.search.get('redirectTo') ?? '/'
         }
       },
-      LoadingPage
+      LoadingPage,
+      true
     );
 
-  if (authService.isAuthenticated) return NavigateTo($route.search.get('redirectTo') ?? '/', LoadingPage);
+  if (authService.isAuthenticated) return NavigateTo($route.search.get('redirectTo') ?? '/', LoadingPage, true);
 
   useTitle(() => `${l('pixer.title')} - ${l('password.title')} (${authService.user?.username})`);
 

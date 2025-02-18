@@ -7,7 +7,7 @@ import { APIServiceManager } from '../../service/APIService';
 import { HeaderComponent } from '../../components/Header';
 import { useNavigation, useTitle } from '@lib/router';
 import { IconComponent } from '../../components/Icon';
-import { Friend } from '@api/dto/friend';
+import { UserInfo } from '@api/dto/user';
 import { requests } from '../../api/requests';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
@@ -28,20 +28,21 @@ const FriendsPageComponent = Component((): UINode => {
 
   useTitle(() => `${l('pixer.title')} - ${l('me.friends.title')}`);
 
-  const friends = useState<Friend[] | null>(null);
+  const friends = useState<UserInfo[] | null>(null);
 
   apiService.send(requests.friend.getFriends, {}).then(response => {
     if (response.error) {
-      navigate({ route: 'home' });
+      navigate({ route: 'home' }, true);
       return;
     }
 
     $friends = response.result;
   });
 
+  const dialogFriend = useState(null as UserInfo | null);
   const isRemoving = useState(false);
 
-  const removeFriend = async (friend: Friend) => {
+  const removeFriend = async (friend: UserInfo) => {
     if ($isRemoving) return;
     $isRemoving = true;
 
@@ -59,6 +60,32 @@ const FriendsPageComponent = Component((): UINode => {
         title: () => l('me.friends.title')
       })}
 
+      <div
+        @click=${() => ($dialogFriend = null)}
+        .hidden=${$dialogFriend == null}
+        class="p-5 fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-25 z-50 grid place-items-center">
+        <div
+          class="bg-white rounded-lg p-4 w-[80vw] max-w-[350px] flex flex-col gap-6"
+          @click:stopPropagation=${() => {}}>
+          <p class="text-xl">${l('me.friends.remove')} <span class="font-bold">"${$dialogFriend?.username}"</span>?</p>
+
+          <div class="flex gap-4">
+            <div
+              class="cursor-pointer bg-red-500 rounded-lg text-lg text-white py-1 px-4 font-bold text-center"
+              .opacity-75=${$isRemoving}
+              @click=${() => removeFriend($dialogFriend!)}>
+              ${l('me.friends.remove')}
+            </div>
+
+            <div
+              @click=${() => ($dialogFriend = null)}
+              class="cursor-pointer bg-gray-400 rounded-lg text-lg text-white py-1 px-4 font-bold text-center">
+              ${l('me.friends.cancel')}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="flex-grow flex flex-col w-full max-w-[430px]">
         <if ${$friends == null}>
           <p class="text-gray-400 text-lg text-center mt-4">${l('loading')}</p>
@@ -68,7 +95,7 @@ const FriendsPageComponent = Component((): UINode => {
         </else-if>
         <else>
           <each ${$friends}>
-            ${(friend: Friend) => html`
+            ${(friend: UserInfo) => html`
               <div
                 class="flex items-center py-3 px-3 border-b-2 border-gray-200 justify-between"
                 @click=${() => navigate({ route: 'user', params: { username: friend.username } })}>
@@ -83,7 +110,7 @@ const FriendsPageComponent = Component((): UINode => {
 
                 <div
                   class="cursor-pointer flex px-3 py-1 gap-2 items-center rounded-lg bg-red-500 text-white font-bold"
-                  @click:stopPropagation=${() => removeFriend(friend)}>
+                  @click:stopPropagation=${() => ($dialogFriend = friend)}>
                   ${Icon({ icon: faUserMinus, fill: 'white', classes: 'w-4' })} ${l('me.friends.remove')}
                 </div>
               </div>

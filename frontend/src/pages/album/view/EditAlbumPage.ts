@@ -15,7 +15,7 @@ import { toHex } from '@lib/utils/hex';
 import { AlbumType } from '@api/dto/album';
 import { useAlbum } from '../../../context/AlbumContext';
 import { toValueNode } from '@lib/reactivity';
-import { Friend } from '@api/dto/friend';
+import { UserInfo } from '@api/dto/user';
 import { faInbox, faLock, faPlus, faUnlock, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 // TODO: add deletion
@@ -35,33 +35,34 @@ const EditAlbumPageComponent = Component((): UINode => {
 
   const album = useAlbum();
 
-  if ($album == null || toHex($album!.creatorId) !== toHex(authService.user!.id)) return NavigateTo({ route: 'home' });
+  if ($album == null || authService.user == null || toHex($album!.creator.id) !== toHex(authService.user!.id))
+    return NavigateTo({ route: 'home' }, null, true);
 
   const name = useState($album?.name ?? '');
   const allowSubmissions = useState($album?.allowSubmissions ?? false);
-  const users = useState<Friend[]>([]);
+  const users = useState<UserInfo[]>([]);
 
   const isLoading = useState(false);
 
   const canEdit = useComputed(() => !$isLoading && $name.trim().length >= 3);
 
-  const friends = useState<Friend[]>([]);
+  const friends = useState<UserInfo[]>([]);
 
   apiService.send(requests.friend.getFriends, {}).then(response => {
     if (response.error) return;
 
-    const userIds = ($album?.users ?? []).map(toHex);
+    const userIds = ($album?.users ?? []).map(({ id }) => toHex(id));
 
     $users = response.result.filter(friend => userIds.includes(toHex(friend.id)));
     $friends = response.result.filter(friend => !userIds.includes(toHex(friend.id)));
   });
 
-  const removeUser = (user: Friend) => {
+  const removeUser = (user: UserInfo) => {
     $users.splice($users.indexOf(user), 1);
     $friends.push(user);
   };
 
-  const addUser = (user: Friend) => {
+  const addUser = (user: UserInfo) => {
     $friends.splice($friends.indexOf(user), 1);
     $users.push(user);
   };
@@ -184,7 +185,7 @@ const EditAlbumPageComponent = Component((): UINode => {
           })}
 
           <each ${$users}>
-            ${(user: Friend) => html`
+            ${(user: UserInfo) => html`
               <div class="cursor-pointer" @click=${() => removeUser(user)}>
                 ${ProfileIcon({
                   userId: () => user.id,

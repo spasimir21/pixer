@@ -34,4 +34,20 @@ type User = DTOType<typeof user>;
 type ExportedUserPublicKeys = DTOType<typeof user.publicKeys>;
 type UserEncryptedKeys = DTOType<typeof userEncryptedKeys>;
 
-export { user, userWithEncryptedKeys, User, UserWithEncryptedKeys, ExportedUserPublicKeys, UserEncryptedKeys };
+const userInfo = object({
+  id: user.id,
+  username: user.username
+});
+
+type UserInfo = DTOType<typeof userInfo>;
+
+export {
+  user,
+  userWithEncryptedKeys,
+  User,
+  UserWithEncryptedKeys,
+  ExportedUserPublicKeys,
+  UserEncryptedKeys,
+  userInfo,
+  UserInfo
+};

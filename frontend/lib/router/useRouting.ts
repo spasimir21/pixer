@@ -18,7 +18,7 @@ type NavigateLocation =
   | (({} | { path: string } | { route: string; params?: any }) & { hash?: string; search?: any });
 
 interface Navigation {
-  navigate: (location: NavigateLocation) => void;
+  navigate: (location: NavigateLocation, replace?: boolean) => void;
   back: () => void;
   refresh: () => void;
 }
@@ -70,13 +70,20 @@ function useRouting(routes: RouteDefinition[]) {
   const updateRoute = () => ($route = matchRoute(flatRoutes));
 
   useProvideNavigation(() => ({
-    navigate: location => {
+    navigate: (location, replace = false) => {
       if (typeof location === 'string') {
-        history.pushState(
-          { currentLocation: location, prevLocation: history.state?.currentLocation ?? null },
-          '',
-          location
-        );
+        if (replace)
+          history.replaceState(
+            { currentLocation: location, prevLocation: history.state?.currentLocation ?? null },
+            '',
+            location
+          );
+        else
+          history.pushState(
+            { currentLocation: location, prevLocation: history.state?.currentLocation ?? null },
+            '',
+            location
+          );
 
         updateRoute();
         return;
@@ -101,7 +108,9 @@ function useRouting(routes: RouteDefinition[]) {
       path += search;
       path += location.hash != null ? `#${location.hash}` : window.location.hash;
 
-      history.pushState({ currentLocation: path, prevLocation: history.state?.currentLocation ?? null }, '', path);
+      if (replace)
+        history.replaceState({ currentLocation: path, prevLocation: history.state?.currentLocation ?? null }, '', path);
+      else history.pushState({ currentLocation: path, prevLocation: history.state?.currentLocation ?? null }, '', path);
       updateRoute();
     },
     back: () => window.history.back(),

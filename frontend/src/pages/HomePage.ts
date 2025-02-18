@@ -42,7 +42,7 @@ const HomePageComponent = Component((): UINode => {
   apiService.send(requests.album.getAccessibleAlbumsInfo, { includeUsers: false }).then(response => {
     if (response.error) {
       authService.logOut();
-      navigate({ route: 'auth.login' });
+      navigate({ route: 'auth.login' }, true);
 
       return;
     }

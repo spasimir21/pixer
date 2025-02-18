@@ -11,7 +11,7 @@ import { ProfileIconComponent } from '../../components/ProfileIcon/ProfileIcon';
 import { useService } from '@lib/service';
 import { AuthenticationServiceManager } from '../../service/AuthenticationService';
 import { ValueNode } from '@lib/reactivity';
-import { Friend } from '@api/dto/friend';
+import { UserInfo } from '@api/dto/user';
 import { APIServiceManager } from '../../service/APIService';
 import { requests } from '../../api/requests';
 import { UserSelectComponent } from '../../components/user/UserSelect';
@@ -40,7 +40,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
   const name = useState('');
   const isPrivate = useState(true);
   const allowSubmissions = useState(false);
-  const users = useState<Friend[]>([]);
+  const users = useState<UserInfo[]>([]);
 
   const isLoading = useState(false);
 
@@ -50,19 +50,19 @@ const CreateAlbumPageComponent = Component((): UINode => {
     if ($isPrivate) $allowSubmissions = false;
   });
 
-  const friends = useState<Friend[]>([]);
+  const friends = useState<UserInfo[]>([]);
 
   apiService.send(requests.friend.getFriends, {}).then(response => {
     if (response.error) return;
     $friends = response.result;
   });
 
-  const removeUser = (user: Friend) => {
+  const removeUser = (user: UserInfo) => {
     $users.splice($users.indexOf(user), 1);
     $friends.push(user);
   };
 
-  const addUser = (user: Friend) => {
+  const addUser = (user: UserInfo) => {
     $friends.splice($friends.indexOf(user), 1);
     $users.push(user);
   };
@@ -180,7 +180,7 @@ const CreateAlbumPageComponent = Component((): UINode => {
             })}
 
             <each ${$users}>
-              ${(user: Friend) => html`
+              ${(user: UserInfo) => html`
                 <div class="cursor-pointer" @click=${() => removeUser(user)}>
                   ${ProfileIcon({
                     userId: () => user.id,

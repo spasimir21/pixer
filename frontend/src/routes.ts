@@ -74,6 +74,11 @@ const ROUTES: RouteDefinition[] = [
             component: async () => (await import('./pages/album/view/AlbumImagesPage')).default
           },
           {
+            name: 'submissions',
+            path: '/submissions',
+            component: async () => (await import('./pages/album/view/AlbumSubmissionsPage')).default
+          },
+          {
             name: 'info',
             path: '/info',
             component: async () => (await import('./pages/album/view/AlbumInfoPage')).default

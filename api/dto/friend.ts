@@ -9,11 +9,4 @@ const friendRequest = object({
 
 type FriendRequest = DTOType<typeof friendRequest>;
 
-const friend = object({
-  id: user.id,
-  username: user.username
-});
-
-type Friend = DTOType<typeof friend>;
-
-export { friendRequest, FriendRequest, friend, Friend };
+export { friendRequest, FriendRequest };

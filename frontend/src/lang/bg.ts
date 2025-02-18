@@ -51,7 +51,8 @@ const BG: Translations = {
     friends: {
       title: 'Приятели',
       noFriends: 'Нямате добавени приятели',
-      remove: 'Премахни'
+      remove: 'Премахни',
+      cancel: 'Затвори'
     },
     requests: {
       title: 'Покани',
@@ -87,10 +88,15 @@ const BG: Translations = {
     },
     view: {
       info: {
-        allowsSubmissions: 'Предложения'
+        allowsSubmissions: 'Предложения',
+        share: 'Сподели'
       },
       edit: {
-        save: 'Запази'
+        save: 'Запази',
+        delete: {
+          delete: 'Изтрий',
+          cancel: 'Затвори'
+        }
       }
     }
   }

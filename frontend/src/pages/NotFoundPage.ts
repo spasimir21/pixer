@@ -6,7 +6,7 @@ import { UINode } from '@lib/ui';
 const NotFoundPageComponent = Component((): UINode => {
   const [NavigateTo, LoadingPage] = useChildComponents(NavigateToComponent, LoadingPageComponent);
 
-  return NavigateTo({ route: 'home' }, LoadingPage);
+  return NavigateTo({ route: 'home' }, LoadingPage, true);
 });
 
 export { NotFoundPageComponent };
