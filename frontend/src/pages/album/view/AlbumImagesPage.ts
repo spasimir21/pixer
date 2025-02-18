@@ -1,6 +1,6 @@
 import { BackButtonComponent } from '../../../components/buttons/BackButton';
 import { useLocalization } from '../../../service/LocalizationService';
-import { Component, useChildComponents, useComputed } from '@lib/component';
+import { Component, useChildComponents, useComputed, useState } from '@lib/component';
 import { HeaderComponent } from '../../../components/Header';
 import { useAlbum } from '../../../context/AlbumContext';
 import { useNavigation, useRoute, useTitle } from '@lib/router';
@@ -10,9 +10,10 @@ import { faArrowUpFromBracket, faInbox } from '@fortawesome/free-solid-svg-icons
 import { useService } from '@lib/service';
 import { AuthenticationServiceManager } from '../../../service/AuthenticationService';
 import { toHex } from '@lib/utils/hex';
+import { ImageSelectComponent } from '../../../components/image/ImageSelect';
 
 const AlbumImagesPageComponent = Component((): UINode => {
-  const [Icon] = useChildComponents(IconComponent);
+  const [Icon, ImageSelect] = useChildComponents(IconComponent, ImageSelectComponent);
 
   const authService = useService(AuthenticationServiceManager);
   const { navigate } = useNavigation();
@@ -27,7 +28,15 @@ const AlbumImagesPageComponent = Component((): UINode => {
     return toHex($album!.creator.id) === userId || $album!.users.map(({ id }) => toHex(id)).includes(userId);
   });
 
+  const openImageSelect = useState(() => {});
+
   return html`
+    ${ImageSelect({
+      open: openImageSelect,
+      onImagesSelected: console.log,
+      maxImages: 10
+    })}
+
     <div class="flex-grow flex flex-col py-3 px-4 gap-3 w-full max-w-[530px]">
       <p class="text-gray-400 text-center text-lg">Image - ${$route.params.albumId}</p>
 
@@ -46,7 +55,8 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
         <if ${$isCollaborator}>
           <div
-            class="w-12 h-12 rounded-full bg-white grid place-items-center border-2 border-gray-400 shadow-xl cursor-pointer">
+            class="w-12 h-12 rounded-full bg-white grid place-items-center border-2 border-gray-400 shadow-xl cursor-pointer"
+            @click=${() => $openImageSelect()}>
             ${Icon({
               icon: faArrowUpFromBracket,
               fill: '#3b82f6',

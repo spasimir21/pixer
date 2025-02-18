@@ -86,6 +86,12 @@ const EN = {
       create: 'Create'
     },
     view: {
+      images: {
+        select: {
+          title: 'Select Images',
+          select: 'Select'
+        }
+      },
       info: {
         allowsSubmissions: 'Allows Submissions',
         share: 'Share Album'

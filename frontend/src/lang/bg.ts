@@ -87,6 +87,12 @@ const BG: Translations = {
       create: 'Създай'
     },
     view: {
+      images: {
+        select: {
+          title: 'Избери Снимки',
+          select: 'Избери'
+        }
+      },
       info: {
         allowsSubmissions: 'Предложения',
         share: 'Сподели'
