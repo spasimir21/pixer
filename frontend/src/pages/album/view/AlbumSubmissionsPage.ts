@@ -1,6 +1,6 @@
 import { BackButtonComponent } from '../../../components/buttons/BackButton';
 import { useLocalization } from '../../../service/LocalizationService';
-import { Component, useChildComponents, useComputed, useEffect } from '@lib/component';
+import { Component, useChildComponents, useComputed, useEffect, useState } from '@lib/component';
 import { HeaderComponent } from '../../../components/Header';
 import { useAlbum } from '../../../context/AlbumContext';
 import { useNavigation, useRoute, useTitle } from '@lib/router';
@@ -10,9 +10,10 @@ import { faArrowUpFromBracket, faInbox } from '@fortawesome/free-solid-svg-icons
 import { AuthenticationServiceManager } from '../../../service/AuthenticationService';
 import { useService } from '@lib/service';
 import { toHex } from '@lib/utils/hex';
+import { ImageSelectComponent } from '../../../components/image/ImageSelect';
 
 const AlbumSubmissionsPageComponent = Component((): UINode => {
-  const [Icon] = useChildComponents(IconComponent);
+  const [Icon, ImageSelect] = useChildComponents(IconComponent, ImageSelectComponent);
 
   const authService = useService(AuthenticationServiceManager);
   const { navigate } = useNavigation();
@@ -31,7 +32,15 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     if ($album?.allowSubmissions !== true) navigate({ route: 'album.view.images', params: $route.params }, true);
   });
 
+  const openImageSelect = useState(() => {});
+
   return html`
+    ${ImageSelect({
+      open: openImageSelect,
+      onImagesSelected: console.log,
+      maxImages: 10
+    })}
+
     <div class="flex-grow flex flex-col py-3 px-4 gap-3 w-full max-w-[530px]">
       <p class="text-gray-400 text-center text-lg">Submissions - ${$album?.name}</p>
 

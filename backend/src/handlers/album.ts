@@ -93,14 +93,18 @@ const APIAlbumHandlers: APIHandlers['album'] = {
   },
   // TODO: Delete images
   delete: async ({ id }, { userId }) => {
-    const result = await dbClient.album.delete({
-      where: {
-        id,
-        creatorId: toBuffer(userId)
-      }
-    });
+    try {
+      const result = await dbClient.album.delete({
+        where: {
+          id,
+          creatorId: toBuffer(userId)
+        }
+      });
 
-    return result != null;
+      return result != null;
+    } catch {
+      return false;
+    }
   },
   getAccessibleAlbumsInfo: async ({ includeUsers }, { userId }) => {
     const user = await dbClient.user.findFirst({

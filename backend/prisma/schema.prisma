@@ -96,6 +96,8 @@ model ImageKey {
 model Image {
   id                 String       @id @default(uuid())
   createdAt          DateTime     @default(now())
+
+  imageDate          DateTime
   
   creatorId          Bytes
   creator            User         @relation(fields: [creatorId], references: [id])
@@ -112,6 +114,8 @@ model Image {
 model Submission {
   id          String     @id @default(uuid())
   createdAt   DateTime   @default(now())
+
+  imageDate   DateTime
   
   creatorId   Bytes
   creator     User       @relation(fields: [creatorId], references: [id])
