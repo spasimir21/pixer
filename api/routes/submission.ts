@@ -12,9 +12,11 @@ const APISubmission = apiRoutes({
       isAuthenticated: true,
       input: object({
         imageDate: date(),
+        imageType: string({ length: int({ max: 128 }) }),
+        imageExt: string({ length: int({ max: 12 }) }),
         albumId: albumInfo.id,
         imageSize: int({ max: 8 * 1000 * 1000 }), // 8 mB
-        previewSize: int({ max: 64 * 1000 }) // 64 kB
+        previewSize: int({ max: 128 * 1000 }) // 128 kB
       }),
       result: nullable(
         object({
@@ -55,7 +57,7 @@ const APISubmission = apiRoutes({
       isAuthenticated: true,
       input: object({
         albumId: albumInfo.id,
-        selectors: imageSelectors
+        skip: int()
       }),
       result: array({ of: submission })
     }

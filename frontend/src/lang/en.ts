@@ -102,6 +102,13 @@ const EN = {
           delete: 'Delete',
           cancel: 'Cancel'
         }
+      },
+      submissions: {
+        upload: {
+          title: 'Uploading Submissions',
+          uploading: 'Uploading'
+        },
+        noSubmissions: 'There are no submissions'
       }
     }
   }

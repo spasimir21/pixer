@@ -5,6 +5,14 @@ import { useLocalization } from '../../service/LocalizationService';
 import { IconComponent } from '../Icon';
 import { faImages, faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 
+interface SelectedImage {
+  modifiedDate: Date;
+  blob: Blob;
+  src: string;
+  imageType: string;
+  imageExtension: string;
+}
+
 const ImageSelectComponent = Component(
   ({
     open,
@@ -12,14 +20,14 @@ const ImageSelectComponent = Component(
     maxImages
   }: {
     open: StateNode<() => void>;
-    onImagesSelected: (images: { blob: Blob; src: string }[]) => void;
+    onImagesSelected: (images: SelectedImage[]) => void;
     maxImages: number;
   }): UINode => {
     const [Icon] = useChildComponents(IconComponent);
 
     const l = useLocalization();
 
-    const images = useState([] as { blob: Blob; src: string }[]);
+    const images = useState([] as SelectedImage[]);
     const isOpen = useState(false);
 
     $open = () => {
@@ -50,7 +58,13 @@ const ImageSelectComponent = Component(
             const blob = new Blob([fileReader.result], { type: file.type });
             const src = URL.createObjectURL(blob);
 
-            $images.push({ blob, src });
+            $images.push({
+              blob,
+              src,
+              modifiedDate: new Date(file.lastModified),
+              imageType: file.type,
+              imageExtension: file.name.split('.').pop()!
+            });
           };
 
           fileReader.readAsArrayBuffer(file);
@@ -58,7 +72,7 @@ const ImageSelectComponent = Component(
       };
     };
 
-    const removeImage = (image: { blob: Blob; src: string }) => {
+    const removeImage = (image: SelectedImage) => {
       $images.splice($images.indexOf(image), 1);
       URL.revokeObjectURL(image.src);
     };
@@ -79,7 +93,7 @@ const ImageSelectComponent = Component(
 
           <div class="flex flex-row flex-wrap gap-4">
             <each ${$images}>
-              ${(image: { src: string; blob: Blob }) => html`
+              ${(image: SelectedImage) => html`
                 <div class="relative w-28 h-28">
                   <div
                     @click=${() => removeImage(image)}
@@ -126,4 +140,4 @@ const ImageSelectComponent = Component(
   }
 );
 
-export { ImageSelectComponent };
+export { ImageSelectComponent, SelectedImage };

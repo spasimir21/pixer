@@ -19,6 +19,14 @@ class B2Service extends Service {
     return `https://album-covers.${this.b2Origin}/${id}?temp=${this.albumCoverTemp}`;
   }
 
+  imagePreview(albumId: string, imageId: string) {
+    return `https://image-previews.${this.b2Origin}/${albumId}/${imageId}`;
+  }
+
+  image(albumId: string, imageId: string) {
+    return `https://pixer-images.${this.b2Origin}/${albumId}/${imageId}`;
+  }
+
   invalidateProfileIcons() {
     this.profileIconTemp = id();
   }

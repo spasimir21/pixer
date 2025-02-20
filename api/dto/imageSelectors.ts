@@ -1,19 +1,19 @@
 import { _enum, boolean, date, DTOType, int, nullable, object } from '@lib/dto';
 import { user } from './user';
 
-const SortingOrder = _enum('User', 'Date');
+const SortingProperty = _enum('User', 'Date');
 
 const imageSelectors = object({
   filter: object({
-    isSubmission: nullable(boolean()),
+    includeSubmissions: nullable(boolean()),
     userId: nullable(user.id),
     fromDate: nullable(date())
   }),
-  sort: SortingOrder,
+  sort: SortingProperty,
   skip: int()
 });
 
+type SortingProperty = DTOType<typeof SortingProperty>;
 type ImageSelectors = DTOType<typeof imageSelectors>;
-type SortingOrder = DTOType<typeof SortingOrder>;
 
-export { SortingOrder, imageSelectors, ImageSelectors };
+export { SortingProperty, imageSelectors, ImageSelectors };

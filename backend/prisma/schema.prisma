@@ -98,6 +98,8 @@ model Image {
   createdAt          DateTime     @default(now())
 
   imageDate          DateTime
+  imageType          String
+  imageExt           String
   
   creatorId          Bytes
   creator            User         @relation(fields: [creatorId], references: [id])
@@ -116,6 +118,8 @@ model Submission {
   createdAt   DateTime   @default(now())
 
   imageDate   DateTime
+  imageType   String
+  imageExt    String
   
   creatorId   Bytes
   creator     User       @relation(fields: [creatorId], references: [id])

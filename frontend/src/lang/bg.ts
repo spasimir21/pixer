@@ -103,6 +103,13 @@ const BG: Translations = {
           delete: 'Изтрий',
           cancel: 'Затвори'
         }
+      },
+      submissions: {
+        upload: {
+          title: 'Качване на Предложенията',
+          uploading: 'Качване на'
+        },
+        noSubmissions: 'Няма предложения'
       }
     }
   }
