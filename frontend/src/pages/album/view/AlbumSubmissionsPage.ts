@@ -98,10 +98,10 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     if ($isLoading || !$shouldLoadMore) return;
     $isLoading = true;
 
-    const response = await apiService.send(
-      $isJudge ? requests.submission.getSubmissions : requests.submission.getOwnSubmissions,
-      { albumId: $album?.id ?? '', skip: $submissionCount } as any
-    );
+    const response = await apiService.send(requests.submission.getSubmissions, {
+      albumId: $album?.id ?? '',
+      skip: $submissionCount
+    });
 
     if (response.error == null) for (const submission of response.result) insertSubmissionReversed(submission);
 
@@ -113,7 +113,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
   loadImages();
 
   useEffect(() => {
-    if ($pageDiv == null || $imagesDiv == null || !$isJudge) return;
+    if ($pageDiv == null || $imagesDiv == null) return;
 
     const mutationObserver = new MutationObserver(() => {
       if ($imagesDiv!.clientHeight >= $pageDiv!.clientHeight) return;
@@ -126,7 +126,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
   });
 
   const onScroll = () => {
-    if (!$isJudge || $pageDiv == null) return;
+    if ($pageDiv == null) return;
     if ($pageDiv!.scrollTop + 10 < $pageDiv!.scrollHeight - $pageDiv!.clientHeight) return;
 
     loadImages();
@@ -144,18 +144,28 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
   };
 
   useEffect(() => {
-    if ($openedSubmissionIndex < $submissionCount - 1 || !$isJudge) return;
+    if ($openedSubmissionIndex < $submissionCount - 1) return;
 
     loadImages();
   });
 
-  const download = () => {
+  const download = async () => {
     if ($openedSubmission == null) return;
 
+    const blob = await b2Service.downloadAsBlob(
+      'pixer-images',
+      `${$openedSubmission!.albumId}/${$openedSubmission!.id}`
+    );
+
+    if (blob == null) return;
+
+    const blobHref = URL.createObjectURL(blob);
+    setTimeout(() => URL.revokeObjectURL(blobHref), 60 * 1000);
+
     const link = document.createElement('a');
-    link.setAttribute('target', '_blank');
-    link.setAttribute('href', b2Service.image($openedSubmission!.albumId, $openedSubmission!.id));
-    link.setAttribute('download', `${$openedSubmission!.id}.${$openedSubmission!.imageExt}`);
+    link.target = '_blank';
+    link.href = blobHref;
+    link.download = `${$openedSubmission!.id}.${$openedSubmission!.imageExt}`;
 
     link.click();
   };

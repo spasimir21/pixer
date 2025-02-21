@@ -88,7 +88,7 @@ async function importUserPublicKeys({ identityKey, encryptionKey }: ExportedUser
       encryptionKey,
       { name: 'RSA-OAEP', hash: CRYPTO_CONSTANTS.encryptionKey.hash },
       false,
-      ['encrypt']
+      ['wrapKey']
     )
   };
 }
@@ -150,7 +150,7 @@ async function importUserEncryptedKeys(
     { name: 'AES-CBC', iv: encryptedKeys.encryptionKeyIv },
     { name: 'RSA-OAEP', hash: CRYPTO_CONSTANTS.encryptionKey.hash },
     false,
-    ['decrypt']
+    ['unwrapKey']
   );
 
   return {

@@ -44,14 +44,6 @@ const APISubmission = apiRoutes({
       result: boolean()
     },
     {
-      name: 'getOwnSubmissions',
-      isAuthenticated: true,
-      input: object({
-        albumId: albumInfo.id
-      }),
-      result: array({ of: submission })
-    },
-    {
       name: 'getSubmissions',
       isAuthenticated: true,
       input: object({

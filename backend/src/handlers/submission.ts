@@ -1,6 +1,6 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { toBuffer, toUint8Array } from '../utils/buffer';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { dbClient } from '../data/dbClient';
 import { b2Client } from '../data/b2Client';
 import { APIHandlers } from './index';
@@ -32,7 +32,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
     const imageCommand = new PutObjectCommand({
       Bucket: 'pixer-images',
       Key: `${albumId}/${submission.id}`,
-      ContentType: 'image/png',
+      ContentType: imageType,
       ContentLength: imageSize
     });
 
@@ -92,7 +92,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
   },
   rejectSubmission: async ({ submissionId }, { userId }) => {
     try {
-      await dbClient.submission.delete({
+      const submission = await dbClient.submission.delete({
         where: {
           id: submissionId,
           OR: [
@@ -106,51 +106,37 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
         }
       });
 
+      await b2Client.send(
+        new DeleteObjectCommand({
+          Bucket: 'pixer-images',
+          Key: `${submission.albumId}/${submission.id}`
+        })
+      );
+
+      await b2Client.send(
+        new DeleteObjectCommand({
+          Bucket: 'image-previews',
+          Key: `${submission.albumId}/${submission.id}`
+        })
+      );
+
       return true;
     } catch {
       return false;
     }
   },
-  getOwnSubmissions: async ({ albumId }, { userId }) => {
-    const submissions = await dbClient.submission.findMany({
-      where: {
-        creatorId: toBuffer(userId),
-        albumId
-      },
-      include: {
-        creator: { select: { id: true, username: true } }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-
-    return submissions.map(submission => ({
-      id: submission.id,
-      uploadedAt: submission.createdAt,
-      imageDate: submission.imageDate,
-      imageType: submission.imageType,
-      imageExt: submission.imageExt,
-      creator: {
-        id: toUint8Array(submission.creator.id),
-        username: submission.creator.username
-      },
-      albumId
-    }));
-  },
   getSubmissions: async ({ albumId, skip }, { userId }) => {
-    const album = await dbClient.album.findFirst({
-      where: {
-        id: albumId,
-        OR: [{ creatorId: toBuffer(userId) }, { users: { some: { id: toBuffer(userId) } } }]
-      }
-    });
-
-    if (album == null) return [];
-
     const submissions = await dbClient.submission.findMany({
       where: {
-        albumId
+        albumId,
+        OR: [
+          { creatorId: toBuffer(userId) },
+          {
+            album: {
+              OR: [{ creatorId: toBuffer(userId) }, { users: { some: { id: toBuffer(userId) } } }]
+            }
+          }
+        ]
       },
       include: {
         creator: { select: { id: true, username: true } }

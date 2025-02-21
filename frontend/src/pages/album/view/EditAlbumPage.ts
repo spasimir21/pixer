@@ -18,7 +18,6 @@ import { toValueNode } from '@lib/reactivity';
 import { UserInfo } from '@api/dto/user';
 import { faInbox, faLock, faPlus, faUnlock, faUsers } from '@fortawesome/free-solid-svg-icons';
 
-// TODO: add deletion
 const EditAlbumPageComponent = Component((): UINode => {
   const [AlbumCoverUpload, Icon, ProfileIcon, UserSelect, NavigateTo] = useChildComponents(
     AlbumCoverUploadComponent,

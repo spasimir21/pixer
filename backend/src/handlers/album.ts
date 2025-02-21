@@ -1,6 +1,12 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { toBuffer, toUint8Array } from '../utils/buffer';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  ChecksumAlgorithm,
+  DeleteObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsCommand,
+  PutObjectCommand
+} from '@aws-sdk/client-s3';
 import { dbClient } from '../data/dbClient';
 import { b2Client } from '../data/b2Client';
 import { AlbumType } from '@prisma/client';
@@ -49,7 +55,7 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       return null;
     }
   },
-  // Delete images
+  // TODO: Delete images and re-encrypt images for new users
   edit: async (options, { userId }) => {
     if (options.type === AlbumType.PRIVATE && options.allowSubmissions) return null;
     if (options.users.map(toHex).includes(toHex(userId))) return null;
@@ -91,17 +97,70 @@ const APIAlbumHandlers: APIHandlers['album'] = {
       return null;
     }
   },
-  // TODO: Delete images
   delete: async ({ id }, { userId }) => {
+    const album = await dbClient.album.findFirst({
+      where: {
+        id,
+        creatorId: toBuffer(userId)
+      },
+      select: {
+        id: true,
+        images: { select: { id: true } }
+      }
+    });
+
+    if (album == null) return false;
+
     try {
-      const result = await dbClient.album.delete({
-        where: {
-          id,
-          creatorId: toBuffer(userId)
-        }
+      await dbClient.imageKey.deleteMany({
+        where: { imageId: { in: album.images.map(image => image.id) } }
       });
 
-      return result != null;
+      await dbClient.image.deleteMany({
+        where: { id: { in: album.images.map(image => image.id) } }
+      });
+
+      await dbClient.submission.deleteMany({
+        where: { albumId: id }
+      });
+
+      await dbClient.album.delete({
+        where: { id }
+      });
+
+      await b2Client.send(
+        new DeleteObjectCommand({
+          Bucket: 'album-covers',
+          Key: album.id
+        })
+      );
+
+      const listResponse = await b2Client.send(
+        new ListObjectsCommand({
+          Bucket: 'pixer-images',
+          Prefix: `${album.id}/`
+        })
+      );
+
+      for (const object of listResponse.Contents ?? []) {
+        if (object.Key == null) continue;
+
+        await b2Client.send(
+          new DeleteObjectCommand({
+            Bucket: 'pixer-images',
+            Key: object.Key
+          })
+        );
+
+        await b2Client.send(
+          new DeleteObjectCommand({
+            Bucket: 'image-previews',
+            Key: object.Key
+          })
+        );
+      }
+
+      return true;
     } catch {
       return false;
     }

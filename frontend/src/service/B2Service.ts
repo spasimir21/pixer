@@ -1,12 +1,24 @@
 import { createSingletonManager, Service } from '@lib/service';
+import { APIService, APIServiceManager } from './APIService';
+import { requests } from '../api/requests';
 import { id } from '@lib/utils/id';
 
 class B2Service extends Service {
   public profileIconTemp: string = id();
   public albumCoverTemp: string = id();
+  public baseDownloadUrl: string = '';
+
+  private readonly apiService: APIService;
 
   constructor(public readonly b2Origin: string) {
     super();
+
+    this.apiService = this.useService(APIServiceManager);
+
+    this.apiService.send(requests.b2.getBaseDownloadUrl, {}).then(response => {
+      if (response.error) return;
+      this.baseDownloadUrl = response.result;
+    });
   }
 
   profileIcon(hexId: string, fullSize = false) {
@@ -25,6 +37,15 @@ class B2Service extends Service {
 
   image(albumId: string, imageId: string) {
     return `https://pixer-images.${this.b2Origin}/${albumId}/${imageId}`;
+  }
+
+  async downloadAsBlob(bucket: string, key: string) {
+    try {
+      const res = await fetch(`${this.baseDownloadUrl}/file/${bucket}/${key}`);
+      return res.blob();
+    } catch {
+      return null;
+    }
   }
 
   invalidateProfileIcons() {
