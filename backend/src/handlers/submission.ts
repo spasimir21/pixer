@@ -1,5 +1,4 @@
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { SortingProperty } from '@api/dto/imageSelectors';
 import { toBuffer, toUint8Array } from '../utils/buffer';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { dbClient } from '../data/dbClient';
@@ -122,7 +121,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
         creator: { select: { id: true, username: true } }
       },
       orderBy: {
-        createdAt: 'desc'
+        imageDate: 'desc'
       }
     });
 
@@ -157,7 +156,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
         creator: { select: { id: true, username: true } }
       },
       orderBy: {
-        createdAt: 'desc'
+        imageDate: 'desc'
       },
       skip,
       take: 10

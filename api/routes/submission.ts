@@ -1,5 +1,4 @@
 import { array, boolean, date, int, nullable, object, string } from '@lib/dto';
-import { imageSelectors } from '../dto/imageSelectors';
 import { submission } from '../dto/submission';
 import { apiRoutes } from '../APISegment';
 import { albumInfo } from '../dto/album';

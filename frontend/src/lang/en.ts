@@ -6,6 +6,22 @@ const EN = {
     tagline: 'Shared, encrypted albums for all'
   },
   loading: 'Loading...',
+  date: {
+    month: {
+      jan: 'Jan',
+      feb: 'Feb',
+      mar: 'Mar',
+      apr: 'Apr',
+      may: 'May',
+      jun: 'Jun',
+      jul: 'Jul',
+      aug: 'Aug',
+      sep: 'Sep',
+      oct: 'Oct',
+      nov: 'Nov',
+      dec: 'Dec'
+    }
+  },
   home: {
     noAlbums: 'You currently have no albums',
     yourAlbums: 'Your Albums',

@@ -26,9 +26,16 @@ import { Submission } from '@api/dto/submission';
 import { APIServiceManager } from '../../../service/APIService';
 import { requests } from '../../../api/requests';
 import { B2ServiceManager } from '../../../service/B2Service';
-import { formatDate } from '../../../misc/date';
+import { formatDate, formatDateAlt, formatTime, MonthTranslationKeys } from '../../../misc/date';
 import { ProfileIconComponent } from '../../../components/ProfileIcon/ProfileIcon';
-import { ValueNode } from '@lib/reactivity';
+import { makeReactive, ValueNode } from '@lib/reactivity';
+
+interface SubmissionGroup {
+  date: number;
+  month: number;
+  year: number;
+  submissions: Submission[];
+}
 
 const AlbumSubmissionsPageComponent = Component((): UINode => {
   const [Icon, ProfileIcon, ImageSelect, SubmissionUpload] = useChildComponents(
@@ -60,7 +67,6 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
   const uploadSubmissions = useState(async (images: SelectedImage[], albumId: string) => {});
   const openImageSelect = useState(() => {});
 
-  const submissions = useState([] as Submission[]);
   const isLoading = useState(false);
 
   const imagesDiv = useState(null as HTMLDivElement | null);
@@ -68,19 +74,40 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
 
   const shouldLoadMore = useState(true);
 
+  const groupedSubmissions = useState([] as SubmissionGroup[]);
+  const openedSubmissionIndex = useState(-1);
+
+  const openedSubmission = useComputed<Submission | null>(() => {
+    let i = $openedSubmissionIndex;
+
+    for (const group of $groupedSubmissions) {
+      if (i < group.submissions.length) return group.submissions[i] ?? null;
+      i -= group.submissions.length;
+    }
+
+    return null;
+  });
+
+  const submissionCount = useComputed<number>(() => {
+    let count = 0;
+    for (const group of $groupedSubmissions) count += group.submissions.length;
+    return count;
+  });
+
   const loadImages = async () => {
     if ($isLoading || !$shouldLoadMore) return;
     $isLoading = true;
 
     const response = await apiService.send(
       $isJudge ? requests.submission.getSubmissions : requests.submission.getOwnSubmissions,
-      { albumId: $album?.id ?? '', skip: $submissions.length } as any
+      { albumId: $album?.id ?? '', skip: $submissionCount } as any
     );
 
-    $submissions.push(...(response.result ?? []));
-    $isLoading = false;
+    if (response.error == null) for (const submission of response.result) insertSubmission(submission);
 
     if (response.error != null || response.result.length < 10) $shouldLoadMore = false;
+
+    $isLoading = false;
   };
 
   loadImages();
@@ -105,12 +132,20 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     loadImages();
   };
 
-  const openedSubmissionIndex = useState(-1);
+  const getSubmissionIndex = (submission: Submission) => {
+    let index = 0;
 
-  const openedSubmission = useComputed<Submission | null>(() => $submissions[$openedSubmissionIndex] ?? null);
+    for (const group of $groupedSubmissions) {
+      if (group.submissions.includes(submission)) return index + group.submissions.indexOf(submission);
+      index += group.submissions.length;
+    }
+
+    return index;
+  };
 
   useEffect(() => {
-    if ($openedSubmissionIndex < $submissions.length - 1 || !$isJudge) return;
+    if ($openedSubmissionIndex < $submissionCount - 1 || !$isJudge) return;
+
     loadImages();
   });
 
@@ -141,17 +176,63 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     );
 
     if (response.error == null && response.result === true) {
-      $submissions.splice($openedSubmissionIndex, 1);
-      if ($openedSubmissionIndex >= $submissions.length - 1) $openedSubmissionIndex--;
+      removeSubmission($openedSubmission!);
+      if ($openedSubmissionIndex >= $submissionCount - 1) $openedSubmissionIndex--;
     }
 
     $isDoingSubmissionWork = false;
   };
 
+  const insertSubmission = (submission: Submission) => {
+    submission = makeReactive(submission);
+
+    const date = submission.imageDate.getDate();
+    const month = submission.imageDate.getMonth();
+    const year = submission.imageDate.getFullYear();
+
+    let i = 0;
+
+    for (const group of $groupedSubmissions) {
+      if (group.date === date && group.month === month && group.year === year) {
+        const submissions = group.submissions;
+
+        let j = 0;
+
+        for (const sub of submissions) {
+          if (sub.imageDate.getTime() < submission.imageDate.getTime()) break;
+          j++;
+        }
+
+        submissions.splice(j, 0, submission);
+
+        return;
+      }
+
+      if (group.year < year) break;
+      if (group.year === year && group.month < month) break;
+      if (group.year === year && group.month === month && group.date < date) break;
+
+      i++;
+    }
+
+    $groupedSubmissions.splice(i, 0, { year, month, date, submissions: [submission] });
+  };
+
+  const removeSubmission = (submission: Submission) => {
+    for (const group of $groupedSubmissions) {
+      if (!group.submissions.includes(submission)) continue;
+      group.submissions.splice(group.submissions.indexOf(submission), 1);
+
+      if (group.submissions.length === 0) $groupedSubmissions.splice($groupedSubmissions.indexOf(group), 1);
+
+      break;
+    }
+  };
+
   return html`
     ${SubmissionUpload({
       uploadSubmissions,
-      onSubmissionUploaded: submission => $submissions.unshift(submission)
+      onSubmissionUploaded: insertSubmission
     })}
     ${ImageSelect({
       open: openImageSelect,
@@ -225,7 +306,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
       </div>
 
       <div
-        .hidden=${$openedSubmissionIndex >= $submissions.length - 1 || !$hasImageControls}
+        .hidden=${$openedSubmissionIndex >= $submissionCount - 1 || !$hasImageControls}
         @click:stopPropagation=${() => !$isDoingSubmissionWork && $openedSubmissionIndex++}
         class="fixed bg-white shadow-md rounded-full top-1/2 right-2 w-10 h-10 grid place-items-center cursor-pointer -translate-y-1/2">
         ${Icon({
@@ -249,26 +330,40 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
           <p class="text-gray-700 text-xl font-bold">${$openedSubmission?.creator?.username}</p>
 
           <p class="text-gray-400 text-lg">
-            ${$openedSubmission ? formatDate($openedSubmission!.imageDate) : '??/??/??'}
+            ${$openedSubmission
+              ? `${formatDateAlt($openedSubmission!.imageDate, l)} ${formatTime($openedSubmission!.imageDate)}`
+              : '??/??/??'}
           </p>
         </div>
       </div>
     </div>
 
     <div class="flex-grow flex flex-col w-full overflow-y-auto" :this=${$pageDiv} @scroll=${onScroll}>
-      <if ${!$isLoading && $submissions.length === 0}>
+      <if ${!$isLoading && $submissionCount === 0}>
         <p class="text-gray-400 text-lg text-center mt-3">${l('album.view.submissions.noSubmissions')}</p>
       </if>
 
-      <div class="flex flex-row flex-wrap" :this=${$imagesDiv}>
-        <each ${$submissions}>
-          ${(submission: Submission, index: ValueNode<number>) =>
-            html`
-              <img
-                class="cursor-pointer w-[25vw] h-[25vw] md:w-24 md:h-24 bg-gray-200 object-cover border-white border-[1px]"
-                src=${b2Service.imagePreview(submission.albumId, submission.id)}
-                @click=${() => (($openedSubmissionIndex = $index), ($hasImageControls = true))} />
-            `}
+      <div class="flex flex-col" :this=${$imagesDiv}>
+        <each ${$groupedSubmissions} indexed>
+          ${(group: ValueNode<SubmissionGroup>) => html`
+            <p class="text-lg border-gray-400 w-fit ml-2 mb-1 mt-2">
+              ${$group?.date ?? 0} ${l(MonthTranslationKeys[$group?.month ?? 0])} ${$group?.year ?? 0}
+            </p>
+
+            <div class="flex flex-row flex-wrap">
+              <each ${$group?.submissions ?? []} indexed>
+                ${(submission: ValueNode<Submission>) =>
+                  html`
+                    <img
+                      class="cursor-pointer w-[25vw] h-[25vw] md:w-24 md:h-24 bg-gray-200 object-cover border-white border-[1px]"
+                      src=${b2Service.imagePreview($submission?.albumId ?? '', $submission?.id ?? '')}
+                      @click=${() => (
+                        ($openedSubmissionIndex = getSubmissionIndex($submission)), ($hasImageControls = true)
+                      )} />
+                  `}
+              </each>
+            </div>
+          `}
         </each>
       </div>
 
