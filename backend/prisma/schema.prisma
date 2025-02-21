@@ -91,6 +91,7 @@ model ImageKey {
   image          Image    @relation(fields: [imageId], references: [id])
 
   encryptedKey   Bytes
+  encryptedIv    Bytes
 }
 
 model Image {

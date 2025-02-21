@@ -4,9 +4,9 @@ import { CRYPTO_CONSTANTS } from '../cryptoConstants';
 const userEncryptedKeys = object({
   passwordSalt: buffer({ length: _const(CRYPTO_CONSTANTS.password.saltLength) }),
   identityKey: buffer({ length: _const(CRYPTO_CONSTANTS.identityKey.encryptedKeyLength) }),
-  identityKeyIv: buffer({ length: _const(CRYPTO_CONSTANTS.aesIvLength) }),
+  identityKeyIv: buffer({ length: _const(CRYPTO_CONSTANTS.encryption.aesIvLength) }),
   encryptionKey: buffer({ length: _const(CRYPTO_CONSTANTS.encryptionKey.encryptedKeyLength) }),
-  encryptionKeyIv: buffer({ length: _const(CRYPTO_CONSTANTS.aesIvLength) })
+  encryptionKeyIv: buffer({ length: _const(CRYPTO_CONSTANTS.encryption.aesIvLength) })
 });
 
 const userWithEncryptedKeys = object({

@@ -29,7 +29,7 @@ const EditAlbumPageComponent = Component((): UINode => {
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
-  const { navigate } = useNavigation();
+  const { back } = useNavigation();
   const l = useLocalization();
 
   const album = useAlbum();
@@ -84,7 +84,11 @@ const EditAlbumPageComponent = Component((): UINode => {
     if (response.error == null && response.result != null) {
       await $uploadAlbumCover(response.result.id);
 
-      navigate({ route: 'album.view.info', params: { albumId: $album?.id ?? '' } });
+      $album!.name = $name;
+      $album!.allowSubmissions = $allowSubmissions;
+      $album!.users = $users;
+
+      back();
 
       return;
     }

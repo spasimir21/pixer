@@ -46,7 +46,7 @@ const LoginPageComponent = Component((): UINode => {
     $isLoading = true;
     $errorKey = null;
 
-    const loginResponse = await apiService.send(requests.user.get, {
+    const loginResponse = await apiService.send(requests.user.getUser, {
       userId: null,
       username: $username.trim(),
       includeEncryptedKeys: true

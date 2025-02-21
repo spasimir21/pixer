@@ -25,7 +25,7 @@ const AppComponent = Component((): UINode => {
 
   if (savedUserId != null)
     apiService
-      .send(requests.user.get, {
+      .send(requests.user.getUser, {
         userId: savedUserId,
         username: null,
         includeEncryptedKeys: true

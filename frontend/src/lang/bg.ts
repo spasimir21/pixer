@@ -107,6 +107,14 @@ const BG: Translations = {
         select: {
           title: 'Избери Снимки',
           select: 'Избери'
+        },
+        upload: {
+          title: 'Качване на Снимките',
+          uploading: 'Качване на'
+        },
+        noImages: 'Няма снимки',
+        delete: {
+          title: 'Изтрий Снимката?'
         }
       },
       info: {

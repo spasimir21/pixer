@@ -151,11 +151,9 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
 
   const download = async () => {
     if ($openedSubmission == null) return;
+    const submission = $openedSubmission!;
 
-    const blob = await b2Service.downloadAsBlob(
-      'pixer-images',
-      `${$openedSubmission!.albumId}/${$openedSubmission!.id}`
-    );
+    const blob = await b2Service.downloadAsBlob('pixer-images', `${submission.albumId}/${submission.id}`);
 
     if (blob == null) return;
 
@@ -165,7 +163,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     const link = document.createElement('a');
     link.target = '_blank';
     link.href = blobHref;
-    link.download = `${$openedSubmission!.id}.${$openedSubmission!.imageExt}`;
+    link.download = `${submission.id}.${submission.imageExt}`;
 
     link.click();
   };
@@ -187,7 +185,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
 
     if (response.error == null && response.result === true) {
       removeSubmission($openedSubmission!);
-      if ($openedSubmissionIndex >= $submissionCount - 1) $openedSubmissionIndex--;
+      if ($openedSubmissionIndex >= $submissionCount) $openedSubmissionIndex--;
     }
 
     $isDoingSubmissionWork = false;

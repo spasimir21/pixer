@@ -3,6 +3,7 @@ import { APISubmissionHandlers } from './submission';
 import { API_STRUCTURE } from '@api/structure';
 import { APIFriendHandlers } from './friend';
 import { APIAlbumHandlers } from './album';
+import { APIImageHandlers } from './image';
 import { APIUserHandlers } from './user';
 import { APIB2Handlers } from './b2';
 
@@ -13,7 +14,8 @@ const APIHandlers: APIHandlers = {
   user: APIUserHandlers,
   friend: APIFriendHandlers,
   album: APIAlbumHandlers,
-  submission: APISubmissionHandlers
+  submission: APISubmissionHandlers,
+  image: APIImageHandlers
 };
 
 export { APIHandlers };

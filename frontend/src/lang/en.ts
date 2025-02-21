@@ -106,6 +106,14 @@ const EN = {
         select: {
           title: 'Select Images',
           select: 'Select'
+        },
+        upload: {
+          title: 'Uploading Images',
+          uploading: 'Uploading'
+        },
+        noImages: 'There are no images',
+        delete: {
+          title: 'Delete Image?'
         }
       },
       info: {

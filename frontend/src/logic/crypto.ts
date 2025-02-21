@@ -34,7 +34,7 @@ async function generateKeyFromPassword(password: string, salt?: Uint8Array) {
       iterations: CRYPTO_CONSTANTS.password.iterations
     },
     passwordKey,
-    { name: 'AES-CBC', length: CRYPTO_CONSTANTS.password.aesKeyLength },
+    { name: 'AES-CBC', length: CRYPTO_CONSTANTS.encryption.aesKeyLength },
     false,
     ['wrapKey', 'unwrapKey']
   );
@@ -88,7 +88,7 @@ async function importUserPublicKeys({ identityKey, encryptionKey }: ExportedUser
       encryptionKey,
       { name: 'RSA-OAEP', hash: CRYPTO_CONSTANTS.encryptionKey.hash },
       false,
-      ['wrapKey']
+      ['wrapKey', 'encrypt']
     )
   };
 }
@@ -99,8 +99,8 @@ async function exportUserEncryptedKeys(
 ): Promise<UserEncryptedKeys> {
   const passwordKey = await generateKeyFromPassword(password);
 
-  const identityKeyIv = crypto.getRandomValues(new Uint8Array(CRYPTO_CONSTANTS.aesIvLength));
-  const encryptionKeyIv = crypto.getRandomValues(new Uint8Array(CRYPTO_CONSTANTS.aesIvLength));
+  const identityKeyIv = generateAESIv();
+  const encryptionKeyIv = generateAESIv();
 
   return {
     passwordSalt: passwordKey.salt,
@@ -150,7 +150,7 @@ async function importUserEncryptedKeys(
     { name: 'AES-CBC', iv: encryptedKeys.encryptionKeyIv },
     { name: 'RSA-OAEP', hash: CRYPTO_CONSTANTS.encryptionKey.hash },
     false,
-    ['unwrapKey']
+    ['unwrapKey', 'decrypt']
   );
 
   return {
@@ -165,12 +165,46 @@ async function importUserEncryptedKeys(
   };
 }
 
+const generateAESKey = () =>
+  crypto.subtle.generateKey({ name: 'AES-CBC', length: CRYPTO_CONSTANTS.encryption.aesKeyLength }, true, ['encrypt']);
+
+const generateAESIv = () => crypto.getRandomValues(new Uint8Array(CRYPTO_CONSTANTS.encryption.aesIvLength));
+
+const aesEncrypt = (key: CryptoKey, iv: Uint8Array, data: ArrayBuffer) =>
+  crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, data);
+
+const aesDecrypt = (key: CryptoKey, iv: ArrayBuffer, data: ArrayBuffer) =>
+  crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, data);
+
+const rsaEncrypt = (publicKey: CryptoKey, data: ArrayBuffer) =>
+  crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data);
+
+const rsaDecrypt = (privateKey: CryptoKey, data: Uint8Array) =>
+  crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, data);
+
+const exportAESKey = (aesKey: CryptoKey, publicKey: CryptoKey) =>
+  crypto.subtle.wrapKey('raw', aesKey, publicKey, { name: 'RSA-OAEP' });
+
+const importAESKey = (aesKeyBytes: Uint8Array, privateKey: CryptoKey) =>
+  crypto.subtle.unwrapKey('raw', aesKeyBytes, privateKey, { name: 'RSA-OAEP' }, { name: 'AES-CBC' }, false, [
+    'decrypt'
+  ]);
+
 export {
   generateUserKeys,
   exportUserPublicKeys,
+  importUserPublicKeys,
   exportUserEncryptedKeys,
   importUserEncryptedKeys,
   getUserId,
   UserKeys,
-  UserPublicKeys
+  UserPublicKeys,
+  generateAESKey,
+  generateAESIv,
+  exportAESKey,
+  importAESKey,
+  aesEncrypt,
+  aesDecrypt,
+  rsaEncrypt,
+  rsaDecrypt
 };

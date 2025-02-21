@@ -181,7 +181,8 @@ const APIAlbumHandlers: APIHandlers['album'] = {
                   select: { id: true, username: true }
                 }
               : false
-          }
+          },
+          orderBy: { createdAt: 'desc' }
         },
         sharedAlbums: {
           include: {
@@ -193,7 +194,8 @@ const APIAlbumHandlers: APIHandlers['album'] = {
                   select: { id: true, username: true }
                 }
               : false
-          }
+          },
+          orderBy: { createdAt: 'desc' }
         },
         pinnedAlbums: {
           include: {
@@ -205,11 +207,9 @@ const APIAlbumHandlers: APIHandlers['album'] = {
                   select: { id: true, username: true }
                 }
               : false
-          }
+          },
+          orderBy: { createdAt: 'desc' }
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
       }
     });
 

@@ -1,5 +1,4 @@
 const CRYPTO_CONSTANTS = {
-  aesIvLength: 16,
   userId: {
     hash: 'SHA-256',
     length: 32
@@ -24,8 +23,13 @@ const CRYPTO_CONSTANTS = {
   password: {
     hash: 'SHA-256',
     saltLength: 32,
-    iterations: 600_000,
-    aesKeyLength: 256
+    iterations: 600_000
+  },
+  encryption: {
+    aesIvLength: 16,
+    aesKeyLength: 256,
+    encryptedKeyLength: 256,
+    encryptedIvLength: 256
   }
 } as const;
 

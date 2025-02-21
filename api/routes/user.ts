@@ -13,13 +13,24 @@ const APIUser = apiRoutes({
       result: nullable(userWithEncryptedKeys)
     },
     {
-      name: 'get',
+      name: 'getUser',
       input: object({
         userId: nullable(user.id),
         username: nullable(user.username),
         includeEncryptedKeys: boolean()
       }),
       result: nullable(user)
+    },
+    {
+      name: 'getPublicKeys',
+      input: object({
+        userIds: array({ of: user.id })
+      }),
+      result: array({
+        of: user.publicKeys.with({
+          userId: user.id
+        })
+      })
     },
     {
       name: 'getOwnStats',

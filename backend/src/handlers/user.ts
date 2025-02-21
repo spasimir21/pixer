@@ -39,7 +39,7 @@ const APIUserHandlers: APIHandlers['user'] = {
 
     return user;
   },
-  get: async ({ userId, username, includeEncryptedKeys }) => {
+  getUser: async ({ userId, username, includeEncryptedKeys }) => {
     if (userId == null && username == null) return null;
 
     const user = await dbClient.user.findFirst({
@@ -64,6 +64,24 @@ const APIUserHandlers: APIHandlers['user'] = {
         encryptionKeyIv: toUint8Array(user.encryptedKeys!.encryptionKeyIv)
       }
     };
+  },
+  getPublicKeys: async ({ userIds }) => {
+    const users = await dbClient.user.findMany({
+      where: {
+        id: { in: userIds.map(toBuffer) }
+      },
+      select: {
+        id: true,
+        identityKey: true,
+        encryptionKey: true
+      }
+    });
+
+    return users.map(user => ({
+      userId: toUint8Array(user.id),
+      identityKey: toUint8Array(user.identityKey),
+      encryptionKey: toUint8Array(user.encryptionKey)
+    }));
   },
   getOwnStats: async ({}, { userId }) => {
     const [user, requests] = await dbClient.$transaction([

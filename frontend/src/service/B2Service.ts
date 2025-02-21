@@ -48,6 +48,15 @@ class B2Service extends Service {
     }
   }
 
+  async downloadAsArrayBuffer(bucket: string, key: string) {
+    try {
+      const res = await fetch(`${this.baseDownloadUrl}/file/${bucket}/${key}`);
+      return res.arrayBuffer();
+    } catch {
+      return null;
+    }
+  }
+
   invalidateProfileIcons() {
     this.profileIconTemp = id();
   }
