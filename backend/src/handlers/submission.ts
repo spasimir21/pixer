@@ -121,7 +121,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
         creator: { select: { id: true, username: true } }
       },
       orderBy: {
-        imageDate: 'desc'
+        createdAt: 'desc'
       }
     });
 
@@ -156,7 +156,7 @@ const APISubmissionHandlers: APIHandlers['submission'] = {
         creator: { select: { id: true, username: true } }
       },
       orderBy: {
-        imageDate: 'desc'
+        createdAt: 'desc'
       },
       skip,
       take: 10

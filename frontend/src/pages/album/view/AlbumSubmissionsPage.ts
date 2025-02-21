@@ -103,7 +103,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
       { albumId: $album?.id ?? '', skip: $submissionCount } as any
     );
 
-    if (response.error == null) for (const submission of response.result) insertSubmission(submission);
+    if (response.error == null) for (const submission of response.result) insertSubmissionReversed(submission);
 
     if (response.error != null || response.result.length < 10) $shouldLoadMore = false;
 
@@ -120,7 +120,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
       loadImages();
     });
 
-    mutationObserver.observe($imagesDiv!, { childList: true });
+    mutationObserver.observe($imagesDiv!, { childList: true, subtree: true });
 
     return () => mutationObserver.disconnect();
   });
@@ -186,9 +186,9 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
   const insertSubmission = (submission: Submission) => {
     submission = makeReactive(submission);
 
-    const date = submission.imageDate.getDate();
-    const month = submission.imageDate.getMonth();
-    const year = submission.imageDate.getFullYear();
+    const date = submission.uploadedAt.getDate();
+    const month = submission.uploadedAt.getMonth();
+    const year = submission.uploadedAt.getFullYear();
 
     let i = 0;
 
@@ -199,7 +199,7 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
         let j = 0;
 
         for (const sub of submissions) {
-          if (sub.imageDate.getTime() < submission.imageDate.getTime()) break;
+          if (sub.uploadedAt.getTime() < submission.uploadedAt.getTime()) break;
           j++;
         }
 
@@ -216,6 +216,41 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     }
 
     $groupedSubmissions.splice(i, 0, { year, month, date, submissions: [submission] });
+  };
+
+  const insertSubmissionReversed = (submission: Submission) => {
+    submission = makeReactive(submission);
+
+    const date = submission.uploadedAt.getDate();
+    const month = submission.uploadedAt.getMonth();
+    const year = submission.uploadedAt.getFullYear();
+
+    let i = $groupedSubmissions.length - 1;
+
+    for (; i >= 0; i--) {
+      const group = $groupedSubmissions[i];
+
+      if (group.date === date && group.month === month && group.year === year) {
+        const submissions = group.submissions;
+
+        let j = submissions.length - 1;
+
+        for (; j >= 0; j--) {
+          const sub = submissions[j];
+          if (sub.uploadedAt.getTime() > submission.uploadedAt.getTime()) break;
+        }
+
+        submissions.splice(j + 1, 0, submission);
+
+        return;
+      }
+
+      if (group.year > year) break;
+      if (group.year === year && group.month > month) break;
+      if (group.year === year && group.month === month && group.date > date) break;
+    }
+
+    $groupedSubmissions.splice(i + 1, 0, { year, month, date, submissions: [submission] });
   };
 
   const removeSubmission = (submission: Submission) => {
