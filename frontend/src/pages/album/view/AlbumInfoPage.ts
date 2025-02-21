@@ -133,7 +133,7 @@ const AlbumInfoPageComponent = Component((): UINode => {
           <div @click=${() => navigate({ route: 'user', params: { username: $album?.creator?.username ?? '' } })}>
             ${ProfileIcon({
               userId: () => $album?.creator?.id ?? null,
-              classes: 'w-8'
+              classes: 'w-8 cursor-pointer'
             })}
           </div>
 
@@ -142,7 +142,7 @@ const AlbumInfoPageComponent = Component((): UINode => {
               <div @click=${() => navigate({ route: 'user', params: { username: user.username } })}>
                 ${ProfileIcon({
                   userId: () => user.id,
-                  classes: 'w-8'
+                  classes: 'w-8 cursor-pointer'
                 })}
               </div>
             `}

@@ -59,7 +59,7 @@ const HomePageComponent = Component((): UINode => {
         right: ProfileButton
       })}
 
-      <div class="flex-grow flex flex-col py-3 px-4 gap-3 w-full">
+      <div class="flex-grow flex flex-col py-3 px-4 gap-3 w-full overflow-y-auto">
         <if ${$isLoading}>
           <p class="text-center text-gray-400 text-lg mt-4">${l('loading')}</p>
         </if>

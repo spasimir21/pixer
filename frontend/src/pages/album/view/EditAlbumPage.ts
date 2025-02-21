@@ -85,7 +85,7 @@ const EditAlbumPageComponent = Component((): UINode => {
     if (response.error == null && response.result != null) {
       await $uploadAlbumCover(response.result.id);
 
-      navigate({ route: 'home' });
+      navigate({ route: 'album.view.info', params: { albumId: $album?.id ?? '' } });
 
       return;
     }

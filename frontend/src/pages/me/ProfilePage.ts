@@ -16,14 +16,16 @@ import { formatDate } from '../../misc/date';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { BackButtonComponent } from '../../components/buttons/BackButton';
+import { LanguageToggleComponent } from '../../components/LanguageToggle';
 
 const ProfilePageComponent = Component((): UINode => {
-  const [Header, ProfileIconUpload, Icon, BackButton, LogOutButton] = useChildComponents(
+  const [Header, ProfileIconUpload, Icon, BackButton, LogOutButton, LanguageToggle] = useChildComponents(
     HeaderComponent,
     ProfileIconUploadComponent,
     IconComponent,
     BackButtonComponent,
-    LogOutButtonComponent
+    LogOutButtonComponent,
+    LanguageToggleComponent
   );
 
   const authService = useService(AuthenticationServiceManager);
@@ -51,6 +53,7 @@ const ProfilePageComponent = Component((): UINode => {
         title: () => l('me.profile.title'),
         right: LogOutButton
       })}
+      ${LanguageToggle()}
 
       <div class="flex-grow flex flex-col items-center pt-6 gap-6 w-full max-w-[430px]">
         ${ProfileIconUpload()}
