@@ -93,7 +93,8 @@ const APIUserHandlers: APIHandlers['user'] = {
             select: {
               friendRequests: { where: { accepted: true } },
               sentFriendRequests: { where: { accepted: true } },
-              createdAlbums: true
+              createdAlbums: true,
+              uploadedImages: true
             }
           }
         }
@@ -112,7 +113,7 @@ const APIUserHandlers: APIHandlers['user'] = {
       createdAt: user.createdAt,
       friends: user._count.friendRequests + user._count.sentFriendRequests,
       requests,
-      uploadedImages: 0,
+      uploadedImages: user._count.uploadedImages,
       createdAlbums: user._count.createdAlbums
     };
   },
@@ -129,7 +130,8 @@ const APIUserHandlers: APIHandlers['user'] = {
           select: {
             friendRequests: { where: { accepted: true } },
             sentFriendRequests: { where: { accepted: true } },
-            createdAlbums: { where: { type: AlbumType.PUBLIC } }
+            createdAlbums: { where: { type: AlbumType.PUBLIC } },
+            uploadedImages: { where: { isEncrypted: false } }
           }
         }
       }
