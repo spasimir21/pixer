@@ -17,25 +17,26 @@ const AppComponent = Component((): UINode => {
 
   const authService = useService(AuthenticationServiceManager);
   const apiService = useService(APIServiceManager);
-  const language = useLanguage();
 
-  const savedUserId = authService.getSavedUserId();
+  const isLoadingUser = useState(true);
 
-  const isLoadingUser = useState(savedUserId != null);
+  authService.getSavedUserId().then(async savedUserId => {
+    if (savedUserId == null) {
+      $isLoadingUser = false;
+      return;
+    }
 
-  if (savedUserId != null)
-    apiService
-      .send(requests.user.getUser, {
-        userId: savedUserId,
-        username: null,
-        includeEncryptedKeys: true
-      })
-      .then(({ error, result: user }) => {
-        $isLoadingUser = false;
+    const { error, result: user } = await apiService.send(requests.user.getUser, {
+      userId: savedUserId,
+      username: null,
+      includeEncryptedKeys: true
+    });
 
-        if (!error && user) authService.logIn(user as UserWithEncryptedKeys);
-        else authService.logOut();
-      });
+    if (!error && user) authService.logIn(user as UserWithEncryptedKeys);
+    else authService.logOut();
+
+    $isLoadingUser = false;
+  });
 
   return html`
     <if ${$isLoadingUser}> ${LoadingPage()} </if>

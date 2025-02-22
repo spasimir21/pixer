@@ -3,9 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "frontend": "cd frontend && vite",
+    "frontend": "cd frontend && vite --host",
     "build-frontend": "cd frontend && vite build",
     "backend": "cd backend && nodemon .",
+    "tunnel-backend": "npx localtunnel -p 8080 -s pixer-server",
     "postinstall": "patch-package"
   },
   "devDependencies": {
@@ -15,6 +16,7 @@
     "@ungap/structured-clone": "^1.2.1",
     "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.7",
+    "localtunnel": "^2.0.2",
     "node-html-parser": "^6.1.13",
     "nodemon": "^3.1.9",
     "patch-package": "^8.0.0",

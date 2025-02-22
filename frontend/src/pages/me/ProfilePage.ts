@@ -17,6 +17,8 @@ import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
 import { BackButtonComponent } from '../../components/buttons/BackButton';
 import { LanguageToggleComponent } from '../../components/LanguageToggle';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 
 const ProfilePageComponent = Component((): UINode => {
   const [Header, ProfileIconUpload, Icon, BackButton, LogOutButton, LanguageToggle] = useChildComponents(
@@ -46,6 +48,21 @@ const ProfilePageComponent = Component((): UINode => {
     $ownStats = result;
   });
 
+  const share = () => {
+    const shareUrl = `${import.meta.env.VITE_ORIGIN}/user/${authService.user?.username}`;
+
+    if (!Capacitor.isNativePlatform()) {
+      navigator.clipboard.writeText(shareUrl);
+      return;
+    }
+
+    Share.share({
+      dialogTitle: `Share your PiXer Account`,
+      text: `Follow ${authService.user?.username} on PiXer`,
+      url: shareUrl
+    });
+  };
+
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
@@ -63,10 +80,7 @@ const ProfilePageComponent = Component((): UINode => {
 
           <p class="font-bold text-gray-800 text-2xl">${authService.user?.username}</p>
 
-          <div
-            class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer"
-            @click=${() =>
-              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${authService.user?.username}`)}>
+          <div class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer" @click=${share}>
             ${Icon({ icon: faLink, fill: 'white', classes: 'w-5' })}
           </div>
         </div>

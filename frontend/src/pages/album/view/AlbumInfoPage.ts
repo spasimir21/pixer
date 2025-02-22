@@ -11,6 +11,8 @@ import { faImages, faInbox, faLink, faLock, faUnlock, faUsers } from '@fortaweso
 import { AlbumType } from '@api/dto/album';
 import { useService } from '@lib/service';
 import { B2ServiceManager } from '../../../service/B2Service';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 
 const AlbumInfoPageComponent = Component((): UINode => {
   const [Icon, ProfileIcon] = useChildComponents(IconComponent, ProfileIconComponent);
@@ -32,6 +34,21 @@ const AlbumInfoPageComponent = Component((): UINode => {
     image.onload = () => ($coverSrc = image.src);
     image.onerror = () => ($hasCover = false);
   });
+
+  const share = () => {
+    const shareUrl = `${import.meta.env.VITE_ORIGIN}/album/${$album?.id}`;
+
+    if (!Capacitor.isNativePlatform()) {
+      navigator.clipboard.writeText(shareUrl);
+      return;
+    }
+
+    Share.share({
+      dialogTitle: `Share "${$album?.name}"`,
+      text: `View "${$album?.name}" on PiXer`,
+      url: shareUrl
+    });
+  };
 
   return html`
     <div class="flex-grow flex flex-col w-full max-w-72 items-center pt-6 gap-6">
@@ -153,7 +170,7 @@ const AlbumInfoPageComponent = Component((): UINode => {
       <if ${$album?.type === AlbumType.PUBLIC}>
         <div
           class="py-3 bg-blue-500 rounded-lg w-3/4 cursor-pointer text-white flex items-center gap-3 justify-center font-bold text-xl"
-          @click=${() => navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/album/${$album?.id}`)}>
+          @click=${share}>
           ${Icon({ icon: faLink, fill: 'white', classes: 'w-6' })} ${l('album.view.info.share')}
         </div>
       </if>

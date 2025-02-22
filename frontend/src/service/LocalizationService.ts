@@ -1,9 +1,10 @@
 import { FlatTranslations, Localizator, LocalizatorConfig } from '@lib/localization';
 import { createSingletonManager, Service, useService } from '@lib/service';
+import { Preferences } from '@capacitor/preferences';
 import { addDependency } from '@lib/reactivity';
 import en from '../lang/en';
 
-const LANG_LOCAL_STORAGE_KEY = '$$pixer_lang';
+const LANG_PREFERENCES_KEY = '$$pixer_lang';
 
 class LocalizationService<TLang extends string, T extends FlatTranslations> extends Service {
   public readonly localizator: Localizator<TLang, T>;
@@ -14,7 +15,11 @@ class LocalizationService<TLang extends string, T extends FlatTranslations> exte
 
   set language(language: TLang) {
     this.localizator.language = language;
-    localStorage.setItem(LANG_LOCAL_STORAGE_KEY, language);
+
+    Preferences.set({
+      key: LANG_PREFERENCES_KEY,
+      value: language
+    });
   }
 
   constructor(config: LocalizatorConfig<TLang, T>) {
@@ -24,8 +29,12 @@ class LocalizationService<TLang extends string, T extends FlatTranslations> exte
 
     this.localizator = addDependency(this, new Localizator(config));
 
-    this.localizator.language =
-      (localStorage.getItem(LANG_LOCAL_STORAGE_KEY) as TLang | null) ?? config.defaultLanguage;
+    this.localizator.language = config.defaultLanguage;
+
+    Preferences.get({ key: LANG_PREFERENCES_KEY }).then(({ value: lang }) => {
+      if (lang == null) return;
+      this.localizator.language = lang as TLang;
+    });
   }
 
   getTranslation(key: keyof T) {

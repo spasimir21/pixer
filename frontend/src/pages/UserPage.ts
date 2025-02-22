@@ -24,6 +24,8 @@ import {
   faEnvelopeOpen
 } from '@fortawesome/free-solid-svg-icons';
 import { html, UINode } from '@lib/ui';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 
 const friendButtonTextMap: Record<FriendStatus, TranslationKey> = {
   [FriendStatus.Friends]: 'user.profile.friendStatus.friends',
@@ -100,6 +102,21 @@ const UserPageComponent = Component((): UINode => {
     $isDoingFriendAction = false;
   };
 
+  const share = () => {
+    const shareUrl = `${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`;
+
+    if (!Capacitor.isNativePlatform()) {
+      navigator.clipboard.writeText(shareUrl);
+      return;
+    }
+
+    Share.share({
+      dialogTitle: `Share ${$route.params.username}'s PiXer Account`,
+      text: `Follow ${$route.params.username} on PiXer`,
+      url: shareUrl
+    });
+  };
+
   return html`
     <div class="w-screen h-screen top-0 left-0 fixed flex flex-col items-center">
       ${Header({
@@ -119,10 +136,7 @@ const UserPageComponent = Component((): UINode => {
 
           <p class="font-bold text-gray-800 text-2xl">${$route.params.username}</p>
 
-          <div
-            class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer"
-            @click=${() =>
-              navigator.clipboard.writeText(`${import.meta.env.VITE_ORIGIN}/user/${$route.params.username}`)}>
+          <div class="bg-blue-500 rounded-xl w-8 h-8 grid place-items-center cursor-pointer" @click=${share}>
             ${Icon({ icon: faLink, fill: 'white', classes: 'w-5' })}
           </div>
         </div>

@@ -3,8 +3,9 @@ import { UserWithEncryptedKeys } from '@api/dto/user';
 import { Reactive, State } from '@lib/reactivity';
 import { fromHex, toHex } from '@lib/utils/hex';
 import { UserKeys } from '../logic/crypto';
+import { Preferences } from '@capacitor/preferences';
 
-const USER_ID_LOCAL_STORAGE_KEY = '$$pixer_user_id';
+const USER_ID_PREFERENCES_KEY = '$$pixer_user_id';
 
 @Reactive
 class AuthenticationService extends Service {
@@ -22,8 +23,8 @@ class AuthenticationService extends Service {
     return this.user != null && this.keys != null;
   }
 
-  getSavedUserId() {
-    const savedId = localStorage.getItem(USER_ID_LOCAL_STORAGE_KEY);
+  async getSavedUserId() {
+    const { value: savedId } = await Preferences.get({ key: USER_ID_PREFERENCES_KEY });
     if (savedId == null) return null;
 
     try {
@@ -37,14 +38,17 @@ class AuthenticationService extends Service {
     this.user = user;
     this.keys = null;
 
-    localStorage.setItem(USER_ID_LOCAL_STORAGE_KEY, toHex(this.user.id));
+    Preferences.set({
+      key: USER_ID_PREFERENCES_KEY,
+      value: toHex(this.user.id)
+    });
   }
 
   logOut() {
     this.user = null;
     this.keys = null;
 
-    localStorage.removeItem(USER_ID_LOCAL_STORAGE_KEY);
+    Preferences.remove({ key: USER_ID_PREFERENCES_KEY });
   }
 
   authenticate(keys: UserKeys) {

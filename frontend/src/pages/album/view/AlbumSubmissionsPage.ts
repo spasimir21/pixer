@@ -29,6 +29,9 @@ import { B2ServiceManager } from '../../../service/B2Service';
 import { formatDate, formatDateAlt, formatTime, MonthTranslationKeys } from '../../../misc/date';
 import { ProfileIconComponent } from '../../../components/ProfileIcon/ProfileIcon';
 import { makeReactive, ValueNode } from '@lib/reactivity';
+import { Capacitor } from '@capacitor/core';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 interface SubmissionGroup {
   date: number;
@@ -153,19 +156,35 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     if ($openedSubmission == null) return;
     const submission = $openedSubmission!;
 
-    const blob = await b2Service.downloadAsBlob('pixer-images', `${submission.albumId}/${submission.id}`);
+    if (!Capacitor.isNativePlatform()) {
+      const blob = await b2Service.downloadAsBlob('pixer-images', `${submission.albumId}/${submission.id}`);
 
-    if (blob == null) return;
+      if (blob == null) return;
 
-    const blobHref = URL.createObjectURL(blob);
-    setTimeout(() => URL.revokeObjectURL(blobHref), 60 * 1000);
+      const blobHref = URL.createObjectURL(blob);
+      setTimeout(() => URL.revokeObjectURL(blobHref), 60 * 1000);
 
-    const link = document.createElement('a');
-    link.target = '_blank';
-    link.href = blobHref;
-    link.download = `${submission.id}.${submission.imageExt}`;
+      const link = document.createElement('a');
+      link.target = '_blank';
+      link.href = blobHref;
+      link.download = `${submission.id}.${submission.imageExt}`;
 
-    link.click();
+      link.click();
+
+      return;
+    }
+
+    const arrayBuffer = await b2Service.downloadAsArrayBuffer('pixer-images', `${submission.albumId}/${submission.id}`);
+    if (arrayBuffer == null) return null;
+
+    const file = await Filesystem.writeFile({
+      path: `${submission.id}.${submission.imageExt}`,
+      data: new TextDecoder().decode(arrayBuffer),
+      directory: Directory.Cache,
+      encoding: Encoding.UTF8
+    });
+
+    Share.share({ files: [file.uri] });
   };
 
   const hasImageControls = useState(true);
