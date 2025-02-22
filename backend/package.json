@@ -10,11 +10,15 @@
     "@aws-sdk/s3-request-presigner": "^3.733.0",
     "@peculiar/webcrypto": "^1.5.0",
     "@prisma/client": "^5.22.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "backblaze-b2": "^1.7.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
     "@types/backblaze-b2": "^1.5.6",
