@@ -1,0 +1,12 @@
+[build]
+  image = "node:22"
+
+[env]
+  AUTH_MAX_TIMESTAMP_DIFFERENCE = "60000"
+  PORT = "8080"
+
+[deploy]
+  release_command = "npm install"
+
+[processes]
+  server = "npm run start"
