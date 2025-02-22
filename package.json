@@ -7,7 +7,11 @@
     "build-frontend": "cd frontend && vite build",
     "backend": "cd backend && nodemon .",
     "tunnel-backend": "npx localtunnel -p 8080 -s pixer-server",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "start": "ts-node ./backend/src/server.ts"
+  },
+  "engines": {
+    "node": "^16.15.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
