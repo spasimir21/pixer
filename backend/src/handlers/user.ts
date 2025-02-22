@@ -161,7 +161,7 @@ const APIUserHandlers: APIHandlers['user'] = {
       createdAt: user.createdAt,
       friendStatus,
       friends: user._count.friendRequests + user._count.sentFriendRequests,
-      publicImages: 0,
+      publicImages: user._count.uploadedImages,
       publicAlbums: user._count.createdAlbums
     };
   },
