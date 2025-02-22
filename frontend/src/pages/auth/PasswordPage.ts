@@ -8,6 +8,8 @@ import LoadingPageComponent from '../LoadingPage';
 import { TranslationKey } from '../../lang/en';
 import { useService } from '@lib/service';
 import { html, UINode } from '@lib/ui';
+import { Capacitor } from '@capacitor/core';
+import { NativeBiometric } from 'capacitor-native-biometric';
 
 const PasswordPageComponent = Component((): UINode => {
   const [NavigateTo, LoadingPage, ProfileIcon] = useChildComponents(
@@ -59,6 +61,12 @@ const PasswordPageComponent = Component((): UINode => {
 
       authService.authenticate(keys);
 
+      NativeBiometric.setCredentials({
+        server: 'pixer.com',
+        username: authService.user!.username,
+        password: $password
+      });
+
       navigate($route.search.get('redirectTo') ?? '/');
     } catch {
       $errorKey = 'password.error';
@@ -78,9 +86,27 @@ const PasswordPageComponent = Component((): UINode => {
     });
   };
 
+  if (Capacitor.isNativePlatform())
+    NativeBiometric.verifyIdentity({
+      title: 'Log in',
+      maxAttempts: 5
+    })
+      .then(() =>
+        NativeBiometric.getCredentials({
+          server: 'pixer.com'
+        })
+      )
+      .then(credentials => {
+        if (credentials == null || credentials.password == null || credentials.username !== authService?.user?.username)
+          return;
+
+        $password = credentials.password;
+        enter();
+      });
+
   // TODO: remove
-  $password = 'password1234';
-  enter();
+  // $password = 'password1234';
+  // enter();
 
   return html`
     <div class="fixed w-screen h-screen top-0 left-0 flex flex-col items-center justify-around">

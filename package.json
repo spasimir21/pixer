@@ -6,9 +6,8 @@
     "frontend": "cd frontend && vite --host",
     "build-frontend": "cd frontend && vite build",
     "backend": "cd backend && nodemon .",
-    "tunnel-backend": "npx localtunnel -p 8080 -s pixer-server",
     "postinstall": "patch-package",
-    "start": "ts-node ./backend/src/server.ts"
+    "start": "cd backend && ts-node ./src/server.ts"
   },
   "engines": {
     "node": "^16.15.0"

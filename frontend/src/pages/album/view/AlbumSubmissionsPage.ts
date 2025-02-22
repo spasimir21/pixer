@@ -32,6 +32,8 @@ import { makeReactive, ValueNode } from '@lib/reactivity';
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { Media } from '@capacitor-community/media';
+import { Toast } from '@capacitor/toast';
 
 interface SubmissionGroup {
   date: number;
@@ -152,15 +154,21 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
     loadImages();
   });
 
+  const isDownloading = useState(false);
+
   const download = async () => {
-    if ($openedSubmission == null) return;
+    if ($openedSubmission == null || $isDownloading) return;
     const submission = $openedSubmission!;
+    $isDownloading = true;
+
+    const blob = await b2Service.downloadAsBlob('pixer-images', `${submission.albumId}/${submission.id}`);
+
+    if (blob == null) {
+      $isDownloading = false;
+      return;
+    }
 
     if (!Capacitor.isNativePlatform()) {
-      const blob = await b2Service.downloadAsBlob('pixer-images', `${submission.albumId}/${submission.id}`);
-
-      if (blob == null) return;
-
       const blobHref = URL.createObjectURL(blob);
       setTimeout(() => URL.revokeObjectURL(blobHref), 60 * 1000);
 
@@ -170,21 +178,40 @@ const AlbumSubmissionsPageComponent = Component((): UINode => {
       link.download = `${submission.id}.${submission.imageExt}`;
 
       link.click();
+    } else {
+      const albumName = `${$album?.name} (PiXer)`;
 
-      return;
+      try {
+        await Media.createAlbum({ name: albumName });
+      } catch {}
+
+      const { albums } = await Media.getAlbums();
+
+      const deviceAlbum = albums.find(album => album.name === albumName);
+      if (deviceAlbum == null) return;
+
+      const fileReader = new FileReader();
+
+      fileReader.onload = async () => {
+        if (typeof fileReader.result !== 'string') return;
+
+        await Media.savePhoto({
+          path: fileReader.result,
+          albumIdentifier: deviceAlbum.identifier,
+          fileName: submission.id
+        });
+
+        Toast.show({
+          text: 'Photo saved',
+          duration: 'short',
+          position: 'top'
+        });
+      };
+
+      fileReader.readAsDataURL(blob);
     }
 
-    const arrayBuffer = await b2Service.downloadAsArrayBuffer('pixer-images', `${submission.albumId}/${submission.id}`);
-    if (arrayBuffer == null) return null;
-
-    const file = await Filesystem.writeFile({
-      path: `${submission.id}.${submission.imageExt}`,
-      data: new TextDecoder().decode(arrayBuffer),
-      directory: Directory.Cache,
-      encoding: Encoding.UTF8
-    });
-
-    Share.share({ files: [file.uri] });
+    $isDownloading = false;
   };
 
   const hasImageControls = useState(true);

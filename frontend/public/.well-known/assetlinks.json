@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.spasimirpavlov.pixer",
+      "sha256_cert_fingerprints": [
+        "8B:52:06:83:BF:D7:BE:9D:04:BE:26:F4:5B:FF:97:F2:B2:D5:5B:E3:E4:7A:1E:1A:F5:F9:F4:D3:EE:79:BE:49"
+      ]
+    }
+  }
+]

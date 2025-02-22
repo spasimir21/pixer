@@ -31,6 +31,9 @@ import { B2ServiceManager } from '../../../service/B2Service';
 import { Image } from '@api/dto/image';
 import { makeReactive, runWithoutTracking, ValueNode } from '@lib/reactivity';
 import { formatDateAlt, formatTime, MonthTranslationKeys } from '../../../misc/date';
+import { Capacitor } from '@capacitor/core';
+import { Media } from '@capacitor-community/media';
+import { Toast } from '@capacitor/toast';
 
 interface ImageGroup {
   date: number;
@@ -165,16 +168,24 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
   const previewSources = useState({} as Record<string, string | null>);
   const sources = useState({} as Record<string, string | null>);
+  const blobs = useState({} as Record<string, Blob | null>);
+
+  const isDownloading = useState(false);
 
   const download = async () => {
-    if ($openedImage == null) return;
+    if ($openedImage == null || $isDownloading) return;
     const image = $openedImage!;
+    $isDownloading = true;
 
     let href = $sources[image.id];
+    let blob = $blobs[image.id];
 
     if (!image.isEncrypted) {
-      const blob = await b2Service.downloadAsBlob('pixer-images', `${image.albumId}/${image.id}`);
-      if (blob == null) return;
+      blob = await b2Service.downloadAsBlob('pixer-images', `${image.albumId}/${image.id}`);
+      if (blob == null) {
+        $isDownloading = false;
+        return;
+      }
 
       const blobHref = URL.createObjectURL(blob);
       setTimeout(() => URL.revokeObjectURL(blobHref), 60 * 1000);
@@ -182,14 +193,57 @@ const AlbumImagesPageComponent = Component((): UINode => {
       href = blobHref;
     }
 
-    if (href == null) return;
+    if (!Capacitor.isNativePlatform()) {
+      if (href == null) {
+        $isDownloading = false;
+        return;
+      }
 
-    const link = document.createElement('a');
-    link.target = '_blank';
-    link.href = href;
-    link.download = `${image.id}.${image.imageExt}`;
+      const link = document.createElement('a');
+      link.target = '_blank';
+      link.href = href;
+      link.download = `${image.id}.${image.imageExt}`;
 
-    link.click();
+      link.click();
+    } else {
+      if (blob == null) {
+        $isDownloading = false;
+        return;
+      }
+
+      const albumName = `${$album?.name} (PiXer)`;
+
+      try {
+        await Media.createAlbum({ name: albumName });
+      } catch {}
+
+      const { albums } = await Media.getAlbums();
+
+      const deviceAlbum = albums.find(album => album.name === albumName);
+      if (deviceAlbum == null) return;
+
+      const fileReader = new FileReader();
+
+      fileReader.onload = async () => {
+        if (typeof fileReader.result !== 'string') return;
+
+        await Media.savePhoto({
+          path: fileReader.result,
+          albumIdentifier: deviceAlbum.identifier,
+          fileName: image.id
+        });
+
+        Toast.show({
+          text: 'Photo saved',
+          duration: 'short',
+          position: 'top'
+        });
+      };
+
+      fileReader.readAsDataURL(blob);
+    }
+
+    $isDownloading = false;
   };
 
   useEffect(() => {
@@ -222,6 +276,7 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
       if ($sources[id] != null) URL.revokeObjectURL($sources[id]!);
       delete $sources[id];
+      delete $blobs[id];
     }
 
     $isDeletingImage = false;
@@ -370,6 +425,7 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
       const imageBlob = new Blob([decryptedImageData], { type: image.imageType });
       $sources[image.id] = URL.createObjectURL(imageBlob);
+      $blobs[image.id] = imageBlob;
     });
   });
 
