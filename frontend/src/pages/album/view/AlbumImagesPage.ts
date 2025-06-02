@@ -128,29 +128,32 @@ const AlbumImagesPageComponent = Component((): UINode => {
     return count;
   });
 
-  const loadImages = async () => {
-    if ($isLoading || !$shouldLoadMore) return;
-    $isLoading = true;
+  const loadImages = createReactiveCallback(
+    () => {},
+    async () => {
+      if ($isLoading || !$shouldLoadMore) return;
+      $isLoading = true;
 
-    const response = await apiService.send(requests.image.getImages, {
-      albumId: $album?.id ?? '',
-      filters: {
-        from: $hasFilters.from ? new Date($filters.from) : null,
-        upTo: $hasFilters.upTo ? new Date($filters.upTo) : null
-      },
-      skip: $imageCount
-    });
+      const response = await apiService.send(requests.image.getImages, {
+        albumId: $album?.id ?? '',
+        filters: {
+          from: $hasFilters.from ? new Date($filters.from) : null,
+          upTo: $hasFilters.upTo ? new Date($filters.upTo) : null
+        },
+        skip: $imageCount
+      });
 
-    if (response.error == null)
-      for (const image of response.result) {
-        loadPreviewSource(image);
-        insertImageReversed(image);
-      }
+      if (response.error == null)
+        for (const image of response.result) {
+          loadPreviewSource(image);
+          insertImageReversed(image);
+        }
 
-    if (response.error != null || response.result.length < 10) $shouldLoadMore = false;
+      if (response.error != null || response.result.length < 10) $shouldLoadMore = false;
 
-    $isLoading = false;
-  };
+      $isLoading = false;
+    }
+  );
 
   loadImages();
 
@@ -450,7 +453,7 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
   useEffect(
     createReactiveCallback(
-      () => ($hasFilters.from, $hasFilters.upTo, $filters.from, $filters.upTo),
+      () => ($hasFilters.from && $filters.from, $hasFilters.upTo && $filters.upTo),
       () => {
         $openedImageIndex = -1;
         $groupedImages = [];
