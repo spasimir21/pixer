@@ -5,6 +5,9 @@ const formatNumber = (n: number) => (n < 10 ? '0' : '') + n.toString();
 const formatDate = (date: Date) =>
   `${formatNumber(date.getDate())}/${formatNumber(date.getMonth() + 1)}/${date.getFullYear()}`;
 
+const formatDateInput = (date: Date) =>
+  `${date.getFullYear()}-${formatNumber(date.getMonth() + 1)}-${formatNumber(date.getDate())}`;
+
 const MonthTranslationKeys: TranslationKey[] = [
   'date.month.jan',
   'date.month.feb',
@@ -25,4 +28,4 @@ const formatDateAlt = (date: Date, l: (key: TranslationKey) => string) =>
 
 const formatTime = (date: Date) => `${formatNumber(date.getHours())}:${formatNumber(date.getMinutes())}`;
 
-export { formatDate, formatDateAlt, formatTime, MonthTranslationKeys };
+export { formatDate, formatDateInput, formatDateAlt, formatTime, MonthTranslationKeys };

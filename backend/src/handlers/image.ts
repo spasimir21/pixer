@@ -140,7 +140,7 @@ const APIImageHandlers: APIHandlers['image'] = {
       return false;
     }
   },
-  getImages: async ({ albumId, skip }, { userId }) => {
+  getImages: async ({ albumId, filters, skip }, { userId }) => {
     const images = await dbClient.image.findMany({
       where: {
         albumId,
@@ -150,6 +150,10 @@ const APIImageHandlers: APIHandlers['image'] = {
             { creatorId: toBuffer(userId) },
             { users: { some: { id: toBuffer(userId) } } }
           ]
+        },
+        imageDate: {
+          gte: filters.from ?? undefined,
+          lte: filters.upTo == null ? undefined : new Date(filters.upTo.getTime() + 24 * 60 * 60 * 1000)
         }
       },
       include: {

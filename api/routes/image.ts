@@ -41,6 +41,10 @@ const APIImage = apiRoutes({
       isAuthenticated: true,
       input: object({
         albumId: albumInfo.id,
+        filters: object({
+          from: nullable(date()),
+          upTo: nullable(date())
+        }),
         skip: int()
       }),
       result: array({ of: image })

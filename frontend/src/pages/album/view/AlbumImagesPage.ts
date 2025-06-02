@@ -11,11 +11,13 @@ import {
   faArrowUpFromBracket,
   faCaretLeft,
   faCaretRight,
+  faCross,
   faFileArrowDown,
   faInbox,
   faLock,
   faTrash,
-  faUnlock
+  faUnlock,
+  faXmark
 } from '@fortawesome/free-solid-svg-icons';
 import { useService } from '@lib/service';
 import { AuthenticationServiceManager } from '../../../service/AuthenticationService';
@@ -29,8 +31,8 @@ import { AlbumType } from '@api/dto/album';
 import { ProfileIconComponent } from '../../../components/ProfileIcon/ProfileIcon';
 import { B2ServiceManager } from '../../../service/B2Service';
 import { Image } from '@api/dto/image';
-import { makeReactive, runWithoutTracking, ValueNode } from '@lib/reactivity';
-import { formatDateAlt, formatTime, MonthTranslationKeys } from '../../../misc/date';
+import { createReactiveCallback, makeReactive, runWithoutTracking, ValueNode } from '@lib/reactivity';
+import { formatDate, formatDateAlt, formatDateInput, formatTime, MonthTranslationKeys } from '../../../misc/date';
 import { Capacitor } from '@capacitor/core';
 import { Media } from '@capacitor-community/media';
 import { Toast } from '@capacitor/toast';
@@ -58,6 +60,19 @@ const AlbumImagesPageComponent = Component((): UINode => {
   const route = useRoute();
 
   const album = useAlbum();
+
+  const fromFilterInput = useState(null as HTMLInputElement | null);
+  const upToFilterInput = useState(null as HTMLInputElement | null);
+
+  const hasFilters = useState({
+    from: false,
+    upTo: false
+  });
+
+  const filters = useState({
+    from: Date.now(),
+    upTo: Date.now()
+  });
 
   const isCollaborator = useComputed(() => {
     if (authService.user == null || $album == null) return false;
@@ -119,6 +134,10 @@ const AlbumImagesPageComponent = Component((): UINode => {
 
     const response = await apiService.send(requests.image.getImages, {
       albumId: $album?.id ?? '',
+      filters: {
+        from: $hasFilters.from ? new Date($filters.from) : null,
+        upTo: $hasFilters.upTo ? new Date($filters.upTo) : null
+      },
       skip: $imageCount
     });
 
@@ -429,6 +448,19 @@ const AlbumImagesPageComponent = Component((): UINode => {
     });
   });
 
+  useEffect(
+    createReactiveCallback(
+      () => ($hasFilters.from, $hasFilters.upTo, $filters.from, $filters.upTo),
+      () => {
+        $openedImageIndex = -1;
+        $groupedImages = [];
+
+        $shouldLoadMore = true;
+        loadImages();
+      }
+    )
+  );
+
   return html`
     ${ImageUpload({
       userPublicKeys,
@@ -576,6 +608,61 @@ const AlbumImagesPageComponent = Component((): UINode => {
     </div>
 
     <div class="flex-grow flex flex-col w-full overflow-y-auto" :this=${$pageDiv} @scroll=${onScroll}>
+      <div class="flex items-center gap-2 px-2 pt-4 pb-1">
+        <div
+          class="flex items-center rounded-full bg-gray-200 text-gray-700 w-fit gap-1 shadow-sm cursor-pointer relative px-3"
+          @click=${() => $fromFilterInput!.showPicker()}>
+          <div
+            @click=${(e: MouseEvent) => (e.stopPropagation(), ($hasFilters.from = false))}
+            class=${`z-50 inline ${$hasFilters.from ? '' : 'hidden'}`}>
+            ${Icon({
+              icon: faXmark,
+              fill: 'rgb(55 65 81)',
+              classes: 'w-3 -translate-y-[1px]'
+            })}
+          </div>
+
+          ${l('date.from')} ${$hasFilters.from ? ':' : ''}
+
+          <span class="font-bold" .hidden=${!$hasFilters.from}> ${formatDate(new Date($filters.from))} </span>
+
+          <input
+            class="opacity-0 absolute top-0 left-0"
+            type="date"
+            :this=${$fromFilterInput}
+            :valueAsNumber#=${$filters.from}
+            @change=${() => ($hasFilters.from = true)}
+            max=${formatDateInput($hasFilters.upTo ? new Date($filters.upTo) : new Date())} />
+        </div>
+
+        <div
+          class="flex items-center rounded-full bg-gray-200 text-gray-700 w-fit gap-1 shadow-sm cursor-pointer relative px-3"
+          @click=${() => $upToFilterInput!.showPicker()}>
+          <div
+            @click=${(e: MouseEvent) => (e.stopPropagation(), ($hasFilters.upTo = false))}
+            class=${`z-50 inline ${$hasFilters.upTo ? '' : 'hidden'}`}>
+            ${Icon({
+              icon: faXmark,
+              fill: 'rgb(55 65 81)',
+              classes: 'w-3 -translate-y-[1px]'
+            })}
+          </div>
+
+          ${l('date.upTo')} ${$hasFilters.upTo ? ':' : ''}
+
+          <span class="font-bold" .hidden=${!$hasFilters.upTo}> ${formatDate(new Date($filters.upTo))} </span>
+
+          <input
+            class="opacity-0 absolute top-0 left-0"
+            type="date"
+            :this=${$upToFilterInput}
+            :valueAsNumber#=${$filters.upTo}
+            @change=${() => ($hasFilters.upTo = true)}
+            max=${formatDateInput(new Date())}
+            min=${$hasFilters.from ? formatDateInput(new Date($filters.from)) : undefined} />
+        </div>
+      </div>
+
       <if ${!$isLoading && $imageCount === 0}>
         <p class="text-gray-400 text-lg text-center mt-3">${l('album.view.images.noImages')}</p>
       </if>

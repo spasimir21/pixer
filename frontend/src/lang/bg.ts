@@ -21,7 +21,9 @@ const BG: Translations = {
       oct: 'Октомври',
       nov: 'Ноември',
       dec: 'Декември'
-    }
+    },
+    from: 'От',
+    upTo: 'До'
   },
   home: {
     noAlbums: 'Нямате албуми',

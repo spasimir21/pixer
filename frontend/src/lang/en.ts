@@ -20,7 +20,9 @@ const EN = {
       oct: 'Oct',
       nov: 'Nov',
       dec: 'Dec'
-    }
+    },
+    from: 'From',
+    upTo: 'Up to'
   },
   home: {
     noAlbums: 'You currently have no albums',
